@@ -4,3 +4,20 @@
   font-style: normal;
   font-weight: bold;
 }
+.groups {
+  background-color: #66220B;
+  color: white;
+  padding: 8px 20px;
+  border-radius: 999px; /* Fully rounded button */
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.groups:hover {
+  background-color: #F09000; /* Change to orange on hover */
+  transform: scale(1.05); /* Slight scaling effect */
+}
+
+.groups:active {
+  background-color: #4A1509; /* Darker shade when clicked */
+  transform: scale(0.95); /* Slight shrink effect */
+}
