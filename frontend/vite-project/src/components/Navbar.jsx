@@ -131,7 +131,6 @@
 //               }}
 //             />
 
-
 //             {/* auth items for large screens */}
 //             <Box sx={{ display: { xs: "none", sm: "block" }, paddingRight: 2 }}>
 //               <Stack direction="row" spacing={2}>
@@ -204,43 +203,49 @@
 // };
 
 // export default Navbar;
-import React, { useState, useRef } from 'react';
-import { motion } from 'framer-motion';
-import logo from "/src/assets/brain_logo.png";
-import '../styles/Navbar.css';
+import React, { useState, useRef } from "react";
+import { motion } from "framer-motion";
+import logo from "../assets/brain_logo.png";
+import "../styles/Navbar.css";
+import { Link } from "react-router-dom";
+// import { Link as ScrollLink } from "react-scroll";
+
 const Navbar = () => {
   const [activeTab, setActiveTab] = useState("HOME");
 
   return (
-    <div style={{ backgroundColor: '#f09000' }} className="fixed top-0 left-0 w-full z-50 px-6 py-4 shadow-xl">
+    <div
+      style={{ backgroundColor: "#f09000" }}
+      className="fixed top-0 left-0 w-full z-50 px-6 py-4 shadow-xl"
+    >
       <div className="max-w-9xl mx-auto flex items-center justify-between">
         {/* Logo and Title */}
         <div className="flex items-center gap-3">
-          <img src={logo} alt="Mindpop Logo" className="h-12 w-auto" />
-          <span className="text-[#66220B] font-bold font-['Quicksand'] text-xl">
+          <Link to="/">
+            <img
+              src={logo}
+              alt="Mindpop Logo"
+              className="h-12 w-auto cursor-pointer"
+            />
+          </Link>
+
+          <span className="text-[#66220B] font-bold quicksand text-xl">
             Mindpop
           </span>
         </div>
 
         {/* Navigation */}
-        <div className="flex-1 flex justify-center bg-transparent">
+        <div className="flex-1 flex justify-center bg-transparent quicksand">
           <SlideTabs activeTab={activeTab} setActiveTab={setActiveTab} />
         </div>
 
         {/* Auth Buttons */}
-        <div className="flex gap-3">
-          <button
-            className="groups"
-            onClick={() => setActiveTab("Sign Up")}
-          >
-            Sign Up
-          </button>
-          <button
-            className="groups"
-            onClick={() => setActiveTab("Login")}
-          >
-            Login
-          </button>
+        <div className="flex gap-3 quicksand">
+          <Link to="/sign-in">
+            <button className="groups" onClick={() => setActiveTab("Sign Up")}>
+              Sign In
+            </button>
+          </Link>
         </div>
       </div>
     </div>
@@ -259,7 +264,7 @@ const SlideTabs = ({ activeTab, setActiveTab }) => {
   return (
     <nav
       onMouseLeave={() => {
-        setHoverPosition(prev => ({ ...prev, opacity: 0 }));
+        setHoverPosition((prev) => ({ ...prev, opacity: 0 }));
       }}
       className="relative flex items-center border-2 rounded-full px-1 py-1 bg-transparent"
     >
@@ -302,7 +307,11 @@ const Tab = ({ children, setHoverPosition, isActive, onClick }) => {
       className={`
         relative z-10 px-6 py-2 text-base font-['Quicksand'] transition-colors
         duration-200 text-[#F09000] whitespace-nowrap rounded-full
-        ${isActive ? 'bg-transparent text-white' : 'hover: text-wheat rounded-full'}
+        ${
+          isActive
+            ? "bg-transparent text-white"
+            : "hover: text-wheat rounded-full"
+        }
       `}
     >
       {children}

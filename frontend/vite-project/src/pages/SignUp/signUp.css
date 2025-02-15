@@ -1,0 +1,133 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 140vh;
+  background: #f9f0d0;
+}
+
+#root {
+  width: 100%;
+  padding: 0 0.6rem;
+}
+
+.login-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  max-width: 410px;
+  width: 100%;
+  margin: 0 auto;
+  border-radius: 0.5rem;
+  background: #ffff;
+  padding: 2rem 1.5rem;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.login-container .form-title {
+  text-align: center;
+  font-size: 1.37rem;
+  font-weight: 600;
+  margin-bottom: 1.87rem;
+}
+
+.login-container .social-login {
+  display: flex;
+  gap: 1.31rem;
+  justify-content: center;
+}
+
+.social-login .social-abbreviation {
+  display: flex;
+  gap: 0.81rem;
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 0.75rem 0;
+  align-items: center;
+  justify-content: center;
+}
+
+.social-login .social-icon {
+  width: 23px;
+}
+
+.login-form {
+  width: 100%;
+}
+
+.input-wrapper {
+  position: relative;
+  margin-bottom: 1.5rem;
+}
+
+.input-field {
+  width: 100%;
+  padding-left: 2.5rem; 
+  padding-right: 1rem; 
+  padding-top: 0.8rem; 
+  padding-bottom: 0.8rem; 
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 0.25rem;
+}
+
+.input-wrapper i {
+  position: absolute;
+  left: 1rem; 
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.2rem; 
+}
+
+.forgot-pass-link {
+  display: block;
+  text-align: center;
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  color: #4a90e2;
+}
+
+.login-button {
+  width: 100%;
+  padding: 1rem;
+  background-color: #4a90e2;
+  border: none;
+  color: white;
+  font-size: 1rem;
+  cursor: pointer;
+  border-radius: 0.25rem;
+  transition: background-color 0.3s ease;
+}
+
+.login-button:hover {
+  background-color: #357ab7;
+}
+
+.login-button:active {
+  transform: scale(0.98);
+}
+
+.signup-text {
+  text-align: center;
+  margin-top: 1.5rem;
+  font-size: 0.9rem;
+}
+
+.signup-text a {
+  color: #4a90e2;
+}
+
+.small-heading {
+  font-size: 0.875rem;
+  text-align: center;
+  margin: 1rem 0;
+  font-weight: 400;
+  color: #666;
+}

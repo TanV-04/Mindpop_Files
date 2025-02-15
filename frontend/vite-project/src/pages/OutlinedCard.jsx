@@ -13,7 +13,7 @@ export default function OutlinedCard({ checked }) {
           backgroundColor: "transparent",
           border: "1px solid #66220B",
           borderRadius: "16px", 
-          margin: "30px",
+          // margin: "30px",
           boxShadow: "0px 6px 15px rgba(0, 0, 0, 0.25)", 
         }}
       >
@@ -27,7 +27,7 @@ export default function OutlinedCard({ checked }) {
               fontSize: "2rem", 
               lineHeight: "1.4",
             }}
-            variant="h5"
+            variant="h9"
             component="div"
           >
             About Us
@@ -38,7 +38,7 @@ export default function OutlinedCard({ checked }) {
               color: "#66220B",
               fontSize: "1.37rem", 
               lineHeight: "1.8",
-              maxWidth: "800px",
+              maxWidth: "950px",
               margin: "0 auto", 
             }}
           >
