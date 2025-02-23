@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { CssBaseline, Box, IconButton, Collapse } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import AboutUs from "./AboutUs";
+import AboutUs from "./AboutUs.jsx";
 
 const Home = () => {
   const [checked, setChecked] = useState(false);
@@ -23,11 +23,10 @@ const Home = () => {
         alignItems: "center",
         flexDirection: "column",
         position: "relative",
-        padding: "2rem", 
+        padding: "2rem",
       }}
       id="header"
     >
-      {/* Static Header Section */}
       <Box
         sx={{
           position: "absolute",
@@ -39,23 +38,41 @@ const Home = () => {
       >
         <CssBaseline />
         <Collapse in={checked} timeout={1000} collapsedHeight={50}>
-          <img
-            src="https://vincentgarreau.com/particles.js/assets/img/kbLd9vb_new.gif"
-            style={{
-              width: "800px",
-              height: "auto",
-              objectFit: "contain",
+          <Box
+            sx={{
+              width: "100%",
+              height: "100vh",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              transition: "all 0.5s ease",
             }}
-          />
-          <Box sx={{ color: "#66220B" }}>
-            <h1 className="text-center quicksand font-bold uppercase tracking-wider mb-5 text-4xl sm:text-5xl md:text-6xl lg:text-7xl">
-              Mindpop
-            </h1>
+          >
+            <img
+              src="https://vincentgarreau.com/particles.js/assets/img/kbLd9vb_new.gif"
+              style={{
+                width: "100%",
+                height: "auto",
+                objectFit: "contain",
+                maxWidth: "100%",
+              }}
+            />
+            <Box
+              sx={{
+                color: "#66220B",
+                textAlign: "center",
+                padding: { xs: 2, sm: 3, md: 4 },
+              }}
+            >
+              <h1 className="quicksand font-bold uppercase tracking-wider mb-5 sm:text-7xl md:text-8xl lg:text-8xl">
+                Mindpop
+              </h1>
+            </Box>
+            <IconButton sx={{ animation: "bounce 2s infinite" }}>
+              <ExpandMoreIcon sx={{ color: "#66220B", fontSize: "2rem" }} />
+            </IconButton>
           </Box>
-
-          <IconButton sx={{ animation: "bounce 2s infinite" }}>
-            <ExpandMoreIcon sx={{ color: "#66220B", fontSize: "2rem" }} />
-          </IconButton>
         </Collapse>
       </Box>
 
@@ -63,11 +80,12 @@ const Home = () => {
       <Box
         sx={{
           width: "100%",
-          marginTop: "80vh", 
-          paddingTop: "10rem"
+          marginTop: "10rem",
+          // paddingTop: "10rem",
+          paddingTop: "2rem"
         }}
       >
-        <AboutUs />
+       <AboutUs />
       </Box>
     </div>
   );
