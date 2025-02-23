@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import googleLogo from "../../assets/google.svg";
-import "../SignIn/signIn.css";
+import "./signIn.css";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
