@@ -30,6 +30,10 @@ const AboutUs = () => {
           width: "100%",
           maxWidth: "1200px",
           padding: { xs: "1rem", sm: "2rem", md: "2rem" },
+<<<<<<< HEAD
+          margin: 0
+=======
+>>>>>>> main
         }}
       >
         {/* Left Side (Text) */}
