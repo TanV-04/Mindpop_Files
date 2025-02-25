@@ -1,5 +1,5 @@
-import  { useState } from 'react';
-import ResultsAnalysis from './ResultsAnalysis';
+import { useState } from 'react';
+import ResultsAnalysis from './ResultAnalysis';
 
 const ScoreBoard = ({ time, age, onPlayAgain }) => {
   const [showAnalysis, setShowAnalysis] = useState(false);

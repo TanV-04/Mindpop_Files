@@ -1,5 +1,4 @@
 
-
 const Shape = ({ type, isOutline = false }) => {
   // Colors for shapes - matching the physical puzzle colors
   const shapeColors = {
