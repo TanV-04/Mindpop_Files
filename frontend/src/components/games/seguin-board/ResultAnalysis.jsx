@@ -1,4 +1,4 @@
-
+// import React from 'react';
 import { performanceBenchmarks } from '../../../constants/gameConstants';
 
 const ResultsAnalysis = ({ time, age, isVisible = false }) => {
