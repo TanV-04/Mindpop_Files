@@ -17,7 +17,13 @@ export default [
         sourceType: 'module',
       },
     },
-    settings: { react: { version: '18.3' } },
+    settings: { 
+      react: { 
+        version: '18.3',
+        // Enable automatic detection of required props
+        propWrapperFunctions: ['forbidExtraProps', 'exact', 'Object.freeze'],
+      } 
+    },
     plugins: {
       react,
       'react-hooks': reactHooks,
@@ -33,6 +39,12 @@ export default [
         'warn',
         { allowConstantExport: true },
       ],
+      // Add specific rules for prop validation
+      'react/prop-types': ['error', { skipUndeclared: true }],
+      'react/require-default-props': 'warn',
+      'react/default-props-match-prop-types': 'warn',
+      // Turn off temporarily if getting too many errors
+      'react/no-unused-prop-types': 'warn',
     },
   },
 ]
