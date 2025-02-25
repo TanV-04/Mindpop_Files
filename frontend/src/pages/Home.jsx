@@ -12,7 +12,7 @@ const Home = () => {
 
   return (
     <div
-      style={{
+      style={{  
         backgroundColor: "#F9F0D0",
         minHeight: "100vh",
         height: "100vh",
