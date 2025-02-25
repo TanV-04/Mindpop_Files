@@ -203,15 +203,175 @@
 // };
 
 // export default Navbar;
-import React, { useState, useRef } from "react";
+// import React, { useState, useRef } from "react";
+// import { motion } from "framer-motion";
+// import logo from "../assets/brain_logo.png";
+// import "../styles/Navbar.css";
+// import { Link } from "react-router-dom";
+// // import { Link as ScrollLink } from "react-scroll";
+
+// const Navbar = () => {
+//   const [activeTab, setActiveTab] = useState("HOME");
+
+//   return (
+//     <div
+//       style={{ backgroundColor: "#f09000" }}
+//       className="fixed top-0 left-0 w-full z-50 px-6 py-4 shadow-xl"
+//     >
+//       <div className="max-w-9xl mx-auto flex items-center justify-between">
+//         {/* Logo and Title */}
+//         <div className="flex items-center gap-3">
+//           <Link to="/">
+//             <img
+//               src={logo}
+//               alt="Mindpop Logo"
+//               className="h-12 w-auto cursor-pointer"
+//             />
+//           </Link>
+
+//           <span className="text-[#66220B] font-bold quicksand text-xl">
+//             Mindpop
+//           </span>
+//         </div>
+
+//         {/* Navigation */}
+//         <div className="flex-1 flex justify-center bg-transparent quicksand">
+//           <SlideTabs activeTab={activeTab} setActiveTab={setActiveTab} />
+//         </div>
+
+//         {/* Auth Buttons */}
+//         <div className="flex gap-3 quicksand">
+//           <Link to="/sign-in">
+//             <button className="groups" onClick={() => setActiveTab("Sign Up")}>
+//               Sign In
+//             </button>
+//           </Link>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// };
+
+// const SlideTabs = ({ activeTab, setActiveTab }) => {
+//   const [hoverPosition, setHoverPosition] = useState({
+//     left: 0,
+//     width: 0,
+//     opacity: 0,
+//   });
+
+//   const tabs = ["HOME", "ABOUT", "GAMES", "SETTINGS"];
+
+//   return (
+//     <nav
+//       onMouseLeave={() => {
+//         setHoverPosition((prev) => ({ ...prev, opacity: 0 }));
+//       }}
+//       className="relative flex items-center border-2 rounded-full px-1 py-1 bg-transparent"
+//     >
+//       {tabs.map((tab) => (
+//         <Tab
+//           key={tab}
+//           isActive={activeTab === tab}
+//           onClick={() => setActiveTab(tab)}
+//           setHoverPosition={setHoverPosition}
+//         >
+//           {tab}
+//         </Tab>
+//       ))}
+//       <motion.div
+//         animate={hoverPosition}
+//         initial={false}
+//         className="absolute z-0 rounded-full transition-opacity duration-200"
+//         style={{ backgroundColor: "#66220B", height: "85%" }}
+//       />
+//     </nav>
+//   );
+// };
+
+// const Tab = ({ children, setHoverPosition, isActive, onClick }) => {
+//   const ref = useRef(null);
+
+//   return (
+//     <button
+//       ref={ref}
+//       onMouseEnter={() => {
+//         if (!ref.current) return;
+//         const { width } = ref.current.getBoundingClientRect();
+//         setHoverPosition({
+//           width,
+//           opacity: 1,
+//           left: ref.current.offsetLeft,
+//         });
+//       }}
+//       onClick={onClick}
+//       className={`
+//         relative z-10 px-6 py-2 text-base font-['Quicksand'] transition-colors
+//         duration-200 text-[#F09000] whitespace-nowrap rounded-full
+//         ${
+//           isActive
+//             ? "bg-transparent text-white"
+//             : "hover: text-wheat rounded-full"
+//         }
+//       `}
+//     >
+//       {children}
+//     </button>
+//   );
+// };
+
+// export default Navbar;
+
+
+import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import logo from "../assets/brain_logo.png";
 import "../styles/Navbar.css";
-import { Link } from "react-router-dom";
-// import { Link as ScrollLink } from "react-scroll";
+import { Link, useNavigate } from "react-router-dom";
 
 const Navbar = () => {
   const [activeTab, setActiveTab] = useState("HOME");
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const navigate = useNavigate();
+
+  // Check authentication status
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    setIsLoggedIn(!!token);
+  }, []);
+
+  // Handle logout
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    setIsLoggedIn(false);
+    navigate('/');
+  };
+
+  // Handle tab click
+  const handleTabClick = (tab) => {
+    setActiveTab(tab);
+    
+    // Navigate based on tab
+    switch(tab) {
+      case 'HOME':
+        navigate('/');
+        break;
+      case 'GAMES':
+        if (isLoggedIn) {
+          navigate('/games');
+        } else {
+          navigate('/sign-in');
+        }
+        break;
+      case 'ABOUT':
+        navigate('/about');
+        break;
+      case 'SETTINGS':
+        navigate('/settings');
+        break;
+      default:
+        break;
+    }
+  };
 
   return (
     <div
@@ -236,23 +396,32 @@ const Navbar = () => {
 
         {/* Navigation */}
         <div className="flex-1 flex justify-center bg-transparent quicksand">
-          <SlideTabs activeTab={activeTab} setActiveTab={setActiveTab} />
+          <SlideTabs activeTab={activeTab} onTabClick={handleTabClick} />
         </div>
 
         {/* Auth Buttons */}
         <div className="flex gap-3 quicksand">
-          <Link to="/sign-in">
-            <button className="groups" onClick={() => setActiveTab("Sign Up")}>
-              Sign In
+          {isLoggedIn ? (
+            <button 
+              className="groups" 
+              onClick={handleLogout}
+            >
+              Logout
             </button>
-          </Link>
+          ) : (
+            <Link to="/sign-in">
+              <button className="groups">
+                Sign In
+              </button>
+            </Link>
+          )}
         </div>
       </div>
     </div>
   );
 };
 
-const SlideTabs = ({ activeTab, setActiveTab }) => {
+const SlideTabs = ({ activeTab, onTabClick }) => {
   const [hoverPosition, setHoverPosition] = useState({
     left: 0,
     width: 0,
@@ -272,7 +441,7 @@ const SlideTabs = ({ activeTab, setActiveTab }) => {
         <Tab
           key={tab}
           isActive={activeTab === tab}
-          onClick={() => setActiveTab(tab)}
+          onClick={() => onTabClick(tab)}
           setHoverPosition={setHoverPosition}
         >
           {tab}
