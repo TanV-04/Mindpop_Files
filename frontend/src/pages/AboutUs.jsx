@@ -1,5 +1,5 @@
 import { Box } from "@mui/material";
-import React from "react";
+//import React from "react";
 import OutlinedCard from "./OutlinedCard.jsx";
 import useWindowPosition from "../hooks/useWindowPosition.js";
 import testImg from "/src/assets/adhd_img.png"
