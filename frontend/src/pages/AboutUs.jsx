@@ -23,7 +23,6 @@ const AboutUs = () => {
     >
       <Box
         sx={{
-          
           display: "flex",
           flexDirection: { xs: "column", md: "row" }, 
           alignItems: "center",
