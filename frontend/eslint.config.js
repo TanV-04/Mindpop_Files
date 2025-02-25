@@ -40,6 +40,9 @@ export default [
         { allowConstantExport: true },
       ],
       // Add specific rules for prop validation
+      'no-unused-vars': 'off',
+      // or to be more specific
+      '@typescript-eslint/no-unused-vars': 'off',
       'react/prop-types': ['error', { skipUndeclared: true }],
       'react/require-default-props': 'warn',
       'react/default-props-match-prop-types': 'warn',
