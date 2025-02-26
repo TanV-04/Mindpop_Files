@@ -23,6 +23,7 @@
     "flowbite-react": "^0.10.2",
     "helmet": "^7.0.0",
     "jsonwebtoken": "^9.0.0",
+    "lucide-react": "^0.476.0",
     "mongoose": "^8.10.1",
     "particles.js": "^2.0.0",
     "react": "^18.3.1",

@@ -16,6 +16,7 @@ const Board = ({ onComplete }) => {
     isVisible: false, 
     position: null
   });
+  const [gameComplete, setGameComplete] = useState(false);
   const boardRef = useRef(null);
   const shapesContainerRef = useRef(null);
 
@@ -38,36 +39,42 @@ const Board = ({ onComplete }) => {
     
     // Reset placed shapes
     setPlacedShapes([]);
+    setGameComplete(false);
     
     console.log(`Game initialized with ${gameShapes.length} shapes - SHOULD BE 10`);
   }, []);
 
-  // LAST-RESORT FIX: Separate useEffect specifically for checking completion
+  // Check for game completion
   useEffect(() => {
     // We need exactly 10 shapes placed to complete
-    if (placedShapes.length === 10) {
+    if (placedShapes.length === 10 && !gameComplete) {
       console.log("⭐⭐⭐ COMPLETION CRITERIA MET: ALL 10 SHAPES PLACED ⭐⭐⭐");
+      
+      setGameComplete(true);
+      
+      // Add confetti effect
+      showCompletionConfetti();
       
       // Safety delay to ensure UI updates first
       setTimeout(() => {
         console.log("Calling onComplete after all 10 shapes placed");
         onComplete();
-      }, 1000);
+      }, 1500);
     } else {
       console.log(`Progress update: ${placedShapes.length}/10 shapes placed`);
     }
-  }, [placedShapes.length, onComplete]);
+  }, [placedShapes.length, onComplete, gameComplete]);
+
+  const showCompletionConfetti = () => {
+    // This function would be implemented with a confetti library
+    // For now we'll just log it
+    console.log("Showing completion confetti!");
+  };
 
   const handleDragStart = (e, shape) => {
     e.preventDefault();
     
     if (!boardRef.current) return;
-    
-    // Get the center of the shape
-    // const shapeCenter = e.shapeCenter || {
-    //   x: e.clientX,
-    //   y: e.clientY
-    // };
     
     // Update shape's dragPosition to match cursor
     setDragPosition({
@@ -85,6 +92,9 @@ const Board = ({ onComplete }) => {
       pickupSound.volume = 0.3;
       pickupSound.play().catch(e => console.log('Audio play failed:', e));
     }
+    
+    // Add subtle scaling animation to dragged shape
+    document.documentElement.style.setProperty('--scale-drag', '1.05');
     
     // Mark the shape as being dragged
     setAvailableShapes(prevShapes => 
@@ -107,7 +117,7 @@ const Board = ({ onComplete }) => {
       y: e.clientY
     });
     
-    // Update the shape's position (but don't render it twice - rendering happens in a dedicated div)
+    // Update the shape's position
     setAvailableShapes(prevShapes => 
       prevShapes.map(shape => 
         shape.id === activeShape.id 
@@ -117,7 +127,7 @@ const Board = ({ onComplete }) => {
                 x: e.clientX - boardRef.current.getBoundingClientRect().left,
                 y: e.clientY - boardRef.current.getBoundingClientRect().top
               },
-              isDragging: true // Mark as being dragged so we don't render it in the tray
+              isDragging: true
             } 
           : shape
       )
@@ -126,6 +136,9 @@ const Board = ({ onComplete }) => {
 
   const handleMouseUp = (e) => {
     if (!isDragging || !activeShape || !boardRef.current) return;
+
+    // Reset scaling animation
+    document.documentElement.style.setProperty('--scale-drag', '1');
 
     // Get current board dimensions
     const boardRect = boardRef.current.getBoundingClientRect();
@@ -138,7 +151,14 @@ const Board = ({ onComplete }) => {
       e.clientY <= boardRect.bottom;
     
     if (!isOverBoard) {
-      // Return shape to tray if dropped outside board
+      // Return shape to tray if dropped outside board with a bounce effect
+      const returnSound = document.getElementById('return-sound');
+      if (returnSound) {
+        returnSound.currentTime = 0;
+        returnSound.volume = 0.2;
+        returnSound.play().catch(e => console.log('Audio play failed:', e));
+      }
+      
       setAvailableShapes(prevShapes => 
         prevShapes.map(shape => 
           shape.id === activeShape.id 
@@ -202,6 +222,7 @@ const Board = ({ onComplete }) => {
           const successSound = document.getElementById('success-sound');
           if (successSound) {
             successSound.currentTime = 0;
+            successSound.volume = 0.4;
             successSound.play().catch(e => console.log('Audio play failed:', e));
           }
           
@@ -209,20 +230,20 @@ const Board = ({ onComplete }) => {
           setTimeout(() => {
             setFeedbackState({ isVisible: false, position: null });
           }, 1000);
-          
-          // Check if all 10 shapes are placed
-          if (newPlacedShapes.length === 10) {
-            console.log("✅ ALL 10 SHAPES PLACED - GAME COMPLETE!");
-            setTimeout(() => {
-              onComplete();
-            }, 1000);
-          }
         }
       }
     });
     
     if (!foundMatch) {
       console.log(`Shape ${activeShape.type} returned to tray`);
+      
+      // Play error sound for wrong placement
+      const errorSound = document.getElementById('error-sound');
+      if (errorSound) {
+        errorSound.currentTime = 0;
+        errorSound.volume = 0.2;
+        errorSound.play().catch(e => console.log('Audio play failed:', e));
+      }
       
       // Reset the shape position back to its original spot in the tray
       setAvailableShapes(prevShapes => 
@@ -239,32 +260,58 @@ const Board = ({ onComplete }) => {
     setActiveShape(null);
   };
 
+  // Calculate progress percentage
+  const progressPercentage = (placedShapes.length / 10) * 100;
+
   return (
     <div className="game-board-container max-w-6xl mx-auto">
+      {/* Progress indicator */}
+      <div className="mb-4 px-2">
+        <div className="flex justify-between items-center mb-1">
+          <span className="text-sm font-semibold text-gray-700">Progress</span>
+          <span className="text-sm font-medium text-indigo-600">{placedShapes.length}/10 shapes</span>
+        </div>
+        <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+          <div 
+            className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full transition-all duration-500 ease-out"
+            style={{ width: `${progressPercentage}%` }}
+          ></div>
+        </div>
+      </div>
+      
       <div className="flex flex-col md:flex-row gap-6">
-        {/* Shapes tray - styled like a wooden tray */}
+        {/* Shapes tray - styled with elegant wooden appearance */}
         <div 
           ref={shapesContainerRef}
-          className="shapes-tray relative border-4 rounded-lg p-4 md:w-1/3 h-64 md:h-[450px] overflow-visible shadow-lg"
+          className="shapes-tray relative border-4 rounded-lg p-4 md:w-1/3 h-64 md:h-[450px] overflow-visible transition-all duration-300"
           style={{
-            backgroundColor: '#f5e6c8', // Lighter wood color for tray
-            borderColor: '#9e6240', // Medium brown for border
-            boxShadow: 'inset 0 0 15px rgba(0,0,0,0.1), 0 8px 20px rgba(0,0,0,0.15)'
+            backgroundColor: '#f8eed8', // Lighter, warmer wood color
+            borderColor: '#8b5a2b', // Richer brown for border
+            boxShadow: 'inset 0 0 15px rgba(0,0,0,0.1), 0 8px 20px rgba(0,0,0,0.15), 0 4px 6px rgba(139,90,43,0.2)',
+            borderImage: 'linear-gradient(45deg, #8b5a2b, #bb906b, #8b5a2b) 1'
           }}
         >
-          <h3 className="text-lg font-bold text-[#66220B] mb-4 text-center">Shapes</h3>
+          <h3 className="text-lg font-bold text-[#5d4037] mb-4 text-center">Shapes</h3>
           
-          {/* Wood grain texture overlay */}
-          <div className="absolute inset-0 pointer-events-none opacity-10" 
+          {/* Wood grain texture overlay - improved with more subtle texture */}
+          <div className="absolute inset-0 pointer-events-none opacity-15" 
             style={{
               backgroundImage: 'url("https://www.transparenttextures.com/patterns/wood-pattern.png")',
+              backgroundSize: '200px',
               borderRadius: '0.5rem',
               mixBlendMode: 'multiply'
             }}>
           </div>
           
-          {/* Draggable shapes */}
-          <div className="draggable-shapes-container relative h-full">
+          {/* Subtle inner shadow for depth */}
+          <div className="absolute inset-4 pointer-events-none rounded-md" 
+            style={{
+              boxShadow: 'inset 0 0 10px rgba(0,0,0,0.1)'
+            }}>
+          </div>
+          
+          {/* Draggable shapes container with vertical centering when empty */}
+          <div className="draggable-shapes-container relative h-full flex flex-wrap justify-center content-start gap-2">
             {availableShapes.map(shape => (
               <ShapeContainer
                 key={shape.id}
@@ -275,29 +322,35 @@ const Board = ({ onComplete }) => {
               />
             ))}
             
-            {/* Empty state when all shapes are placed */}
+            {/* Empty state when all shapes are placed - with celebratory styling */}
             {availableShapes.length === 0 && (
-              <div className="flex items-center justify-center h-full">
-                <p className="text-green-600 text-center font-bold">
-                  All shapes placed!<br />Great job!
-                </p>
+              <div className="flex items-center justify-center h-full w-full">
+                <div className="text-center bg-green-50 p-4 rounded-lg shadow-inner">
+                  <p className="text-green-600 font-bold text-lg mb-1">
+                    All shapes placed!
+                  </p>
+                  <p className="text-green-500">
+                    Great job! You completed the puzzle.
+                  </p>
+                </div>
               </div>
             )}
           </div>
         </div>
         
-        {/* Board container - styled like a wooden board */}
+        {/* Board container - styled with premium wooden board appearance */}
         <div 
           ref={boardRef}
-          className="board-container relative w-full md:w-2/3 rounded-lg p-4 mb-8 shadow-lg"
+          className="board-container relative w-full md:w-2/3 rounded-lg p-4 mb-8 transition-all duration-300"
           style={{ 
             height: '450px',
             touchAction: 'none',
             overflow: 'hidden',
-            backgroundColor: '#e0c097', // Woody board color
-            borderColor: '#9e6240', // Medium brown for border
+            backgroundColor: '#deb887', // Rich butterscotch wood color
+            borderColor: '#795548', // Deep brown for border
             borderWidth: '8px',
-            boxShadow: 'inset 0 0 15px rgba(0,0,0,0.1), 0 8px 20px rgba(0,0,0,0.15)'
+            boxShadow: 'inset 0 0 20px rgba(0,0,0,0.15), 0 10px 30px rgba(0,0,0,0.2), 0 6px 10px rgba(121,85,72,0.25)',
+            backgroundImage: 'radial-gradient(#e6cda7, #deb887)'
           }}
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
@@ -311,44 +364,61 @@ const Board = ({ onComplete }) => {
           }}
           onTouchEnd={handleMouseUp}
         >
-          {/* Hidden audio elements for game sounds */}
+          {/* Hidden audio elements with improved sound effects */}
           <audio id="success-sound" preload="auto" src="https://cdn.freesound.org/previews/320/320181_5260872-lq.mp3"></audio>
           <audio id="pickup-sound" preload="auto" src="https://cdn.freesound.org/previews/47/47252_394625-lq.mp3"></audio>
+          <audio id="error-sound" preload="auto" src="https://cdn.freesound.org/previews/369/369515_5260872-lq.mp3"></audio>
+          <audio id="return-sound" preload="auto" src="https://cdn.freesound.org/previews/240/240776_4501967-lq.mp3"></audio>
+          <audio id="complete-sound" preload="auto" src="https://cdn.freesound.org/previews/320/320655_5260872-lq.mp3"></audio>
         
-          {/* Wood grain texture overlay */}
-          <div className="absolute inset-0 pointer-events-none opacity-10" 
+          {/* Wood grain texture overlay - improved with more detailed grain */}
+          <div className="absolute inset-0 pointer-events-none opacity-20" 
             style={{
               backgroundImage: 'url("https://www.transparenttextures.com/patterns/wood-pattern.png")',
+              backgroundSize: '300px',
               borderRadius: '0.5rem',
               mixBlendMode: 'multiply'
             }}>
           </div>
           
-          {/* Currently dragged shape (rendered above everything else) */}
+          {/* Subtle board highlights for 3D effect */}
+          <div className="absolute inset-0 pointer-events-none" 
+            style={{
+              backgroundImage: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 50%, rgba(0,0,0,0.05) 100%)'
+            }}>
+          </div>
+          
+          {/* Board title */}
+          <h3 className="text-lg font-bold text-[#5d4037] mb-4 text-center absolute top-2 left-0 right-0 pointer-events-none">
+            Puzzle Board
+          </h3>
+          
+          {/* Currently dragged shape with improved styling */}
           {isDragging && activeShape && (
             <div 
               className="absolute z-50 pointer-events-none"
               style={{
                 top: dragPosition.y - boardRef.current.getBoundingClientRect().top,
                 left: dragPosition.x - boardRef.current.getBoundingClientRect().left,
-                transform: 'translate(-50%, -50%)',
+                transform: 'translate(-50%, -50%) scale(var(--scale-drag, 1))',
                 width: '80px',
                 height: '80px',
-                filter: 'drop-shadow(2px 5px 4px rgba(0,0,0,0.3))'
+                filter: 'drop-shadow(2px 8px 6px rgba(0,0,0,0.4))',
+                transition: 'transform 0.05s ease-out'
               }}
             >
               <Shape type={activeShape.type} />
             </div>
           )}
           
-          {/* Feedback component for successful placements */}
+          {/* Enhanced feedback component for successful placements */}
           <PlacementFeedback 
             isVisible={feedbackState.isVisible} 
             position={feedbackState.position} 
           />
           
-          {/* Shape outlines on the board */}
-          <div className="outlines-container grid grid-cols-4 grid-rows-3 gap-1 h-full">
+          {/* Shape outlines on the board with improved grid layout */}
+          <div className="outlines-container grid grid-cols-4 grid-rows-3 gap-2 h-full mt-4">
             {boardShapes.map(shape => (
               <ShapeOutline 
                 key={shape.id}
@@ -357,8 +427,48 @@ const Board = ({ onComplete }) => {
               />
             ))}
           </div>
+          
+          {/* Completion overlay - shown when game is complete */}
+          {gameComplete && (
+            <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 animate-fade-in">
+              <div className="bg-white p-6 rounded-lg text-center shadow-xl transform animate-bounce-in">
+                <h3 className="text-2xl font-bold text-indigo-700 mb-2">
+                  Puzzle Complete!
+                </h3>
+                <p className="text-gray-700">
+                  You've successfully placed all the shapes!
+                </p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
+      
+      {/* Added global CSS for animations */}
+      <style jsx global>{`
+        @keyframes bounce-in {
+          0% { transform: scale(0.8); opacity: 0; }
+          50% { transform: scale(1.05); }
+          100% { transform: scale(1); opacity: 1; }
+        }
+        @keyframes fade-in {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        .animate-bounce-in {
+          animation: bounce-in 0.6s ease-out forwards;
+        }
+        .animate-fade-in {
+          animation: fade-in 0.4s ease-out forwards;
+        }
+        .shape-outline {
+          transition: all 0.3s ease-out;
+        }
+        .shape-filled {
+          transform: scale(1.05);
+          transition: transform 0.5s ease-out;
+        }
+      `}</style>
     </div>
   );
 };
