@@ -1,5 +1,6 @@
 import { useLayoutEffect, useState } from "react";
 
+// Original animation trigger functionality
 export default function useWindowPosition(id) {
   const [animation, setAnimation] = useState(false);
 
@@ -31,4 +32,32 @@ export default function useWindowPosition(id) {
   return animation;
 }
 
-// this is a custom hook is used to trigger an animation or some other state change when a specific element comes into view as the user scrolls down the page
+// Added scroll position tracker for the game - with a different name
+export const useScrollPosition = () => {
+  const [scrollPosition, setScrollPosition] = useState({
+    scrollX: 0,
+    scrollY: 0,
+  });
+
+  useLayoutEffect(() => {
+    const handleScroll = () => {
+      setScrollPosition({
+        scrollX: window.scrollX,
+        scrollY: window.scrollY,
+      });
+    };
+
+    // Add scroll event listener
+    window.addEventListener('scroll', handleScroll, { passive: true });
+
+    // Initial position
+    handleScroll();
+
+    // Clean up event listener
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
+
+  return scrollPosition;
+};

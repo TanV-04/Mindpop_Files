@@ -1,3 +1,5 @@
+# Ignore all .env files
+.env*
 # Logs
 logs
 *.log
@@ -6,6 +8,9 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
+combined.log
+error.log
+
 
 node_modules
 dist
@@ -22,3 +27,5 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+.env
+
