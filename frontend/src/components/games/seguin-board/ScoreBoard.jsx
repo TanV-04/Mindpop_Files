@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import ResultsAnalysis from './ResultAnalysis';
+import { Trophy, Clock, RotateCcw, ChevronDown, ChevronUp } from 'lucide-react';
 
 const ScoreBoard = ({ time, age, onPlayAgain }) => {
   const [showAnalysis, setShowAnalysis] = useState(false);
@@ -12,53 +13,103 @@ const ScoreBoard = ({ time, age, onPlayAgain }) => {
   
   // Calculate performance message based on time
   const getPerformanceMessage = (timeInSeconds) => {
-    // For children-friendly feedback
     if (timeInSeconds < 30) {
-      return "Excellent job! Very fast!";
+      return { message: "Excellent job! Very fast!", emoji: "🌟" };
     } else if (timeInSeconds < 60) {
-      return "Great work! You did well!";
+      return { message: "Great work! You did well!", emoji: "🎉" };
     } else if (timeInSeconds < 90) {
-      return "Good job! You completed the task!";
+      return { message: "Good job! You completed the task!", emoji: "👍" };
     } else {
-      return "Well done on finishing! Practice makes perfect!";
+      return { message: "Well done on finishing! Practice makes perfect!", emoji: "😊" };
     }
   };
 
+  const performance = getPerformanceMessage(time);
+
+  // Define confetti animation style
+  const confettiStyle = {
+    background: `
+      radial-gradient(circle, rgba(255,255,255,0) 30%, rgba(255,255,255,0.7) 70%),
+      linear-gradient(to right, #FFD700, #FF8C00, #FF5733, #C70039, #900C3F, #581845)
+    `,
+    backgroundSize: '400% 400%',
+    animation: 'confetti-gradient 5s ease infinite'
+  };
+  
   return (
-    <div className="score-board bg-white rounded-xl shadow-lg p-6 max-w-md mx-auto text-center">
-      <h2 className="text-2xl font-bold text-[#66220B] mb-4">Great Job!</h2>
+    <div className="score-board rounded-2xl shadow-xl p-8 max-w-md mx-auto text-center border border-gray-100 relative overflow-hidden">
+      {/* Animated background glow effect */}
+      <div 
+        className="absolute top-0 left-0 w-full h-full opacity-10 -z-10"
+        style={confettiStyle}
+      ></div>
       
-      <div className="time-display text-4xl font-bold text-[#F09000] mb-6">
-        {formatTime(time)}
+      {/* Trophy icon */}
+      <div className="flex justify-center mb-2">
+        <Trophy className="text-yellow-500" size={40} />
       </div>
       
-      <p className="text-lg text-gray-700 mb-6">
-        {getPerformanceMessage(time)}
+      <h2 className="text-3xl font-bold text-[#66220B] mb-4">
+        Great Job! {performance.emoji}
+      </h2>
+      
+      <div className="time-display flex items-center justify-center text-5xl font-bold text-[#F09000] mb-6">
+        <Clock className="mr-2 text-[#F09000]" size={28} />
+        <span className="font-mono">{formatTime(time)}</span>
+      </div>
+      
+      <p className="text-lg text-gray-700 mb-8 px-4">
+        {performance.message}
       </p>
       
-      <div className="flex flex-col sm:flex-row justify-center gap-3 mb-4">
+      <div className="flex flex-col sm:flex-row justify-center gap-4 mb-6">
         <button 
-          className="play-again-button bg-[#F09000] hover:bg-[#D87D00] text-white font-bold py-3 px-6 rounded-full text-lg transition-colors"
+          className="play-again-button bg-gradient-to-r from-[#F09000] to-[#FF6B00] hover:from-[#D87D00] hover:to-[#E06000] text-black font-bold py-3 px-6 rounded-full text-lg transition-all duration-300 shadow-md hover:shadow-lg flex items-center justify-center"
           onClick={onPlayAgain}
         >
+          <RotateCcw size={18} className="mr-2" />
           Play Again
         </button>
         
         <button 
-          className="analysis-button bg-white hover:bg-gray-100 text-[#66220B] font-bold py-3 px-6 border-2 border-[#66220B] rounded-full text-lg transition-colors"
+          className="analysis-button hover:bg-gray-50 text-[#66220B] font-bold py-3 px-6 border-2 border-[#66220B] rounded-full text-lg transition-all duration-300 hover:shadow-md flex items-center justify-center"
           onClick={() => setShowAnalysis(!showAnalysis)}
         >
-          {showAnalysis ? 'Hide Analysis' : 'Show Analysis'}
+          {showAnalysis ? 
+            <><ChevronUp size={18} className="mr-2" /> Hide Analysis</> : 
+            <><ChevronDown size={18} className="mr-2" /> Show Analysis</>
+          }
         </button>
       </div>
+      
+      {/* Add a decorative divider before the analysis */}
+      {showAnalysis && (
+        <div className="flex items-center justify-center mb-4">
+          <div className="h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent w-3/4"></div>
+        </div>
+      )}
       
       <ResultsAnalysis
         time={time}
         age={age}
         isVisible={showAnalysis}
       />
+      
+      {/* Add a subtle footer message */}
+      <div className="mt-6 text-xs text-gray-400">
+        Keep practicing to improve your skills!
+      </div>
     </div>
   );
 };
 
 export default ScoreBoard;
+
+{/* Add this to your global CSS for the confetti animation */}
+/*
+@keyframes confetti-gradient {
+  0% { background-position: 0% 50% }
+  50% { background-position: 100% 50% }
+  100% { background-position: 0% 50% }
+}
+*/
