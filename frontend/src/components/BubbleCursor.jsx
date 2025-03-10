@@ -30,9 +30,9 @@ class Particle {
     const scale =
       0.2 + (this.initialLifeSpan - this.lifeSpan) / this.initialLifeSpan;
 
-    // Draw the particle with a smooth transition
-    context.fillStyle = 'rgba(218, 112, 214, 0.6)'; // Translucent light pink
-    context.strokeStyle = 'rgba(230, 230, 250, 0.6)'; // Translucent dark purple stroke
+    // Draw the particle with the updated color and transparency
+    context.fillStyle = 'rgba(240, 144, 0, 0.4)'; // Translucent orange color (#f09000)
+    context.strokeStyle = 'rgba(240, 144, 0, 0.5)'; // Same translucent orange color for stroke
     context.beginPath();
     context.arc(
       this.position.x - (this.baseDimension / 2) * scale,
