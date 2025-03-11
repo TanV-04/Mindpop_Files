@@ -13,3 +13,4 @@ PACKAGES TO INSTALL:
 - npm install @mui/icons-material
 - npm install particles.js
 - npm install flowbite-react (for the footer)/npm install flowbite-react --legacy-peer-deps (if you face dependency errors between tailwind css and flowbite)
+- to generate random words for the speed typing test, npm install @faker-js/faker --save-dev

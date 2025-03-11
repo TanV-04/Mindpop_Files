@@ -118,7 +118,7 @@ const ShapeOutline = ({ shape, isPlaced }) => {
               className={`absolute inset-1 pointer-events-none ${highlightClass}`}
               style={{
                 borderRadius: 'inherit',
-                border: '2px dashed rgba(255, 255, 255, 0.3)',
+                border: '3px dashed rgba(0, 0, 0, 0.8)',
                 opacity: 0.6,
               }}
             />
