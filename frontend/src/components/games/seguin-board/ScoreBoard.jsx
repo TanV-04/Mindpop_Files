@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState,useEffect } from 'react';
 import ResultsAnalysis from './ResultAnalysis';
 import { Trophy, Clock, RotateCcw, ChevronDown, ChevronUp } from 'lucide-react';
 import { progressService } from '../../../utils/apiService'; // Import the progress service
@@ -33,8 +33,8 @@ const ScoreBoard = ({ time, age, onPlayAgain }) => {
   };
   
   // Save progress when component mounts
-  useState(() => {
-    saveProgress();
+  useEffect(() => {
+  saveProgress();
   }, []);
   
   const formatTime = (timeInSeconds) => {
