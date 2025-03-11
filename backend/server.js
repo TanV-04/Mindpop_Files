@@ -8,7 +8,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { connectDB } from './config/database.js';  
 import authRoutes from './routes/authRoutes.js';
-import userRoutes from './routes/userRoutes.js';
+import userRoutes from './routes/userRoute.js';
 import progressRoutes from './routes/progressRoutes.js';
 import supportRoutes from './routes/supportRoutes.js';
 import corsOptions from './config/corsOptions.js';
