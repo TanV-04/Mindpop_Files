@@ -10,7 +10,7 @@ const useEngine = () => {
   const [errors, setErrors] = useState(0);
   const [roundResults, setRoundResults] = useState([]);
   
-  const [timeLeft, startCountdown, resetCountdown] = useCountdownTimer(10);
+  const [timeLeft, startCountdown, resetCountdown] = useCountdownTimer(30);
   const { typed, cursor, clearTyped, resetTotalTyped, totalTyped } = useTypings(state !== "finish");
 
   const isStarting = state === "start" && cursor > 0;
