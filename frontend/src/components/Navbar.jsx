@@ -9,20 +9,39 @@ const Navbar = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation(); // Add this to detect route changes
 
+  // Check authentication status - now with dependencies to re-run when needed
   useEffect(() => {
     const token = localStorage.getItem("token");
     setIsLoggedIn(!!token);
+    
+    // Set active tab based on current path
+    if (location.pathname === '/') setActiveTab('HOME');
+    else if (location.pathname === '/about') setActiveTab('ABOUT');
+    else if (location.pathname.startsWith('/games')) setActiveTab('GAMES');
+    else if (location.pathname === '/settings') setActiveTab('SETTINGS');
+  }, [location.pathname]); // Re-run when path changes
+
+  // Listen for storage events (when token is added/removed in another tab)
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const token = localStorage.getItem('token');
+      setIsLoggedIn(!!token);
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
     setIsLoggedIn(false);
     navigate("/");
+    window.dispatchEvent(new Event('auth-change'));
+    navigate('/');
     setIsMenuOpen(false);
   };
-
-  const location = useLocation();
 
   const handleTabClick = (tab) => {
     if (tab === "HOME") {
