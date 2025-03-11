@@ -1,9 +1,41 @@
 import { useState } from 'react';
 import ResultsAnalysis from './ResultAnalysis';
 import { Trophy, Clock, RotateCcw, ChevronDown, ChevronUp } from 'lucide-react';
+import { progressService } from '../../../utils/apiService'; // Import the progress service
 
 const ScoreBoard = ({ time, age, onPlayAgain }) => {
   const [showAnalysis, setShowAnalysis] = useState(false);
+  const [savedToDatabase, setSavedToDatabase] = useState(false);
+  const [saveError, setSaveError] = useState(null);
+  
+  // Function to save progress to database
+  const saveProgress = async () => {
+    if (savedToDatabase) return; // Prevent multiple saves
+    
+    try {
+      // Save the progress data to the database
+      const progressData = {
+        gameType: 'seguin', // This is the Seguin Form Board game
+        completionTime: Number(time), // Ensure time is a number
+        accuracy: 100, // Default accuracy (can be calculated if available)
+        level: 1 // Default level (can be adjusted based on game settings)
+      };
+      
+      console.log('Saving progress data:', progressData);
+      const response = await progressService.saveGameProgress(progressData);
+      console.log('Progress saved successfully:', response);
+      
+      setSavedToDatabase(true);
+    } catch (error) {
+      console.error('Error saving progress:', error);
+      setSaveError('Failed to save progress. Your score was recorded locally only.');
+    }
+  };
+  
+  // Save progress when component mounts
+  useState(() => {
+    saveProgress();
+  }, []);
   
   const formatTime = (timeInSeconds) => {
     const minutes = Math.floor(timeInSeconds / 60);
@@ -62,6 +94,19 @@ const ScoreBoard = ({ time, age, onPlayAgain }) => {
         {performance.message}
       </p>
       
+      {/* Display save status */}
+      {savedToDatabase && (
+        <p className="text-sm text-green-600 mb-4">
+          ✓ Your progress has been saved!
+        </p>
+      )}
+      
+      {saveError && (
+        <p className="text-sm text-red-600 mb-4">
+          {saveError}
+        </p>
+      )}
+      
       <div className="flex flex-col sm:flex-row justify-center gap-4 mb-6">
         <button 
           className="play-again-button bg-gradient-to-r from-[#F09000] to-[#FF6B00] hover:from-[#D87D00] hover:to-[#E06000] text-black font-bold py-3 px-6 rounded-full text-lg transition-all duration-300 shadow-md hover:shadow-lg flex items-center justify-center"
@@ -104,12 +149,3 @@ const ScoreBoard = ({ time, age, onPlayAgain }) => {
 };
 
 export default ScoreBoard;
-
-{/* Add this to your global CSS for the confetti animation */}
-/*
-@keyframes confetti-gradient {
-  0% { background-position: 0% 50% }
-  50% { background-position: 100% 50% }
-  100% { background-position: 0% 50% }
-}
-*/
