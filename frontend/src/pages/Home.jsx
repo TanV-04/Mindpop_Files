@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 
 import { CssBaseline, Box, IconButton, Collapse } from "@mui/material";
@@ -25,7 +24,7 @@ const Home = () => {
         position: "relative",
         left: 0,
         right: 0,
-        overflowX: "hidden"
+        overflowX: "hidden",
       }}
       id="header"
     >
@@ -82,7 +81,9 @@ const Home = () => {
         </Collapse>
       </Box>
 
-      <AboutUs />
+      <div id="about-section">
+        <AboutUs />
+      </div>
     </div>
   );
 };

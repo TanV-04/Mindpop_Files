@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import logo from "../assets/brain_logo.png";
 import "../styles/Navbar.css";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 
 const Navbar = () => {
   const [activeTab, setActiveTab] = useState("HOME");
@@ -10,48 +10,49 @@ const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
 
-  // Check authentication status
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     setIsLoggedIn(!!token);
   }, []);
 
-  // Handle logout
   const handleLogout = () => {
-    localStorage.removeItem('token');
+    localStorage.removeItem("token");
     setIsLoggedIn(false);
-    navigate('/');
+    navigate("/");
     setIsMenuOpen(false);
   };
 
-  // Handle tab click
+  const location = useLocation();
+
   const handleTabClick = (tab) => {
-    setActiveTab(tab);
-    setIsMenuOpen(false);
-    
-    // Navigate based on tab
-    switch(tab) {
-      case 'HOME':
-        navigate('/');
-        break;
-      case 'GAMES':
-        if (isLoggedIn) {
-          navigate('/games');
-        } else {
-          navigate('/sign-in');
+    if (tab === "HOME") {
+      if (location.pathname !== "/") {
+        navigate("/");
+        setTimeout(() => {
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }, 100);
+      } else {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    } else if (tab === "ABOUT") {
+      if (location.pathname !== "/") {
+        navigate("/");
+        setTimeout(() => {
+          const aboutSection = document.getElementById("about-section");
+          if (aboutSection) {
+            aboutSection.scrollIntoView({ behavior: "smooth" });
+          }
+        }, 100);
+      } else {
+        const aboutSection = document.getElementById("about-section");
+        if (aboutSection) {
+          aboutSection.scrollIntoView({ behavior: "smooth" });
         }
-        break;
-      case 'ABOUT':
-        navigate('/about');
-        break;
-      case 'SETTINGS':
-        navigate('/settings');
-        break;
-      default:
-        break;
+      }
+    } else {
+      navigate(`/${tab.toLowerCase()}`);
     }
   };
-
   // Toggle menu for mobile
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -79,14 +80,14 @@ const Navbar = () => {
         </div>
 
         {/* Hamburger Menu Button - Only visible on mobile */}
-        <button 
+        <button
           className="hamburger-btn md:hidden flex flex-col justify-center items-center"
           onClick={toggleMenu}
           aria-label="Toggle menu"
         >
-          <span className={`hamburger-line ${isMenuOpen ? 'open' : ''}`}></span>
-          <span className={`hamburger-line ${isMenuOpen ? 'open' : ''}`}></span>
-          <span className={`hamburger-line ${isMenuOpen ? 'open' : ''}`}></span>
+          <span className={`hamburger-line ${isMenuOpen ? "open" : ""}`}></span>
+          <span className={`hamburger-line ${isMenuOpen ? "open" : ""}`}></span>
+          <span className={`hamburger-line ${isMenuOpen ? "open" : ""}`}></span>
         </button>
 
         {/* Desktop Navigation */}
@@ -97,27 +98,22 @@ const Navbar = () => {
         {/* Desktop Auth Buttons */}
         <div className="hidden md:flex gap-3 quicksand">
           {isLoggedIn ? (
-            <button 
-              className="groups" 
-              onClick={handleLogout}
-            >
+            <button className="groups" onClick={handleLogout}>
               Logout
             </button>
           ) : (
             <Link to="/sign-in">
-              <button className="groups">
-                Sign In
-              </button>
+              <button className="groups">Sign In</button>
             </Link>
           )}
         </div>
       </div>
 
       {/* Mobile Menu - Slides down when hamburger is clicked */}
-      <motion.div 
+      <motion.div
         className="md:hidden w-full bg-[#f09000] overflow-hidden"
         initial={{ height: 0 }}
-        animate={{ height: isMenuOpen ? 'auto' : 0 }}
+        animate={{ height: isMenuOpen ? "auto" : 0 }}
         transition={{ duration: 0.3 }}
       >
         <div className="p-4 flex flex-col items-center gap-4">
@@ -128,30 +124,27 @@ const Navbar = () => {
                 key={tab}
                 onClick={() => handleTabClick(tab)}
                 className={`px-6 py-2 w-full text-center rounded-full text-base quicksand 
-                  ${activeTab === tab 
-                    ? "bg-[#66220B] text-white" 
-                    : "text-[#66220B] hover:bg-[#66220B] hover:bg-opacity-10"}
+                  ${
+                    activeTab === tab
+                      ? "bg-[#66220B] text-white"
+                      : "text-[#66220B] hover:bg-[#66220B] hover:bg-opacity-10"
+                  }
                 `}
               >
                 {tab}
               </button>
             ))}
           </div>
-          
+
           {/* Mobile Auth Button */}
           <div className="w-full flex justify-center quicksand">
             {isLoggedIn ? (
-              <button 
-                className="groups w-full" 
-                onClick={handleLogout}
-              >
+              <button className="groups w-full" onClick={handleLogout}>
                 Logout
               </button>
             ) : (
               <Link to="/sign-in" className="w-full">
-                <button className="groups w-full">
-                  Sign In
-                </button>
+                <button className="groups w-full">Sign In</button>
               </Link>
             )}
           </div>
