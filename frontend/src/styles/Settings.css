@@ -1,0 +1,95 @@
+/* Settings.css */
+
+.settings-container {
+  /* Use the same background as the main website */
+  /* No background color here to let the parent background show through */
+}
+
+.settings-sidebar {
+  /* Remove white background and adjust styles */
+  background-color: transparent;
+  border-radius: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.settings-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.settings-nav-item {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background-color: rgba(255, 255, 255, 0.3); /* Semi-transparent white */
+  color: #66220B;
+  font-weight: 500;
+  text-align: left;
+  width: 100%;
+}
+
+.settings-nav-item:hover {
+  background-color: rgba(240, 144, 0, 0.1); /* Light orange with transparency */
+}
+
+.settings-nav-item.active {
+  background-color: #F09000; /* Orange */
+  color: white;
+}
+
+.settings-content {
+  /* Remove white background */
+  background-color: transparent;
+  border-radius: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+/* Input fields and info boxes */
+.profile-info input, 
+.profile-info .form-group > div {
+  background-color: rgba(255, 255, 255, 0.5) !important; /* Semi-transparent white */
+  border: 1px solid rgba(209, 213, 219, 0.5) !important;
+  transition: all 0.2s ease;
+}
+
+.profile-info input:focus {
+  background-color: rgba(255, 255, 255, 0.8) !important; /* More opaque when focused */
+  box-shadow: 0 0 0 2px rgba(240, 144, 0, 0.3) !important;
+}
+
+/* Labels */
+.profile-info label {
+  color: #66220B !important; /* Dark brown */
+  font-weight: 500;
+}
+
+/* Use the same styling for all setting tabs */
+.security-settings,
+.progress-settings,
+.help-support {
+  background-color: transparent;
+  border-radius: 0.5rem;
+}
+
+/* Custom scrollbar for settings (optional) */
+.settings-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.settings-container::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+.settings-container::-webkit-scrollbar-thumb {
+  background: rgba(240, 144, 0, 0.5);
+  border-radius: 10px;
+}
+
+.settings-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(240, 144, 0, 0.7);
+}
