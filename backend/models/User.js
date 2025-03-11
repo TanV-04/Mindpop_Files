@@ -1,4 +1,4 @@
-// models/User.js
+// // models/User.js
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
@@ -26,6 +26,37 @@ const userSchema = new mongoose.Schema({
         minlength: [6, 'Password must be at least 6 characters'],
         select: false
     },
+    // New fields for user dashboard
+    name: {
+        type: String,
+        trim: true
+    },
+    age: {
+        type: Number,
+        min: 0,
+        max: 120
+    },
+    profilePicture: {
+        type: String
+    },
+    privacySettings: {
+        shareProgressWithTeachers: { 
+            type: Boolean, 
+            default: false 
+        },
+        allowActivityTracking: { 
+            type: Boolean, 
+            default: true 
+        },
+        receiveEmails: { 
+            type: Boolean, 
+            default: true 
+        }
+    },
+    tokens: [{ 
+        type: String 
+    }],
+    // Existing fields
     resetPasswordToken: String,
     resetPasswordExpire: Date,
     createdAt: {
