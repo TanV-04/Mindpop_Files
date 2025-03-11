@@ -260,6 +260,7 @@ const SignIn = () => {
   const location = useLocation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   // Get the redirect path if user was redirected from a protected route
   const from = location.state?.from?.pathname || "/";
