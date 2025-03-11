@@ -1,53 +1,144 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { formatPercentage } from "../../../utils/helpers";
+import { formatPercentage, calculateWPM } from "../../../utils/helpers";
 
-const Results = ({ state, errors, accuracyPercentage, total, className }) => {
-  const initial = { opacity: 0 };
-  const animate = { opacity: 1 };
-  const duration = { duration: 0.3 };
+const ResultCard = ({ label, value, color = "text-indigo-400", icon, delay }) => {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, delay }}
+      className="bg-slate-800 rounded-lg p-4 flex items-center w-full"
+    >
+      {icon && <div className="mr-3 text-2xl">{icon}</div>}
+      <div className="flex-1">
+        <div className="text-slate-400 text-sm">{label}</div>
+        <div className={`text-xl font-bold ${color}`}>{value}</div>
+      </div>
+    </motion.div>
+  );
+};
 
+const Results = ({ 
+  state, 
+  errors = 0, 
+  accuracyPercentage = 0, 
+  total = 0, 
+  timeLeft = 0, 
+  className = "",
+  totalTypingTime = 60 // Default total time in seconds, adjust as needed
+}) => {
   if (state !== "finish") {
     return null;
   }
+  
+  // Calculate actual time used for typing (totalTypingTime - timeLeft)
+  const timeUsed = totalTypingTime - timeLeft;
+  
+  // Calculate WPM based on characters typed and time used
+  const wpm = calculateWPM ? calculateWPM(total, timeUsed) : Math.round((total / 5) / (timeUsed / 60));
+  
+  // Ensure values are safe
+  const safeWPM = Math.max(0, isNaN(wpm) ? 0 : wpm);
+  const safeAccuracy = Math.max(0, accuracyPercentage || 0);
+  const safeErrors = Math.max(0, errors || 0);
+  const safeTotal = Math.max(0, total || 0);
+
+  // Trophy animation variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { 
+      opacity: 1,
+      transition: { staggerChildren: 0.2 }
+    }
+  };
+
+  const getAccuracyEmoji = () => {
+    if (safeAccuracy >= 98) return "🏆";
+    if (safeAccuracy >= 90) return "🥇";
+    if (safeAccuracy >= 80) return "🥈";
+    if (safeAccuracy >= 70) return "🥉";
+    return "🎯";
+  };
+
+  const getSpeedEmoji = () => {
+    if (safeWPM >= 80) return "⚡";
+    if (safeWPM >= 60) return "🚀";
+    if (safeWPM >= 40) return "🏃";
+    return "🐢";
+  };
 
   return (
-    <motion.ul
-      className={`flex flex-col items-center text-yellow-400 space-y-3 ${className}`}
+    <motion.div
+      initial="hidden"
+      animate="visible"
+      variants={containerVariants}
+      className={`w-full ${className}`}
     >
-      <motion.li
-        initial={initial}
-        animate={animate}
-        className="text-xl font-bold"
-        transition={{ ...duration, delay: 0 }}
+      <motion.h2
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="text-2xl font-bold text-center mb-6 text-white"
       >
-        Results
-      </motion.li>
+        Your Results
+      </motion.h2>
 
-      <motion.li
-        initial={initial}
-        animate={animate}
-        transition={{ ...duration, delay: 0.5 }}
-      >
-        Accuracy: {formatPercentage(accuracyPercentage)}
-      </motion.li>
+      <div className="space-y-4">
+        <ResultCard 
+          label="Words Per Minute" 
+          value={safeWPM} 
+          color="text-green-400"
+          icon={getSpeedEmoji()}
+          delay={0.3}
+        />
+        
+        <ResultCard 
+          label="Accuracy" 
+          value={formatPercentage(safeAccuracy)} 
+          color={safeAccuracy >= 90 ? "text-green-400" : 
+                safeAccuracy >= 70 ? "text-yellow-400" : "text-red-400"}
+          icon={getAccuracyEmoji()}
+          delay={0.5}
+        />
+        
+        <ResultCard 
+          label="Characters Typed" 
+          value={safeTotal} 
+          color="text-blue-400"
+          icon="⌨️"
+          delay={0.7}
+        />
+        
+        <ResultCard 
+          label="Errors" 
+          value={safeErrors} 
+          color={safeErrors === 0 ? "text-green-400" : 
+                safeErrors < 5 ? "text-yellow-400" : "text-red-500"}
+          icon="❌"
+          delay={0.9}
+        />
+      </div>
 
-      <motion.li
-        initial={initial}
-        animate={animate}
-        className="text-red-500"
-        transition={{ ...duration, delay: 1 }}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5, delay: 1.2 }}
+        className="mt-8 text-center text-slate-400 text-sm"
       >
-        Errors: {errors}
-      </motion.li>
-      <motion.li
-        initial={initial}
-        animate={animate}
-        transition={{ ...duration, delay: 1.4 }}
-      >
-        Typed: {total}
-      </motion.li>
-    </motion.ul>
+        {safeAccuracy >= 95 && safeWPM >= 50 ? (
+          "Incredible! You're both fast and accurate!"
+        ) : safeWPM >= 60 ? (
+          "Impressive speed! You're a typing master!"
+        ) : safeWPM >= 40 ? (
+          "Good job! Keep practicing to improve your speed."
+        ) : safeAccuracy >= 95 ? (
+          "Great accuracy! Now try to increase your speed."
+        ) : (
+          "Nice start! Regular practice will boost your typing skills."
+        )}
+      </motion.div>
+    </motion.div>
   );
 };
 

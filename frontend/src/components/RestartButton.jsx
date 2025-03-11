@@ -1,17 +1,24 @@
 import React from "react";
-import { IconButton } from "@mui/material";
+import { useNavigate } from "react-router-dom";
+import { IconButton, Tooltip } from "@mui/material";
 import RefreshIcon from "@mui/icons-material/Refresh";
 
-const RestartButton = ({ onRestart }) => {
+const RestartButton = () => {
+  const navigate = useNavigate();
+
+  const handleRestart = () => {
+    navigate("/games"); // Navigates back to game.jsx
+  };
+
   return (
     <div className="mt-10 text-center">
-      <IconButton onClick={onRestart} color="primary" aria-label="restart">
-        <RefreshIcon />
-      </IconButton>
+      <Tooltip title="Restart">
+        <IconButton onClick={handleRestart} color="primary" aria-label="Restart the game">
+          <RefreshIcon />
+        </IconButton>
+      </Tooltip>
     </div>
   );
 };
 
 export default RestartButton;
-
-// kept global so that it can be used throughout the organization
