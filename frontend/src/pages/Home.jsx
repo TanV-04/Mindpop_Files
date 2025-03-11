@@ -53,7 +53,7 @@ const Home = () => {
             <img
               src="https://vincentgarreau.com/particles.js/assets/img/kbLd9vb_new.gif"
               style={{
-                width: "auto",
+                width: "100%", // made the cat gif more responsive
                 height: "auto",
                 objectFit: "contain",
                 maxWidth: "1200px",
