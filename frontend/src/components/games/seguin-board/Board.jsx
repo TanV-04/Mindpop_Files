@@ -53,7 +53,7 @@ const Board = ({ onComplete }) => {
       setGameComplete(true);
       
       // Add confetti effect
-      showCompletionConfetti();
+      showCompletionConfetti();s
       
       // Safety delay to ensure UI updates first
       setTimeout(() => {
