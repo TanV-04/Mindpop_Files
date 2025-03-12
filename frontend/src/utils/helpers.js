@@ -24,10 +24,10 @@ export const countErrors = (actual, expected) => {
   if (!expected) expected = "";
   
   let errors = 0;
-  const maxLen = Math.max(actual.length, expected.length);
-
-  for (let i = 0; i < maxLen; i++) {
-    // Count as error if characters don't match, including when one string is shorter
+  
+  // Only count errors for the characters the user has actually typed
+  for (let i = 0; i < actual.length; i++) {
+    // Count as error if characters don't match
     if (actual[i] !== expected[i]) {
       errors++;
     }
@@ -63,7 +63,9 @@ export const calculateAccuracyPercentage = (errors, total) => {
  * @returns {number} - Words per minute (assuming 5 chars = 1 word)
  */
 export const calculateWPM = (charCount, timeInSeconds) => {
+  // Handle edge cases
   if (!timeInSeconds || timeInSeconds <= 0) return 0;
+  if (!charCount || charCount <= 0) return 0;
   
   // Standard formula: (characters / 5) / (time in minutes)
   const words = charCount / 5;
