@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unknown-property */
 import { useState, useEffect, useRef } from 'react';
 import { shapes } from '../../../constants/gameConstants';
 import ShapeContainer from './ShapeContainer';
@@ -53,7 +54,7 @@ const Board = ({ onComplete }) => {
       setGameComplete(true);
       
       // Add confetti effect
-      showCompletionConfetti();s
+      showCompletionConfetti();
       
       // Safety delay to ensure UI updates first
       setTimeout(() => {
@@ -436,7 +437,7 @@ const Board = ({ onComplete }) => {
                   Puzzle Complete!
                 </h3>
                 <p className="text-gray-700">
-                  You've successfully placed all the shapes!
+                  You&apos;ve successfully placed all the shapes!
                 </p>
               </div>
             </div>
