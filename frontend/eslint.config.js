@@ -39,6 +39,9 @@ export default [
         'warn',
         { allowConstantExport: true },
       ],
+      "react/no-unknown-property": ["error", { 
+      ignore: ["jsx"] 
+      }],
       // Add specific rules for prop validation
       'no-unused-vars': 'off',
       // or to be more specific

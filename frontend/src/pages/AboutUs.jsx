@@ -9,6 +9,7 @@ const AboutUs = () => {
 
   return (
     <div
+      id = "above-section"
       style={{
         backgroundColor: "#F9F0D0",
         minHeight: "100vh",
