@@ -2,20 +2,36 @@ import React from 'react';
 
 const Shape = ({ type, isOutline = false }) => {
   // Colors for shapes - matching the physical puzzle colors with improved contrast and vibrancy
+  // const shapeColors = {
+  //   cross: '#FF5252', // Brighter red
+  //   triangle: '#FFD600', // Golden yellow
+  //   semicircle: '#4CAF50', // Green
+  //   circle: '#2196F3', // Blue
+  //   rectangle: '#9C27B0', // Purple
+  //   hexagon: '#FF9800', // Orange
+  //   rhombus: '#00BCD4', // Cyan
+  //   star: '#F44336', // Red
+  //   oval: '#E91E63', // Pink
+  //   square: '#FFEB3B', // Yellow
+  //   pentagon: '#3F51B5', // Navy
+  //   clover: '#66BB6A', // Lighter green for better visibility
+  // };
+
   const shapeColors = {
-    cross: '#FF5252', // Brighter red
-    triangle: '#FFD600', // Golden yellow
-    semicircle: '#4CAF50', // Green
-    circle: '#2196F3', // Blue
-    rectangle: '#9C27B0', // Purple
-    hexagon: '#FF9800', // Orange
-    rhombus: '#00BCD4', // Cyan
-    star: '#F44336', // Red
-    oval: '#E91E63', // Pink
-    square: '#FFEB3B', // Yellow
-    pentagon: '#3F51B5', // Navy
-    clover: '#66BB6A', // Lighter green for better visibility
-  };
+    cross: '#000000', // Black
+    triangle: '#000000', // Black
+    semicircle: '#000000', // Black
+    circle: '#000000', // Black
+    rectangle: '#000000', // Black
+    hexagon: '#000000', // Black
+    rhombus: '#000000', // Black
+    star: '#000000', // Black
+    oval: '#000000', // Black
+    square: '#000000', // Black
+    pentagon: '#000000', // Black
+    clover: '#000000', // Black
+};
+
 
   // Define shape clip paths in a centralized object for better maintainability
   const clipPaths = {

@@ -264,9 +264,11 @@ const StartButton = ({ onStart }) => {
   return (
     <button
       onClick={onStart}
-      className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg"
+      className="bg-[#F09000] hover:bg-[#C07000] text-black font-bold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg"
       style={{
-        boxShadow: '0 4px 14px rgba(59, 130, 246, 0.4)',
+        backgroundColor: '#F09000', // Ensure inline styling is applied
+        color: 'black', // Text color
+        boxShadow: '0 4px 14px rgba(240, 144, 0, 0.4)', // Orange shadow
       }}
     >
       <div className="flex items-center justify-center">
@@ -283,6 +285,8 @@ const StartButton = ({ onStart }) => {
     </button>
   );
 };
+
+
 
 // Main Monkey Type Component
 const MonkeyTypeComponent = () => {
@@ -367,9 +371,9 @@ const MonkeyTypeComponent = () => {
       >
         {/* Game header with instructions */}
         <div className="mb-8">
-          <h2 className="text-3xl font-bold text-center mb-3 dark:text-white bg-gradient-to-r from-blue-500 to-indigo-500 bg-clip-text text-transparent">
-            Tappy Type
-          </h2>
+        <h2 className="text-3xl font-bold text-center mb-3 dark:text-white text-black">
+        Tappy Type
+        </h2>
           <p className="text-center text-gray-600 dark:text-gray-300 px-4">
             Type the words below as quickly and accurately as you can. New text will appear as you complete each segment.
           </p>
