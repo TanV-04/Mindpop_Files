@@ -1,3 +1,5 @@
+/* eslint-disable react/no-unknown-property */
+/* eslint-disable no-constant-binary-expression */
 import React from 'react';
 import Shape from './Shape';
 
