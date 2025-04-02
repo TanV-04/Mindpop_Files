@@ -1,9 +1,12 @@
+//ShapeContainer.jsx
 import { useRef, useEffect, useState } from "react";
 import Shape from "./Shape";
 
 const ShapeContainer = ({ shape, containerRef, onDragStart, isDragging }) => {
   const shapeRef = useRef(null);
   const [isHovered, setIsHovered] = useState(false);
+  const [mouseDown, setMouseDown] = useState(false);
+  const [hasMoved, setHasMoved] = useState(false);
 
   // Calculate position for shape within the shapes tray
   useEffect(() => {
@@ -36,18 +39,40 @@ const ShapeContainer = ({ shape, containerRef, onDragStart, isDragging }) => {
     }
   }, [shape, containerRef]);
 
-  // Handle dragging
-  const handleDragStart = (e) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const centerX = rect.left + rect.width / 2;
-    const centerY = rect.top + rect.height / 2;
-
+  // Handle mouse down - prepare for possible drag
+  const handleMouseDown = (e) => {
+    setMouseDown(true);
+    setHasMoved(false);
+    
+    // Play pickup sound (but don't start dragging yet)
     const pickupSound = document.getElementById("pickup-sound");
     if (pickupSound) {
       pickupSound.currentTime = 0;
       pickupSound.volume = 0.4;
       pickupSound.play().catch((e) => console.log("Audio play failed:", e));
     }
+  };
+  
+  // Handle mouse move - start dragging only if mouse is down and has moved
+  const handleMouseMove = (e) => {
+    if (mouseDown && !hasMoved) {
+      setHasMoved(true);
+      // Now initiate the drag since we've confirmed movement
+      startDrag(e);
+    }
+  };
+  
+  // Handle mouse up - cancel if no movement
+  const handleMouseUp = () => {
+    setMouseDown(false);
+    // If mouse was released without movement, don't do anything
+  };
+
+  // Start drag operation
+  const startDrag = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
 
     onDragStart(
       {
@@ -59,6 +84,35 @@ const ShapeContainer = ({ shape, containerRef, onDragStart, isDragging }) => {
       },
       shape
     );
+  };
+
+  // Touch handlers
+  const handleTouchStart = (e) => {
+    e.preventDefault(); // Prevent scrolling
+    setMouseDown(true);
+    setHasMoved(false);
+    
+    // Play pickup sound
+    const pickupSound = document.getElementById("pickup-sound");
+    if (pickupSound) {
+      pickupSound.currentTime = 0;
+      pickupSound.volume = 0.4;
+      pickupSound.play().catch((e) => console.log("Audio play failed:", e));
+    }
+  };
+
+  const handleTouchMove = (e) => {
+    if (mouseDown) {
+      setHasMoved(true);
+      const touch = e.touches[0];
+      startDrag({
+        ...e,
+        clientX: touch.clientX,
+        clientY: touch.clientY,
+        currentTarget: e.currentTarget,
+      });
+      setMouseDown(false); // Prevent multiple drag starts
+    }
   };
 
   const positionStyle = shape.dragPosition || shape.initialPosition;
@@ -86,34 +140,33 @@ const ShapeContainer = ({ shape, containerRef, onDragStart, isDragging }) => {
           ? "drop-shadow(4px 8px 10px rgba(0,0,0,0.3))"
           : "drop-shadow(3px 6px 8px rgba(0,0,0,0.2))",
       }}
-      onMouseDown={handleDragStart}
-      onTouchStart={(e) => {
-        e.preventDefault();
-        const touch = e.touches[0];
-        handleDragStart({
-          ...e,
-          clientX: touch.clientX,
-          clientY: touch.clientY,
-        });
+      onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={() => {
+        setIsHovered(false);
+        setMouseDown(false);
       }}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={() => setMouseDown(false)}
       onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="relative w-full h-full flex items-center justify-center rounded-lg border-2 border-gray-300 bg-white shadow-md">
-        <Shape type={shape.type} />
+      {/* Removed the white background div and just displaying the shape directly */}
+      <Shape type={shape.type} />
 
-        {/* Glow effect on hover */}
-        {isHovered && !isDragging && (
-          <div
-            className="absolute inset-0 rounded-lg opacity-50"
-            style={{
-              background:
-                "radial-gradient(circle, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0) 80%)",
-              animation: "pulse 1.5s infinite",
-            }}
-          />
-        )}
-      </div>
+      {/* Glow effect on hover */}
+      {isHovered && !isDragging && (
+        <div
+          className="absolute inset-0 rounded-lg opacity-50"
+          style={{
+            background:
+              "radial-gradient(circle, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0) 80%)",
+            animation: "pulse 1.5s infinite",
+            pointerEvents: "none", // Make sure this doesn't interfere with mouse events
+          }}
+        />
+      )}
     </div>
   );
 };

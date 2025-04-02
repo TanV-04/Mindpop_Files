@@ -1,3 +1,4 @@
+//apiService.js
 import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
@@ -20,18 +21,47 @@ api.interceptors.request.use(
 );
 
 // Add response interceptor for error handling
+// Add response interceptor for error handling
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     // Handle session expiration
     if (error.response && error.response.status === 401) {
-      // Optionally clear token and redirect to login
-      // localStorage.removeItem('token');
-      // window.location.href = '/sign-in';
+      // Clear token
+      localStorage.removeItem('token');
+      
+      // You can add a message to inform the user
+      console.log('Your session has expired. Please log in again.');
+      
+      // Redirect to login page
+      window.location.href = '/sign-in';
     }
     return Promise.reject(error);
   }
 );
+
+// Local storage helper functions
+const localStorageService = {
+  getLocalProgressData: () => {
+    try {
+      const storedData = localStorage.getItem('typingProgress');
+      return storedData ? JSON.parse(storedData) : { timeSeriesData: [] };
+    } catch (error) {
+      console.error('Error reading from local storage:', error);
+      return { timeSeriesData: [] };
+    }
+  },
+  
+  saveLocalProgressData: (data) => {
+    try {
+      localStorage.setItem('typingProgress', JSON.stringify(data));
+      return data;
+    } catch (error) {
+      console.error('Error writing to local storage:', error);
+      throw error;
+    }
+  }
+};
 
 // Authentication Services
 export const authService = {
@@ -176,68 +206,82 @@ export const progressService = {
         }
       }
       
-      // Try to send to API first
-      try {
-        const response = await api.post('/progress', progressData);
-        console.log('Progress saved to API successfully:', response.data);
-        return response.data;
-      } catch (apiError) {
-        console.warn('Failed to save progress to API, falling back to local storage:', apiError);
-        
-        // If API fails, fall back to local storage
-        // Get existing progress data
-        const existingData = await this.getLocalProgressData();
-        
-        // Format the data for storage
-        const formattedEntry = {
-          date: new Date(progressData.date).toLocaleDateString(),
-          gameType: progressData.gameType
-        };
-        
-        // Add game-specific fields
-        if (progressData.gameType === 'monkey') {
-          formattedEntry.wpm = progressData.wpm || progressData.completionTime;
-          formattedEntry.accuracy = progressData.accuracy || progressData.monkeyAccuracy;
-          formattedEntry.monkey = progressData.wpm || progressData.completionTime;
-          formattedEntry.monkeyAccuracy = progressData.accuracy;
-        } else if (progressData.gameType === 'seguin') {
-          formattedEntry.time = progressData.completionTime;
-          formattedEntry.seguin = progressData.completionTime;
+      // Check if the user is authenticated before attempting API call
+      const token = localStorage.getItem('token');
+      
+      if (token) {
+        // User is authenticated, try API first
+        try {
+          // Add this to your saveGameProgress function, just before calling api.post:
+
+          console.log('Attempting to save progress to API with URL:', `${API_URL}/progress`);
+          console.log('Progress data being sent:', progressData);
+          console.log('Token exists:', !!token);
+
+          const response = await api.post('/progress', progressData);
+          console.log('Progress saved to API successfully:', response.data);
+          return response.data;
+        } catch (apiError) {
+          console.warn('Failed to save progress to API, falling back to local storage:', apiError);
+          // Proceed to local storage fallback
         }
-        
-        // Extract or initialize the timeSeriesData array
-        let timeSeriesData = existingData?.timeSeriesData || [];
-        
-        // Add the new entry
-        timeSeriesData.push(formattedEntry);
-        
-        // Sort by date (newest entries first)
-        timeSeriesData.sort((a, b) => new Date(b.date) - new Date(a.date));
-        
-        // Keep only the most recent 20 entries to prevent the data from growing too large
-        if (timeSeriesData.length > 20) {
-          timeSeriesData = timeSeriesData.slice(0, 20);
-        }
-        
-        // Update the progress data structure
-        const updatedData = {
-          ...existingData,
-          timeSeriesData,
-          totalSessions: (existingData?.totalSessions || 0) + 1,
-          benchmarks: {
-            ...existingData?.benchmarks,
-            monkey: {
-              targetWpm: 40,
-              ...(existingData?.benchmarks?.monkey || {})
-            }
-          }
-        };
-        
-        // Save to local storage
-        await this.saveLocalProgressData(updatedData);
-        
-        return updatedData;
+      } else {
+        console.log('User not authenticated, saving to local storage only');
+        // Skip API call attempt if not authenticated
       }
+      
+      // Local storage fallback (used when API fails or user isn't authenticated)
+      const existingData = localStorageService.getLocalProgressData();
+      
+      // Format the data for storage
+      const formattedEntry = {
+        date: new Date(progressData.date).toLocaleDateString(),
+        gameType: progressData.gameType
+      };
+      
+      // Add game-specific fields
+      if (progressData.gameType === 'monkey') {
+        formattedEntry.wpm = progressData.wpm || progressData.completionTime;
+        formattedEntry.accuracy = progressData.accuracy || progressData.monkeyAccuracy;
+        formattedEntry.monkey = progressData.wpm || progressData.completionTime;
+        formattedEntry.monkeyAccuracy = progressData.accuracy;
+      } else if (progressData.gameType === 'seguin') {
+        formattedEntry.time = progressData.completionTime;
+        formattedEntry.seguin = progressData.completionTime;
+      }
+      
+      // Extract or initialize the timeSeriesData array
+      let timeSeriesData = existingData?.timeSeriesData || [];
+      
+      // Add the new entry
+      timeSeriesData.push(formattedEntry);
+      
+      // Sort by date (newest entries first)
+      timeSeriesData.sort((a, b) => new Date(b.date) - new Date(a.date));
+      
+      // Keep only the most recent 20 entries to prevent the data from growing too large
+      if (timeSeriesData.length > 20) {
+        timeSeriesData = timeSeriesData.slice(0, 20);
+      }
+      
+      // Update the progress data structure
+      const updatedData = {
+        ...existingData,
+        timeSeriesData,
+        totalSessions: (existingData?.totalSessions || 0) + 1,
+        benchmarks: {
+          ...existingData?.benchmarks,
+          monkey: {
+            targetWpm: 40,
+            ...(existingData?.benchmarks?.monkey || {})
+          }
+        }
+      };
+      
+      // Save to local storage
+      localStorageService.saveLocalProgressData(updatedData);
+      
+      return updatedData;
     } catch (error) {
       console.error('Error saving game progress:', error);
       throw error;
@@ -252,7 +296,7 @@ export const progressService = {
       console.warn('Failed to fetch game statistics from API:', error);
       
       // Fall back to local data if API fails
-      const progressData = await progressService.getLocalProgressData();
+      const progressData = localStorageService.getLocalProgressData();
       
       // Extract game-specific statistics
       if (gameType === 'monkey') {
@@ -276,27 +320,6 @@ export const progressService = {
       }
       
       return { message: 'No data available' };
-    }
-  },
-  
-  // Helper methods for local storage
-  getLocalProgressData: async () => {
-    try {
-      const storedData = localStorage.getItem('typingProgress');
-      return storedData ? JSON.parse(storedData) : { timeSeriesData: [] };
-    } catch (error) {
-      console.error('Error reading from local storage:', error);
-      return { timeSeriesData: [] };
-    }
-  },
-  
-  saveLocalProgressData: async (data) => {
-    try {
-      localStorage.setItem('typingProgress', JSON.stringify(data));
-      return data;
-    } catch (error) {
-      console.error('Error writing to local storage:', error);
-      throw error;
     }
   }
 };

@@ -1,3 +1,4 @@
+//progressController.js
 import GameProgress from '../models/GameProgress.js';
 import User from '../models/User.js';
 import asyncHandler from 'express-async-handler';
@@ -160,30 +161,66 @@ export const getProgressData = asyncHandler(async (req, res) => {
 // @route   POST /api/progress
 // @access  Private
 export const saveGameProgress = asyncHandler(async (req, res) => {
-  const { gameType, completionTime, level, accuracy } = req.body;
-  
-  if (!gameType || completionTime === undefined) {
-    res.status(400);
-    throw new Error('Please provide all required fields');
+  try {
+    console.log('Received progress data:', req.body);
+    console.log('User info:', req.user);
+
+    const { gameType, completionTime, level, accuracy } = req.body;
+    
+    if (!gameType || completionTime === undefined) {
+      console.error('Missing required fields:', { gameType, completionTime });
+      res.status(400);
+      throw new Error('Please provide all required fields');
+    }
+    
+    // Validate game type
+    if (!['seguin', 'monkey'].includes(gameType)) {
+      console.error('Invalid game type:', gameType);
+      res.status(400);
+      throw new Error('Invalid game type');
+    }
+    
+    const newProgress = await GameProgress.create({
+      userId: req.user.id,
+      gameType,
+      completionTime,
+      level: level || 1,
+      accuracy: accuracy || 100,
+      date: new Date()
+    });
+    
+    res.status(201).json(newProgress);
+  } catch (error) {
+    console.error('Error in saveGameProgress:', error);
+    throw error;
   }
-  
-  // Validate game type
-  if (!['seguin', 'monkey'].includes(gameType)) {
-    res.status(400);
-    throw new Error('Invalid game type');
-  }
-  
-  const newProgress = await GameProgress.create({
-    userId: req.user.id,
-    gameType,
-    completionTime,
-    level: level || 1,
-    accuracy: accuracy || 100,
-    date: new Date()
-  });
-  
-  res.status(201).json(newProgress);
 });
+
+// export const saveGameProgress = asyncHandler(async (req, res) => {
+//   const { gameType, completionTime, level, accuracy } = req.body;
+  
+//   if (!gameType || completionTime === undefined) {
+//     res.status(400);
+//     throw new Error('Please provide all required fields');
+//   }
+  
+//   // Validate game type
+//   if (!['seguin', 'monkey'].includes(gameType)) {
+//     res.status(400);
+//     throw new Error('Invalid game type');
+//   }
+  
+//   const newProgress = await GameProgress.create({
+//     userId: req.user.id,
+//     gameType,
+//     completionTime,
+//     level: level || 1,
+//     accuracy: accuracy || 100,
+//     date: new Date()
+//   });
+  
+//   res.status(201).json(newProgress);
+// });
 
 // @desc    Get statistics for specific game
 // @route   GET /api/progress/stats/:gameType
