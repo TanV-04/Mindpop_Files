@@ -1,3 +1,4 @@
+//Board.jsx
 /* eslint-disable react/no-unknown-property */
 import { useState, useEffect, useRef } from 'react';
 import { shapes } from '../../../constants/gameConstants';

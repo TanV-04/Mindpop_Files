@@ -1,3 +1,4 @@
+//Placementfeedback.jsx
 import { useState, useEffect, useMemo } from 'react';
 
 const PlacementFeedback = ({ isVisible, position }) => {

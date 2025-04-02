@@ -1,4 +1,5 @@
-import { useState,useEffect } from 'react';
+//ScoreBoard.jsx
+import { useState, useEffect } from 'react';
 import ResultsAnalysis from './ResultAnalysis';
 import { Trophy, Clock, RotateCcw, ChevronDown, ChevronUp } from 'lucide-react';
 import { progressService } from '../../../utils/apiService'; // Import the progress service
@@ -18,7 +19,8 @@ const ScoreBoard = ({ time, age, onPlayAgain }) => {
         gameType: 'seguin', // This is the Seguin Form Board game
         completionTime: Number(time), // Ensure time is a number
         accuracy: 100, // Default accuracy (can be calculated if available)
-        level: 1 // Default level (can be adjusted based on game settings)
+        level: 1, // Default level (can be adjusted based on game settings)
+        date: new Date().toISOString() // Add current date
       };
       
       console.log('Saving progress data:', progressData);
@@ -34,8 +36,11 @@ const ScoreBoard = ({ time, age, onPlayAgain }) => {
   
   // Save progress when component mounts
   useEffect(() => {
-  saveProgress();
-  }, []);
+    // Only try to save if we have a valid time (game completed)
+    if (time > 0) {
+      saveProgress();
+    }
+  }, [time]); // Depend on time to prevent multiple saves
   
   const formatTime = (timeInSeconds) => {
     const minutes = Math.floor(timeInSeconds / 60);
