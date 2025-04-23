@@ -1,7 +1,7 @@
 import "./index.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 // Import in your App.jsx or index.js
-import 'react-toastify/dist/ReactToastify.css';
+import "react-toastify/dist/ReactToastify.css";
 // import pages and components
 import Home from "./pages/Home";
 import Navbar from "./components/Navbar";
@@ -14,8 +14,8 @@ import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import MonkeyType from "./pages/games/MonkeyType.jsx";
 import Settings from "./components/settings.jsx"; // Import the Settings component
 
-
-import { ToastContainer } from 'react-toastify';
+import { ToastContainer } from "react-toastify";
+import Jigsaw from "./components/games/jigsawPuzzle/Jigsaw.jsx";
 
 function App() {
   return (
@@ -55,7 +55,15 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            
+            <Route
+              path="/games/jigsaw"
+              element={
+                <ProtectedRoute>
+                  <Jigsaw />
+                </ProtectedRoute>
+              }
+            />
+
             {/* Add the route for Settings */}
             <Route
               path="/settings"

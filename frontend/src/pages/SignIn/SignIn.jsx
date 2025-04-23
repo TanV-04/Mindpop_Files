@@ -87,13 +87,13 @@ const SignIn = () => {
           <i className="fa-solid fa-lock" />
         </div>
         
-        <a href="#" className="forgot-pass-link">
+        <a href="#" className="forgot-pass-link mb-3">
           Forgot password?
         </a>
+{/* 
+        <h2 className="small-heading">Or log in using</h2> */}
 
-        <h2 className="small-heading">Or log in using</h2>
-
-        <div className="social-login border border-gray-600 rounded-md mb-4 cursor-pointer">
+        {/* <div className="social-login border border-gray-600 rounded-md mb-4 cursor-pointer">
           <button 
             type="button"
             className="social-abbreviation" 
@@ -102,7 +102,7 @@ const SignIn = () => {
             <img src={googleLogo} alt="google" className="social-icon" />
             Google
           </button>
-        </div>
+        </div> */}
 
         <button 
           type="submit" 
