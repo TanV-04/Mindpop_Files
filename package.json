@@ -19,6 +19,7 @@
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
+    "express-async-handler": "^1.2.0",
     "express-mongo-sanitize": "^2.2.0",
     "express-rate-limit": "^6.7.0",
     "express-validator": "^7.0.1",
@@ -34,6 +35,7 @@
     "react-dnd-html5-backend": "^16.0.1",
     "react-dom": "^18.3.1",
     "react-icons": "^5.5.0",
+    "react-jigsaw-puzzle": "^1.0.5",
     "react-router-dom": "^7.1.5",
     "react-scripts": "^5.0.1",
     "react-scroll": "^1.9.0",
@@ -45,6 +47,7 @@
     "winston": "^3.8.2"
   },
   "devDependencies": {
+    "@vitejs/plugin-react": "^4.4.1",
     "framer-motion": "^12.4.7"
   }
 }

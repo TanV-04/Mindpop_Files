@@ -1,0 +1,33 @@
+/* Add this to your CSS file */
+
+.jigsaw-puzzle {
+  border: 3px solid #4299e1;
+  border-radius: 10px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.jigsaw-puzzle__piece {
+  cursor: grab;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.jigsaw-puzzle__piece:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 15px rgba(66, 153, 225, 0.6);
+}
+
+.jigsaw-puzzle__piece--dragging {
+  cursor: grabbing;
+  box-shadow: 0 0 20px rgba(66, 153, 225, 0.8);
+}
+
+.jigsaw-puzzle__piece--solved {
+  box-shadow: 0 0 10px rgba(72, 187, 120, 0.6);
+}
+
+.feedback-message {
+  height: 50px;
+  transition: opacity 0.3s;
+  font-size: 1.2rem;
+  color: #4a5568;
+}
