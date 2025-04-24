@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { countErrors } from "../utils/helpers";
-
+import { AdaptiveDifficultyAI } from 'data/adaptiveDifficulty';
 // Default timer in seconds
 const DEFAULT_TIME = 60;
 
@@ -16,6 +16,7 @@ const useEngine = () => {
   const [errors, setErrors] = useState(0);
   const [totalTyped, setTotalTyped] = useState(0);
   const intervalRef = useRef(null);
+  
   
   // Generate a new set of words
   const generateWords = useCallback(() => {
