@@ -255,9 +255,9 @@ const SignUp = () => {
   const [error, setError] = useState("");
   const [formData, setFormData] = useState({
     username: "",
-    name: "", // Added full name
+    name: "",
     email: "",
-    age: "", // Added age
+    age: "",
     password: ""
   });
 
@@ -269,11 +269,18 @@ const SignUp = () => {
     }));
   };
 
+  // Helper to classify age group
+  const classifyAgeGroup = (age) => {
+    if (age >= 5 && age <= 7) return "5-7";
+    if (age >= 8 && age <= 10) return "8-10";
+    if (age >= 11 && age <= 12) return "11-12";
+    return "8-10"; // Default age group if age is not provided or outside range
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    
-    // Enhanced validation
+
     if (!formData.username || !formData.name || !formData.email || !formData.password) {
       setError("Please fill in all required fields");
       return;
@@ -284,7 +291,6 @@ const SignUp = () => {
       return;
     }
 
-    // Age validation (optional, adjust as needed)
     if (formData.age && (formData.age < 0 || formData.age > 120)) {
       setError("Please enter a valid age between 0 and 120");
       return;
@@ -297,9 +303,13 @@ const SignUp = () => {
         username: formData.username,
         name: formData.name,
         email: formData.email,
-        age: formData.age || undefined, // Only send if provided
+        age: formData.age || undefined,
         password: formData.password
       });
+
+      // Classify age group and save it to localStorage
+      const ageGroup = classifyAgeGroup(formData.age);
+      localStorage.setItem("userAgeGroup", ageGroup);
 
       setFormData({
         username: "",
@@ -308,6 +318,7 @@ const SignUp = () => {
         age: "",
         password: ""
       });
+
       navigate("/sign-in");
       alert("Registration successful! Please log in.");
     } catch (error) {

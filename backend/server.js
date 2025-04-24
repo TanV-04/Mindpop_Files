@@ -77,6 +77,8 @@ app.use(handleUploadErrors);
 // Error handling
 app.use(errorHandler);
 
+app.use('/api/users', userRoutes);
+
 const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => {
     logger.info(`Server running on port ${PORT}`);
