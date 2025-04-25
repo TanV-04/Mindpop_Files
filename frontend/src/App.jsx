@@ -1,7 +1,7 @@
 import "./index.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 // Import in your App.jsx or index.js
-import 'react-toastify/dist/ReactToastify.css';
+import "react-toastify/dist/ReactToastify.css";
 // import pages and components
 import Home from "./pages/Home";
 import Navbar from "./components/Navbar";
@@ -12,10 +12,16 @@ import Games from "./pages/games/Games.jsx";
 import SeguinGame from "./pages/games/SeguinGame.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import MonkeyType from "./pages/games/MonkeyType.jsx";
-import Settings from "./components/settings.jsx"; // Import the Settings component
-
-
-import { ToastContainer } from 'react-toastify';
+import Settings from "./components/settings.jsx";
+import Jigsaw_6_to_8 from "./components/games/jigsawPuzzle/Jigsaw_6_to_8.jsx";
+import Jigsaw_8_to_10 from "./components/games/jigsawPuzzle/Jigsaw_8_to_10.jsx";
+import Jigsaw_10_to_12 from "./components/games/jigsawPuzzle/Jigsaw_10_to_12.jsx";
+import Jigsaw_12_to_14 from "./components/games/jigsawPuzzle/Jigsaw_12_to_14.jsx";
+import MathsPuzzle from "./components/games/jigsawPuzzle/MathsPuzzle.jsx";
+import MonkeyTypeComponent from "./components/games/monkeytype/MonkeyTypeComponent.jsx";
+import MonkeyType5to7 from "./components/games/monkeytype/MonkeyType5to7.jsx";
+import MonkeyType8to10 from "./components/games/monkeytype/MonkeyType8to10.jsx";
+import MonkeyType11to12 from "./components/games/monkeytype/MonkeyType11to12.jsx";
 
 function App() {
   return (
@@ -56,6 +62,43 @@ function App() {
               }
             />
             
+            <Route path="/games/5-7" element={<MonkeyType5to7 />} />
+            <Route path="/games/8-10" element={<MonkeyType8to10 />} />
+            <Route path="/games/11-12" element={<MonkeyType11to12 />} />
+            <Route
+              path="/games/jigsaw_8_to_10"
+              element={
+                <ProtectedRoute>
+                  <Jigsaw_8_to_10 />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/games/jigsaw_10_to_12"
+              element={
+                <ProtectedRoute>
+                  <Jigsaw_10_to_12 />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/games/jigsaw_12_to_14"
+              element={
+                <ProtectedRoute>
+                  <Jigsaw_12_to_14 />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/games/maths_puzzle"
+              element={
+                <ProtectedRoute>
+                  <MathsPuzzle />
+                </ProtectedRoute>
+              }
+            />
+  
+
             {/* Add the route for Settings */}
             <Route
               path="/settings"

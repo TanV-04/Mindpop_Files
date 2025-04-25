@@ -1,3 +1,4 @@
+//Instructions.jsx
 import React from "react";
 
 const Instructions = ({ text, isChild = false }) => {

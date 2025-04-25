@@ -1,3 +1,4 @@
+//userRoutes.js
 import express from 'express';
 import { protect } from '../middleware/authMiddleware.js';
 import { 
@@ -45,5 +46,23 @@ router.put(
   validatePrivacySettings,
   updatePrivacySettings
 );
+//get age
+router.get('/:id/age', async (req, res) => {
+  try {
+    const userId = req.params.id;
+    
+    // Find user by ID and return age
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.json({ age: user.age });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Failed to retrieve user data' });
+  }
+});
 
 export default router;

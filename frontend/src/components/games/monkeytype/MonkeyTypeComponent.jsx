@@ -1,15 +1,112 @@
 import React, { useEffect, useState, useRef } from "react";
-import knownRhymesNoPunctuation from "../../../data/rhymesLinesNoPunctuation";
 import RestartButton from "../../RestartButton";
 import Results from "./Results";
 import { calculateAccuracyPercentage, calculateWPM } from "../../../utils/helpers";
 import { progressService } from "../../../utils/apiService";
+import { useParams } from "react-router-dom";
+import Avatar from "./Avatar";
+import Groq from "groq-sdk";
+
+const groq = new Groq({
+  apiKey: import.meta.env.VITE_GROQ_API_KEY,
+  dangerouslyAllowBrowser: true
+});
+
+// Age group configurations
+const AGE_GROUPS = {
+  "5-7": {
+    initialTimer: 150, // 2.5 minutes
+    minTimer: 120,    // 2 minutes
+    initialLevel: "letters",
+    avatarMessages: {
+      correct: "Great job!",
+      wrong: "Try again!",
+      completed: "You're amazing!"
+    },
+    prompt: (level) => {
+      switch(level) {
+        case "letters": 
+          return "Generate a simple typing exercise for 5-7 year olds focusing on letters and numbers. Use only uppercase letters A-Z and numbers 0-9 separated by spaces. Keep it very simple with 5-7 items total. Example: 'A B C 1 2 3'";
+        case "simple":
+          return "Generate a simple typing exercise for 5-7 year olds using 3-4 letter words. Create a sequence of 5-7 very simple words that a young child could type, separated by spaces. Example: 'cat dog sun ball happy'";
+        default:
+          return "Generate a simple typing exercise for young children with 5-7 items, alternating between letters and numbers. Example: 'A 1 B 2 C 3'";
+      }
+    }
+  },
+  "8-10": {
+    initialTimer: 120, // 2 minutes
+    minTimer: 90,     // 1.5 minutes
+    initialLevel: "simple",
+    avatarMessages: {
+      correct: "Well done!",
+      wrong: "Almost there!",
+      completed: "Fantastic work!"
+    },
+    prompt: (level, count = 1) => {
+      switch(level) {
+        case "simple":
+          if (count === 1) {
+            return `Generate one simple, unique sentence typing exercise suitable for 8-10 year olds. 
+                    Abosolutely no repetition of sentences.
+                    Use simple vocabulary and keep the sentence under 10 words. 
+                    Return only the sentence, without numbering. 
+                    The sentence should be different from all previously generated sentences. Every sentence has to be a riddle.`;
+          } else {
+            return `Generate ${count} simple, unique sentence typing exercises suitable for 8-10 year olds. 
+                    Each sentence should be different and not repeat any previous sentence structure or wording. 
+                    Keep each sentence under 10 words. 
+                    Return only the sentences as a JSON array of strings.`;
+          }
+        case "intermediate":
+          return `Generate an intermediate typing exercise for 8-10 year olds. 
+                  Create a meaningful sentence with 10-15 words using slightly more complex vocabulary. 
+                  The sentence should be unique and not repeat previous content. 
+                  Example: 'Children enjoy playing outside when the weather is nice and sunny.'`;
+        default:
+          return `Generate a typing exercise appropriate for 8-10 year olds with 10-15 words. 
+                  The content should be unique and not repeat previous sentences. 
+                  Example: 'My favorite subjects in school are math and science because they are interesting.'`;
+      }
+    }
+
+  },
+  "11-12": {
+    initialTimer: 90,  // 1.5 minutes
+    minTimer: 60,      // 1 minute
+    initialLevel: "poems",
+    avatarMessages: {
+      correct: "Excellent!",
+      wrong: "Focus!",
+      completed: "Brilliant!"
+    },
+    prompt: (level) => {
+      switch(level) {
+        case "poems":
+          return "Generate a short line from a children's poem or rhyme that would be appropriate for typing practice for 11-12 year olds. Keep it to 10-15 words. Example: 'Twinkle twinkle little star how I wonder what you are'";
+        case "intermediate":
+          return "Generate an interesting fact or short sentence appropriate for 11-12 year olds that would make good typing practice. Make it 15-20 words with slightly complex vocabulary. Example: 'The solar system consists of eight planets that orbit around the sun in elliptical paths.'";
+        case "advanced":
+          return "Generate a challenging typing exercise for 11-12 year olds. Create a meaningful sentence with 20+ words using complex vocabulary and concepts. Example: 'Quantum mechanics demonstrates that particles can exist in multiple states simultaneously until they are observed or measured.'";
+        default:
+          return "Generate a typing exercise appropriate for 11-12 year olds with 15-20 words. Example: 'Photosynthesis is the process by which plants convert sunlight into energy through chemical reactions in their leaves.'";
+      }
+    }
+  }
+};
+
+// Fallback texts in case API fails
+const FALLBACK_TEXTS = {
+  "letters": ["A B C 1 2 3", "X Y Z 4 5 6", "M N O 7 8 9"],
+  "simple": ["The cat sat on the mat.", "I like to play outside.", "My dog is very happy."],
+  "poems": ["Twinkle twinkle little star", "Mary had a little lamb", "Humpty Dumpty sat on a wall"],
+  "intermediate": ["The quick brown fox jumps over the lazy dog.", "Pack my box with five dozen liquor jugs."],
+  "advanced": ["The juxtaposition of complex ideas creates cognitive dissonance in many readers."]
+};
 
 // Enhanced UserTypings component with bigger, bolder, and glowy text
 const UserTypings = ({ userInput = "", words = "", isDarkMode = false }) => {
-  // Always declare hooks at the top level
   useEffect(() => {
-    // Add the keyframes to the document
     const style = document.createElement('style');
     style.type = 'text/css';
     style.innerHTML = `
@@ -20,7 +117,6 @@ const UserTypings = ({ userInput = "", words = "", isDarkMode = false }) => {
     `;
     document.getElementsByTagName('head')[0].appendChild(style);
     
-    // Clean up on unmount
     return () => {
       if (document.getElementsByTagName('head')[0].contains(style)) {
         document.getElementsByTagName('head')[0].removeChild(style);
@@ -28,27 +124,23 @@ const UserTypings = ({ userInput = "", words = "", isDarkMode = false }) => {
     };
   }, []);
 
-  // Early return if no words
   if (!words) return null;
 
-  // Get appropriate class name based on character status
   const getCharClassName = (isCorrect, isIncorrect) => {
     if (isCorrect) return isDarkMode ? "text-green-300" : "text-green-600";
     if (isIncorrect) return "text-red-500 bg-red-100 dark:bg-red-900 dark:bg-opacity-30";
     return isDarkMode ? "text-gray-600" : "text-gray-400";
   };
 
-  // Add glow effect style for text
   const glowStyle = {
     textShadow: "0 0 8px rgba(59, 130, 246, 0.6)",
-    fontWeight: "600", // Bolder text
-    fontSize: "2.5rem", // Bigger text (was 2xl/2rem)
-    letterSpacing: "0.05em", // Slightly increase spacing for readability
+    fontWeight: "600",
+    fontSize: "2.5rem",
+    letterSpacing: "0.05em",
   };
 
   return (
     <div className="relative">
-      {/* Base text layer (the text to be typed) */}
       <div 
         className="tracking-wide font-light text-gray-400 dark:text-gray-600 opacity-0"
         style={glowStyle}
@@ -56,7 +148,6 @@ const UserTypings = ({ userInput = "", words = "", isDarkMode = false }) => {
         {words}
       </div>
 
-      {/* User input overlay with character-by-character cursor */}
       <div 
         className="absolute top-0 left-0" 
         style={{ 
@@ -67,7 +158,7 @@ const UserTypings = ({ userInput = "", words = "", isDarkMode = false }) => {
           const typedChar = index < userInput.length ? userInput[index] : "";
           const isCorrect = typedChar === char;
           const isIncorrect = typedChar && !isCorrect;
-          const isCurrentPosition = index === userInput.length; // This identifies the current cursor position
+          const isCurrentPosition = index === userInput.length;
 
           return (
             <span
@@ -80,7 +171,6 @@ const UserTypings = ({ userInput = "", words = "", isDarkMode = false }) => {
             >
               {char}
               
-              {/* Dashed cursor that shows the current position */}
               {isCurrentPosition && (
                 <span 
                   className="absolute"
@@ -104,12 +194,102 @@ const UserTypings = ({ userInput = "", words = "", isDarkMode = false }) => {
   );
 };
 
-// Custom hook for the typing game engine with start button functionality
-const useTypingEngine = () => {
-  const [state, setState] = useState("idle"); // idle, start, finish
+// Custom hook for AI text generation
+const useAITextGenerator = (ageGroup) => {
+  const [currentLevel, setCurrentLevel] = useState(AGE_GROUPS[ageGroup].initialLevel);
+  const [performanceHistory, setPerformanceHistory] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+  
+  const getAIText = async (level) => {
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      const prompt = AGE_GROUPS[ageGroup].prompt(level);
+      const completion = await groq.chat.completions.create({
+        model: "llama3-70b-8192",
+        messages: [
+          {
+            role: "user",
+            content: prompt,
+          },
+        ],
+        max_tokens: 100,
+        temperature: 0.7,
+      });
+      
+      const generatedText = completion.choices[0]?.message?.content;
+      if (generatedText) {
+        const cleanedText = generatedText
+          .replace(/"/g, '')
+          .replace(/\n/g, ' ')
+          .replace(/\s+/g, ' ')
+          .trim();
+        
+        return cleanedText;
+      }
+      throw new Error("No text generated");
+    } catch (err) {
+      console.error("Error generating text with Groq:", err);
+      setError(err);
+      const fallbacks = FALLBACK_TEXTS[level] || FALLBACK_TEXTS[AGE_GROUPS[ageGroup].initialLevel];
+      return fallbacks[Math.floor(Math.random() * fallbacks.length)];
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  const adjustLevel = (accuracy, wpm) => {
+    setPerformanceHistory(prev => [...prev, { accuracy, wpm }]);
+    
+    const avgAccuracy = performanceHistory.reduce((sum, item) => sum + item.accuracy, accuracy) / 
+                        (performanceHistory.length + 1);
+    const avgWPM = performanceHistory.reduce((sum, item) => sum + item.wpm, wpm) / 
+                   (performanceHistory.length + 1);
+    
+    let newLevel = currentLevel;
+    
+    if (ageGroup === "5-7") {
+      if (avgAccuracy > 90 && avgWPM > 10 && currentLevel === "letters") {
+        newLevel = "simple";
+      } else if (avgAccuracy < 80 && currentLevel === "simple") {
+        newLevel = "letters";
+      }
+    } else if (ageGroup === "8-10") {
+      if (avgAccuracy > 85 && avgWPM > 20 && currentLevel === "simple") {
+        newLevel = "intermediate";
+      } else if (avgAccuracy < 70 || avgWPM < 15) {
+        newLevel = "simple";
+      }
+    } else if (ageGroup === "11-12") {
+      if (avgAccuracy > 80 && avgWPM > 30 && currentLevel === "poems") {
+        newLevel = "intermediate";
+      } else if (avgAccuracy > 85 && avgWPM > 35 && currentLevel === "intermediate") {
+        newLevel = "advanced";
+      } else if ((avgAccuracy < 65 || avgWPM < 20) && currentLevel !== "poems") {
+        newLevel = currentLevel === "advanced" ? "intermediate" : "poems";
+      }
+    }
+    
+    if (newLevel !== currentLevel) {
+      setCurrentLevel(newLevel);
+    }
+    
+    return newLevel;
+  };
+  
+  return { getAIText, adjustLevel, currentLevel, isLoading, error };
+};
+
+// Custom hook for the typing game engine
+const useTypingEngine = (ageGroup) => {
+  const ageConfig = AGE_GROUPS[ageGroup];
+  const { getAIText, adjustLevel, currentLevel, isLoading, error } = useAITextGenerator(ageGroup);
+  const [state, setState] = useState("idle");
   const [currentWords, setCurrentWords] = useState("");
   const [nextWords, setNextWords] = useState("");
-  const [timeLeft, setTimeLeft] = useState(60);
+  const [timeLeft, setTimeLeft] = useState(ageConfig.initialTimer);
   const [typed, setTyped] = useState("");
   const [errors, setErrors] = useState(0);
   const [totalTyped, setTotalTyped] = useState(0);
@@ -117,29 +297,40 @@ const useTypingEngine = () => {
   const [completedTexts, setCompletedTexts] = useState(0);
   const intervalRef = useRef(null);
   const allTypedRef = useRef("");
+  const [avatarMessage, setAvatarMessage] = useState("");
   
-  // Get random text passage
-  const getRandomText = () => {
-    const randomIndex = Math.floor(Math.random() * knownRhymesNoPunctuation.length);
-    return knownRhymesNoPunctuation[randomIndex];
+  const initializeTexts = async () => {
+    try {
+      const current = await getAIText(currentLevel);
+      const next = await getAIText(currentLevel);
+      setCurrentWords(current);
+      setNextWords(next);
+    } catch (err) {
+      console.error("Error initializing texts:", err);
+      const fallbacks = FALLBACK_TEXTS[currentLevel] || FALLBACK_TEXTS[ageConfig.initialLevel];
+      setCurrentWords(fallbacks[0]);
+      setNextWords(fallbacks[1]);
+    }
   };
 
-  // Initialize texts
-  const initializeTexts = () => {
-    setCurrentWords(getRandomText());
-    setNextWords(getRandomText());
-  };
-
-  // Progress to next text
-  const progressToNextText = () => {
+  const progressToNextText = async () => {
     setCompletedTexts(prev => prev + 1);
     setCurrentWords(nextWords);
-    setNextWords(getRandomText());
+    
+    try {
+      const next = await getAIText(currentLevel);
+      setNextWords(next);
+    } catch (err) {
+      console.error("Error generating next text:", err);
+      const fallbacks = FALLBACK_TEXTS[currentLevel] || FALLBACK_TEXTS[ageConfig.initialLevel];
+      setNextWords(fallbacks[Math.floor(Math.random() * fallbacks.length)]);
+    }
+    
     setTyped("");
-    // Don't reset errors or totalTyped since we want to track across all texts
+    setAvatarMessage(ageConfig.avatarMessages.completed);
+    setTimeout(() => setAvatarMessage(""), 2000);
   };
 
-  // Calculate errors in current typing segment
   const calculateCurrentErrors = (typedText, targetText) => {
     let errorCount = 0;
     for (let i = 0; i < typedText.length; i++) {
@@ -150,17 +341,16 @@ const useTypingEngine = () => {
     return errorCount;
   };
 
-  // Start the game
-  const startGame = () => {
+  const startGame = async () => {
     setState("start");
-    setTimeLeft(60);
+    setTimeLeft(ageConfig.initialTimer);
     setTyped("");
     setErrors(0);
     setTotalTyped(0);
     setTotalCorrect(0);
     setCompletedTexts(0);
     allTypedRef.current = "";
-    initializeTexts();
+    await initializeTexts();
     
     if (intervalRef.current) clearInterval(intervalRef.current);
     
@@ -173,13 +363,22 @@ const useTypingEngine = () => {
         }
         return prevTime - 1;
       });
+      
+      if (timeLeft > ageConfig.minTimer) {
+        const accuracy = totalTyped > 0 ? (totalCorrect / totalTyped) * 100 : 0;
+        const wpm = calculateWPM(totalTyped, ageConfig.initialTimer - timeLeft);
+        
+        if (accuracy > (ageGroup === "5-7" ? 85 : ageGroup === "8-10" ? 80 : 75) && 
+            wpm > (ageGroup === "5-7" ? 10 : ageGroup === "8-10" ? 20 : 30)) {
+          setTimeLeft(prev => Math.max(ageConfig.minTimer, prev - 2));
+        }
+      }
     }, 1000);
   };
 
-  // Restart the game
   const restart = () => {
     setState("idle");
-    setTimeLeft(60);
+    setTimeLeft(ageConfig.initialTimer);
     setTyped("");
     setErrors(0);
     setTotalTyped(0);
@@ -187,37 +386,38 @@ const useTypingEngine = () => {
     setCompletedTexts(0);
     allTypedRef.current = "";
     clearInterval(intervalRef.current);
-    // Don't automatically start - wait for button click
   };
 
-  // Handle text completion and progression
   useEffect(() => {
     if (state === "start" && typed.length >= currentWords.length) {
-      // Calculate errors for this segment
       const currentErrors = calculateCurrentErrors(typed, currentWords);
+      const currentCorrect = typed.length - currentErrors;
       
-      // Track total typed and correct characters
       setTotalTyped(prev => prev + typed.length);
-      setTotalCorrect(prev => prev + (typed.length - currentErrors));
-      
-      // Update total errors
+      setTotalCorrect(prev => prev + currentCorrect);
       setErrors(prev => prev + currentErrors);
       
-      // Save all typed text for reference
       allTypedRef.current += typed;
       
-      // Move to next text segment
+      if (currentErrors === 0) {
+        setAvatarMessage(ageConfig.avatarMessages.correct);
+      } else {
+        setAvatarMessage(ageConfig.avatarMessages.wrong);
+      }
+      setTimeout(() => setAvatarMessage(""), 1500);
+      
+      const accuracy = (currentCorrect / typed.length) * 100;
+      const wpm = calculateWPM(typed.length, 1);
+      adjustLevel(accuracy, wpm);
+      
       progressToNextText();
     }
   }, [typed, currentWords, state]);
 
-  // Handle keyboard input - only when in "start" state
   useEffect(() => {
     const handleKeyDown = (e) => {
-      // Only accept keyboard input if game is in started state
       if (state !== "start") return;
       
-      // Only allow letters, numbers, spaces, and punctuation
       const key = e.key;
       const isValidKey = 
         key.length === 1 || 
@@ -239,7 +439,6 @@ const useTypingEngine = () => {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [state]);
 
-  // Cleanup on unmount
   useEffect(() => {
     return () => clearInterval(intervalRef.current);
   }, []);
@@ -254,6 +453,10 @@ const useTypingEngine = () => {
     totalTyped,
     totalCorrect,
     completedTexts,
+    avatarMessage,
+    currentLevel,
+    isLoading,
+    error,
     startGame,
     restart
   };
@@ -264,9 +467,11 @@ const StartButton = ({ onStart }) => {
   return (
     <button
       onClick={onStart}
-      className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg"
+      className="bg-[#F09000] hover:bg-[#C07000] text-black font-bold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg"
       style={{
-        boxShadow: '0 4px 14px rgba(59, 130, 246, 0.4)',
+        backgroundColor: '#F09000',
+        color: 'black',
+        boxShadow: '0 4px 14px rgba(240, 144, 0, 0.4)',
       }}
     >
       <div className="flex items-center justify-center">
@@ -286,6 +491,9 @@ const StartButton = ({ onStart }) => {
 
 // Main Monkey Type Component
 const MonkeyTypeComponent = () => {
+  const params = useParams();
+  const storedAgeGroup = localStorage.getItem("userAgeGroup");
+  const ageGroup = params.ageGroup || storedAgeGroup || "8-10";
   const {
     state,
     currentWords,
@@ -296,45 +504,37 @@ const MonkeyTypeComponent = () => {
     totalTyped,
     totalCorrect,
     completedTexts,
+    avatarMessage,
+    currentLevel,
+    isLoading,
+    error,
     startGame,
     restart
-  } = useTypingEngine();
+  } = useTypingEngine(ageGroup);
   
   const [isVisible, setIsVisible] = useState(false);
   const [savedProgress, setSavedProgress] = useState(false);
   
-  // Calculate real-time metrics
   const accuracy = totalTyped > 0 ? (totalCorrect / totalTyped) * 100 : 0;
-  const wpm = calculateWPM(totalTyped, 60 - timeLeft);
+  const wpm = calculateWPM(totalTyped, AGE_GROUPS[ageGroup].initialTimer - timeLeft);
   
-  // Initial visibility animation
   useEffect(() => setIsVisible(true), []);
 
-  // Save progress when game finishes
   useEffect(() => {
     if (state === "finish") {
       saveProgress();
     }
   }, [state]);
 
-  // Save progress to database
   const saveProgress = async () => {
     try {
-      // Default game duration
-      const totalTime = 60;
-      
-      // Calculate actual time used (seconds)
-      const timeUsed = Math.max(1, totalTime - timeLeft);
-      
-      // Prepare progress data with correct metrics and format
-      // This matches what MonkeyTypePerformance expects
       const progressData = {
         gameType: 'monkey',
-        completionTime: wpm, // Store WPM as the completionTime metric
+        completionTime: wpm,
         accuracy: accuracy,
-        level: 1,
-        date: new Date().toISOString(), // Add date for time series data
-        // Add these fields explicitly to match what the chart component expects
+        level: currentLevel,
+        ageGroup: ageGroup,
+        date: new Date().toISOString(),
         wpm: wpm,
         monkeyAccuracy: accuracy
       };
@@ -354,6 +554,12 @@ const MonkeyTypeComponent = () => {
     restart();
   };
 
+  const formatTime = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+  };
+
   return (
     <div className="min-h-screen flex justify-center items-center px-4 py-10">
       <div
@@ -365,32 +571,46 @@ const MonkeyTypeComponent = () => {
           border: '1px solid rgba(0,0,0,0.05)'
         }}
       >
-        {/* Game header with instructions */}
+        {isLoading && (
+          <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-10 rounded-2xl">
+            <div className="text-white text-lg">Generating new text...</div>
+          </div>
+        )}
+        
+        {error && (
+          <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4 rounded">
+            <p>Couldn't generate new text. Using practice materials instead.</p>
+          </div>
+        )}
+
         <div className="mb-8">
-          <h2 className="text-3xl font-bold text-center mb-3 dark:text-white bg-gradient-to-r from-blue-500 to-indigo-500 bg-clip-text text-transparent">
-            Tappy Type
+          <h2 className="text-3xl font-bold text-center mb-3 dark:text-white text-black">
+            {ageGroup === "5-7" ? "Fun Typing for Kids" : 
+             ageGroup === "8-10" ? "Tappy Type" : "Advanced Typing Challenge"}
           </h2>
           <p className="text-center text-gray-600 dark:text-gray-300 px-4">
-            Type the words below as quickly and accurately as you can. New text will appear as you complete each segment.
+            {ageGroup === "5-7" ? "Type the letters and words as they appear. Let's learn together!" : 
+             ageGroup === "8-10" ? "Type the words below as quickly and accurately as you can." : 
+             "Challenge yourself with complex texts. Accuracy and speed both matter!"}
           </p>
         </div>
 
-        {/* Game stats bar - always visible */}
         <div className="flex justify-between items-center mb-6 p-4 rounded-xl">
           <div className="flex items-center space-x-2">
             <div
               className="relative h-10 w-10 rounded-full flex items-center justify-center"
               style={{ 
-                backgroundColor: timeLeft > 30 ? '#34C759' : timeLeft > 10 ? '#FF9500' : '#FF3B30',
-                boxShadow: `0 0 10px ${timeLeft > 30 ? '#34C759' : timeLeft > 10 ? '#FF9500' : '#FF3B30'}`
+                backgroundColor: timeLeft > AGE_GROUPS[ageGroup].initialTimer/2 ? '#34C759' : 
+                                timeLeft > AGE_GROUPS[ageGroup].initialTimer/4 ? '#FF9500' : '#FF3B30',
+                boxShadow: `0 0 10px ${timeLeft > AGE_GROUPS[ageGroup].initialTimer/2 ? '#34C759' : 
+                            timeLeft > AGE_GROUPS[ageGroup].initialTimer/4 ? '#FF9500' : '#FF3B30'}`
               }}
             >
-              <span className="text-white font-bold">{timeLeft}</span>
+              <span className="text-white font-bold">{formatTime(timeLeft)}</span>
             </div>
-            <span className="text-lg font-medium dark:text-white">seconds</span>
+            <span className="text-lg font-medium dark:text-white">time left</span>
           </div>
           
-          {/* Live stats - Only show in active game */}
           {state === "start" && (
             <div className="flex space-x-5">
               <div className="text-center">
@@ -410,8 +630,8 @@ const MonkeyTypeComponent = () => {
                 </div>
               </div>
               <div className="text-center">
-                <div className="text-sm text-gray-500 dark:text-gray-400">Texts</div>
-                <div className="text-lg font-bold text-indigo-500">{completedTexts}</div>
+                <div className="text-sm text-gray-500 dark:text-gray-400">Level</div>
+                <div className="text-lg font-bold text-indigo-500">{currentLevel}</div>
               </div>
             </div>
           )}
@@ -421,7 +641,12 @@ const MonkeyTypeComponent = () => {
           )}
         </div>
 
-        {/* Typing Area - Elevated and with better spacing */}
+        {avatarMessage && (
+          <div className="mb-4 flex justify-center">
+            <Avatar ageGroup={ageGroup} message={avatarMessage} />
+          </div>
+        )}
+
         <div 
           className="relative p-8 rounded-xl mb-6"
           style={{ 
@@ -431,22 +656,19 @@ const MonkeyTypeComponent = () => {
           }}
         >
           {state === "idle" ? (
-            /* Start button - only shown in idle state */
             <div className="flex flex-col items-center justify-center h-40">
               <p className="text-gray-500 mb-6 text-center">
-                Ready to test your typing skills?
+                {ageGroup === "5-7" ? "Ready to learn typing with fun?" : 
+                 "Ready to test your typing skills?"}
               </p>
               <StartButton onStart={startGame} />
             </div>
           ) : (
-            /* Game content - only shown when game is active or finished */
             <>
-              {/* Reference text (grey) */}
               <div className="mb-8 text-2xl tracking-wide font-light text-gray-400 dark:text-gray-500">
                 {currentWords}
               </div>
               
-              {/* User's typing (with 30px vertical gap) */}
               <div style={{ marginTop: '30px' }}>
                 <UserTypings 
                   words={currentWords} 
@@ -458,7 +680,6 @@ const MonkeyTypeComponent = () => {
           )}
         </div>
         
-        {/* Coming next preview */}
         {state === "start" && (
           <div className="border-l-4 border-gray-300 pl-4 mb-6 mt-3">
             <p className="text-sm italic text-gray-500 dark:text-gray-400">Coming next:</p>
@@ -468,7 +689,6 @@ const MonkeyTypeComponent = () => {
           </div>
         )}
 
-        {/* Results */}
         <Results
           state={state}
           className="mt-8"
@@ -477,7 +697,8 @@ const MonkeyTypeComponent = () => {
           total={totalTyped}
           timeLeft={timeLeft}
           savedProgress={savedProgress}
-          totalTypingTime={60}
+          totalTypingTime={AGE_GROUPS[ageGroup].initialTimer}
+          ageGroup={ageGroup}
         />
       </div>
     </div>

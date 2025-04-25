@@ -1,3 +1,5 @@
+//Board.jsx
+/* eslint-disable react/no-unknown-property */
 import { useState, useEffect, useRef } from 'react';
 import { shapes } from '../../../constants/gameConstants';
 import ShapeContainer from './ShapeContainer';
@@ -436,7 +438,7 @@ const Board = ({ onComplete }) => {
                   Puzzle Complete!
                 </h3>
                 <p className="text-gray-700">
-                  You've successfully placed all the shapes!
+                  You&apos;ve successfully placed all the shapes!
                 </p>
               </div>
             </div>

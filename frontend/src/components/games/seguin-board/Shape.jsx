@@ -1,21 +1,10 @@
+//Shape.jsx
+
 import React from 'react';
 
 const Shape = ({ type, isOutline = false }) => {
-  // Colors for shapes - matching the physical puzzle colors with improved contrast and vibrancy
-  const shapeColors = {
-    cross: '#FF5252', // Brighter red
-    triangle: '#FFD600', // Golden yellow
-    semicircle: '#4CAF50', // Green
-    circle: '#2196F3', // Blue
-    rectangle: '#9C27B0', // Purple
-    hexagon: '#FF9800', // Orange
-    rhombus: '#00BCD4', // Cyan
-    star: '#F44336', // Red
-    oval: '#E91E63', // Pink
-    square: '#FFEB3B', // Yellow
-    pentagon: '#3F51B5', // Navy
-    clover: '#66BB6A', // Lighter green for better visibility
-  };
+  // Colors for shapes - all black as per your current setup
+  const shapeColor = '#000000'; // Black for all shapes
 
   // Define shape clip paths in a centralized object for better maintainability
   const clipPaths = {
@@ -33,11 +22,24 @@ const Shape = ({ type, isOutline = false }) => {
     circle: '50%',
     oval: '50%',
     semicircle: '100px 100px 0 0',
-    default: '4px' // Slightly increased from 2px for smoother appearance
+    default: '4px'
   };
 
-  // Get shape color with fallback
-  const color = shapeColors[type] || '#333333';
+  // Define exact dimensions for each shape to match the outlines perfectly
+  const shapeDimensions = {
+    rectangle: { width: '80px', height: '65px' },
+    oval: { width: '80px', height: '70px' },
+    circle: { width: '70px', height: '70px' },
+    semicircle: { width: '70px', height: '40px' },
+    cross: { width: '70px', height: '70px' },
+    triangle: { width: '70px', height: '70px' },
+    hexagon: { width: '70px', height: '70px' },
+    rhombus: { width: '70px', height: '70px' },
+    star: { width: '70px', height: '70px' },
+    square: { width: '70px', height: '70px' },
+    pentagon: { width: '70px', height: '70px' },
+    clover: { width: '70px', height: '70px' },
+  };
   
   // Get clip path if applicable
   const clipPath = clipPaths[type] || null;
@@ -45,33 +47,38 @@ const Shape = ({ type, isOutline = false }) => {
   // Get border radius
   const borderRadius = borderRadii[type] || borderRadii.default;
 
-  // Enhanced 3D styling for better physical appearance
-  const style3d = isOutline 
-    ? {} 
-    : {
-        boxShadow: '0 4px 6px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.2)',
-        border: '1px solid rgba(0,0,0,0.1)',
-        transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-      };
+  // Get dimensions for this shape type
+  const dimensions = shapeDimensions[type] || { width: '70px', height: '70px' };
 
   // Common styling for all shapes
   const shapeStyle = {
-    background: isOutline ? 'rgba(0,0,0,0.08)' : color,
-    width: '100%',
-    height: '100%',
+    background: isOutline ? 'rgba(0,0,0,0.08)' : shapeColor,
+    width: dimensions.width,
+    height: dimensions.height,
     borderRadius,
     ...(clipPath && { clipPath }),
-    ...style3d
+    boxShadow: isOutline ? 'none' : '0 4px 6px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.2)',
+    border: isOutline ? '2px dashed rgba(0,0,0,0.3)' : '1px solid rgba(0,0,0,0.1)',
+    transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+    // No background color for the container
+    position: 'relative', 
+    margin: 'auto'
   };
-
-  // Base class names with simplified structure
-  const baseClass = `shape-${isOutline ? 'outline' : 'solid'}-piece w-full h-full flex items-center justify-center`;
 
   return (
     <div 
-      className={baseClass}
+      className={`shape-${isOutline ? 'outline' : 'solid'}-piece w-full h-full flex items-center justify-center`}
       data-type={type}
       aria-label={`${type} shape`}
+      style={{ 
+        // This container now has no background
+        background: 'transparent',
+        width: '100%',
+        height: '100%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}
     >
       <div style={shapeStyle}></div>
     </div>
