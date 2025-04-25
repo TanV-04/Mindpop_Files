@@ -1,3 +1,4 @@
+//userController.js
 import User from '../models/User.js';
 import { asyncHandler } from '../middleware/errorMiddleware.js';
 import bcrypt from 'bcryptjs';

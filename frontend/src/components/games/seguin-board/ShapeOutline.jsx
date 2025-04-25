@@ -1,3 +1,6 @@
+//ShapeOutline.jsx
+/* eslint-disable react/no-unknown-property */
+/* eslint-disable no-constant-binary-expression */
 import React from 'react';
 import Shape from './Shape';
 
@@ -19,37 +22,68 @@ const ShapeOutline = ({ shape, isPlaced }) => {
       transition: 'all 0.3s ease-out',
     };
     
+    // Define exact dimensions for each shape's outline container
+    const shapeDimensions = {
+      rectangle: { width: '110px', height: '90px' },
+      oval: { width: '110px', height: '90px' },
+      circle: { width: '90px', height: '90px' },
+      semicircle: { width: '90px', height: '50px' },
+      cross: { width: '90px', height: '90px' },
+      triangle: { width: '90px', height: '90px' },
+      hexagon: { width: '90px', height: '90px' },
+      rhombus: { width: '90px', height: '90px' },
+      star: { width: '90px', height: '90px' },
+      square: { width: '90px', height: '90px' },
+      pentagon: { width: '90px', height: '90px' },
+      clover: { width: '90px', height: '90px' },
+    };
+    
+    // Get dimensions for this outline
+    const dimensions = shapeDimensions[type] || { width: '90px', height: '90px' };
+    
     // Additional shape-specific styles
     switch(type) {
       case 'rectangle':
         return { 
           ...baseStyle,
           borderRadius: '4px',
+          width: dimensions.width,
+          height: dimensions.height
         };
       case 'oval':
         return { 
           ...baseStyle,
           borderRadius: '50%',
+          width: dimensions.width,
+          height: dimensions.height
         };
       case 'semicircle':
         return { 
           ...baseStyle,
           borderRadius: '4px',
+          width: dimensions.width,
+          height: dimensions.height
         };
       case 'triangle':
         return { 
           ...baseStyle,
           borderRadius: '4px',
+          width: dimensions.width,
+          height: dimensions.height
         };
       case 'cross':
         return { 
           ...baseStyle,
           borderRadius: '4px',
+          width: dimensions.width,
+          height: dimensions.height
         };
       default:
         return { 
           ...baseStyle,
           borderRadius: '4px',
+          width: dimensions.width,
+          height: dimensions.height
         };
     }
   };
@@ -74,23 +108,20 @@ const ShapeOutline = ({ shape, isPlaced }) => {
           ${placedAnimationClass}
           transition-all duration-300 ease-out
         `}
-        style={{
-          width: shape.type === 'rectangle' || shape.type === 'oval' ? '110px' : '90px',
-          height: shape.type === 'semicircle' ? '50px' : '90px',
-        }}
+        style={getOutlineStyle(shape.type)}
         data-type={shape.type}
       >
         {/* Wooden depression with grain texture */}
         <div 
           className="absolute inset-0 depression-cutout overflow-hidden" 
           style={{
-            ...getOutlineStyle(shape.type),
             width: '100%',
             height: '100%',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             position: 'relative',
+            borderRadius: 'inherit',
           }}
         >
           {/* Wood grain texture for the depression */}
@@ -128,10 +159,13 @@ const ShapeOutline = ({ shape, isPlaced }) => {
           <div 
             className="shape-outline-inner"
             style={{
-              width: getShapeWidth(shape.type),
-              height: getShapeHeight(shape.type),
               position: 'relative',
               zIndex: 2,
+              width: '100%',
+              height: '100%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
             }}
           >
             <Shape 
@@ -155,15 +189,7 @@ const ShapeOutline = ({ shape, isPlaced }) => {
               zIndex: 3,
             }}
           >
-            <div
-              style={{
-                width: getShapeWidth(shape.type),
-                height: getShapeHeight(shape.type),
-                filter: 'drop-shadow(0 2px 3px rgba(0,0,0,0.2))',
-              }}
-            >
-              <Shape type={shape.type} />
-            </div>
+            <Shape type={shape.type} />
           </div>
         )}
       </div>
@@ -177,32 +203,6 @@ const ShapeOutline = ({ shape, isPlaced }) => {
     </div>
   );
 };
-
-// Helper functions to get correct dimensions for each shape
-function getShapeWidth(type) {
-  switch(type) {
-    case 'rectangle':
-      return '80px'; // Exact size
-    case 'oval':
-      return '80px'; // Exact size
-    case 'cross':
-    case 'clover':
-      return '70px'; // Exact size
-    default:
-      return '70px'; // Exact size for all other shapes
-  }
-}
-
-function getShapeHeight(type) {
-  switch(type) {
-    case 'semicircle':
-      return '40px'; // Exact half-height
-    case 'rectangle':
-      return '65px'; // Exact size
-    default:
-      return '70px'; // Exact size for all other shapes
-  }
-}
 
 // Add global styles for animations
 const GlobalStyles = () => (

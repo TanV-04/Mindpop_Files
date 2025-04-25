@@ -1,3 +1,5 @@
+//Timer.jsx
+
 import { useState, useEffect } from 'react';
 
 const Timer = ({ isRunning, onTimeUpdate }) => {
