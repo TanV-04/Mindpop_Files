@@ -7,102 +7,100 @@ import { useParams } from "react-router-dom";
 import Avatar from "./Avatar";
 import Groq from "groq-sdk";
 
+
+
 const groq = new Groq({
   apiKey: import.meta.env.VITE_GROQ_API_KEY,
   dangerouslyAllowBrowser: true
 });
 
 // Age group configurations
+// Age group configurations
 const AGE_GROUPS = {
-  "5-7": {
-    initialTimer: 150, // 2.5 minutes
-    minTimer: 120,    // 2 minutes
-    initialLevel: "letters",
-    avatarMessages: {
-      correct: "Great job!",
-      wrong: "Try again!",
-      completed: "You're amazing!"
-    },
-    prompt: (level) => {
-      switch(level) {
-        case "letters": 
-          return "Generate a simple typing exercise for 5-7 year olds focusing on letters and numbers. Use only uppercase letters A-Z and numbers 0-9 separated by spaces. Keep it very simple with 5-7 items total. Example: 'A B C 1 2 3'";
-        case "simple":
-          return "Generate a simple typing exercise for 5-7 year olds using 3-4 letter words. Create a sequence of 5-7 very simple words that a young child could type, separated by spaces. Example: 'cat dog sun ball happy'";
-        default:
-          return "Generate a simple typing exercise for young children with 5-7 items, alternating between letters and numbers. Example: 'A 1 B 2 C 3'";
-      }
-    }
-  },
-  "8-10": {
-    initialTimer: 120, // 2 minutes
-    minTimer: 90,     // 1.5 minutes
-    initialLevel: "simple",
-    avatarMessages: {
-      correct: "Well done!",
-      wrong: "Almost there!",
-      completed: "Fantastic work!"
-    },
-    prompt: (level, count = 1) => {
-      switch(level) {
-        case "simple":
-          if (count === 1) {
-            return `Generate one simple, unique sentence typing exercise suitable for 8-10 year olds. 
-                    Abosolutely no repetition of sentences.
-                    Use simple vocabulary and keep the sentence under 10 words. 
-                    Return only the sentence, without numbering. 
-                    The sentence should be different from all previously generated sentences. Every sentence has to be a riddle.`;
+    "5-7": {
+      initialTimer: 150, // 2.5 minutes
+      minTimer: 120,    // 2 minutes
+      initialLevel: 1,
+      avatarMessages: {
+        correct: "Great job!",
+        wrong: "Try again!",
+        completed: "You're amazing!"
+      },
+      prompt: (level, count = 1) => {
+        if (count === 1) {
+            return `Generate one unique simple sentence suitable for a 5-7 year old practicing typing.
+                    The sentence must contain only basic words like cat dog ball sun happy run jump toy etc.
+                    No sequences of random letters or numbers are allowed.
+                    The sentence should be 3 to 5 words long with no punctuation or special characters.
+                    Example: the dog plays ball
+                    Return ONLY the sentence without any extra text.`;
           } else {
-            return `Generate ${count} simple, unique sentence typing exercises suitable for 8-10 year olds. 
-                    Each sentence should be different and not repeat any previous sentence structure or wording. 
-                    Keep each sentence under 10 words. 
-                    Return only the sentences as a JSON array of strings.`;
+            return `Generate ${count} unique simple sentences suitable for 5-7 year olds for typing practice.
+                    Each sentence must be 3 to 5 words long.
+                    Use only basic everyday words like cat dog ball sun happy run jump toy etc.
+                    No numbers or random letter sequences.
+                    No punctuation or special characters.
+                    Return ONLY a valid JSON array of strings like: ["the dog jumps high", "sun is bright today"]`;
           }
-        case "intermediate":
-          return `Generate an intermediate typing exercise for 8-10 year olds. 
-                  Create a meaningful sentence with 10-15 words using slightly more complex vocabulary. 
-                  The sentence should be unique and not repeat previous content. 
-                  Example: 'Children enjoy playing outside when the weather is nice and sunny.'`;
-        default:
-          return `Generate a typing exercise appropriate for 8-10 year olds with 10-15 words. 
-                  The content should be unique and not repeat previous sentences. 
-                  Example: 'My favorite subjects in school are math and science because they are interesting.'`;
       }
-    }
-
-  },
-  "11-12": {
-    initialTimer: 90,  // 1.5 minutes
-    minTimer: 60,      // 1 minute
-    initialLevel: "poems",
-    avatarMessages: {
-      correct: "Excellent!",
-      wrong: "Focus!",
-      completed: "Brilliant!"
     },
-    prompt: (level) => {
-      switch(level) {
-        case "poems":
-          return "Generate a short line from a children's poem or rhyme that would be appropriate for typing practice for 11-12 year olds. Keep it to 10-15 words. Example: 'Twinkle twinkle little star how I wonder what you are'";
-        case "intermediate":
-          return "Generate an interesting fact or short sentence appropriate for 11-12 year olds that would make good typing practice. Make it 15-20 words with slightly complex vocabulary. Example: 'The solar system consists of eight planets that orbit around the sun in elliptical paths.'";
-        case "advanced":
-          return "Generate a challenging typing exercise for 11-12 year olds. Create a meaningful sentence with 20+ words using complex vocabulary and concepts. Example: 'Quantum mechanics demonstrates that particles can exist in multiple states simultaneously until they are observed or measured.'";
-        default:
-          return "Generate a typing exercise appropriate for 11-12 year olds with 15-20 words. Example: 'Photosynthesis is the process by which plants convert sunlight into energy through chemical reactions in their leaves.'";
+    "8-10": {
+      initialTimer: 120, // 2 minutes
+      minTimer: 90,     // 1.5 minutes
+      initialLevel: 1,
+      avatarMessages: {
+        correct: "Well done!",
+        wrong: "Almost there!",
+        completed: "Fantastic work!"
+      },
+      prompt: (level, count = 1) => {
+        if (count === 1) {
+          return `Generate one simple riddle for 8-10 year olds typing practice.
+                  The riddle should be 6-10 words long with no punctuation.
+                  It should be easy to understand but still a riddle.
+                  Example: 'what has hands but cannot clap'
+                  Return ONLY the riddle with no other text.`;
+        } else {
+          return `Generate ${count} simple riddles for 8-10 year olds typing practice.
+                  Each riddle should be 6-10 words long with no punctuation.
+                  All riddles must be completely unique and different from each other.
+                  Return ONLY a JSON array like: ["what gets wet while drying", "what has keys but no locks"]`;
+        }
+      }
+    },
+    "11-12": {
+      initialTimer: 90,  // 1.5 minutes
+      minTimer: 60,      // 1 minute
+      initialLevel: 1,
+      avatarMessages: {
+        correct: "Excellent!",
+        wrong: "Focus!",
+        completed: "Brilliant!"
+      },
+      prompt: (level, count = 1) => {
+        if (count === 1) {
+          return `Generate one line from classic literature or famous poetry for typing practice.
+                  Choose from well-known works like Shakespeare, Dickens, Poe, etc.
+                  The line should be 8-15 words long with no punctuation.
+                  It must be a verbatim quote from the original work.
+                  Example: 'to be or not to be that is the question'
+                  Return ONLY the line with no other text.`;
+        } else {
+          return `Generate ${count} lines from classic literature or famous poetry for typing practice.
+                  Each line must be 8-15 words long with no punctuation.
+                  All lines must be verbatim quotes from different works.
+                  Return ONLY a JSON array like: ["call me ishmael some years ago", "it was the best of times it was"]`;
+        }
       }
     }
-  }
-};
-
-// Fallback texts in case API fails
-const FALLBACK_TEXTS = {
-  "letters": ["A B C 1 2 3", "X Y Z 4 5 6", "M N O 7 8 9"],
-  "simple": ["The cat sat on the mat.", "I like to play outside.", "My dog is very happy."],
-  "poems": ["Twinkle twinkle little star", "Mary had a little lamb", "Humpty Dumpty sat on a wall"],
-  "intermediate": ["The quick brown fox jumps over the lazy dog.", "Pack my box with five dozen liquor jugs."],
-  "advanced": ["The juxtaposition of complex ideas creates cognitive dissonance in many readers."]
-};
+  };
+  
+  // Fallback texts in case API fails
+  const FALLBACK_TEXTS = {
+    "5-7": ["the cat sat on the mat", "i like to play outside", "my dog is very happy"],
+    "8-10": ["what has teeth but cannot bite", "what flies without wings", "what gets bigger the more you take away"],
+    "11-12": ["it was a dark and stormy night", "all happy families are alike", "the old man was dreaming about the lions"]
+  };
 
 // Enhanced UserTypings component with bigger, bolder, and glowy text
 const UserTypings = ({ userInput = "", words = "", isDarkMode = false }) => {
@@ -196,6 +194,7 @@ const UserTypings = ({ userInput = "", words = "", isDarkMode = false }) => {
 
 // Custom hook for AI text generation
 const useAITextGenerator = (ageGroup) => {
+  const [generatedHistory, setGeneratedHistory] = useState([]);
   const [currentLevel, setCurrentLevel] = useState(AGE_GROUPS[ageGroup].initialLevel);
   const [performanceHistory, setPerformanceHistory] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -210,11 +209,16 @@ const useAITextGenerator = (ageGroup) => {
       const completion = await groq.chat.completions.create({
         model: "llama3-70b-8192",
         messages: [
-          {
-            role: "user",
-            content: prompt,
-          },
-        ],
+            {
+              role: "system",
+              content: `You are generating typing exercises. Follow these rules STRICTLY:
+                      1. NEVER repeat any of these sentences: ${JSON.stringify(generatedHistory)}
+                      2. ALWAYS return ONLY what's requested (no explanations)
+                      3. For multiple items, ALWAYS return valid JSON arrays
+                      4. EVERY sentence must be COMPLETELY UNIQUE`
+            },
+            { role: "user", content: prompt }
+          ],
         max_tokens: 100,
         temperature: 0.7,
       });
@@ -226,7 +230,7 @@ const useAITextGenerator = (ageGroup) => {
           .replace(/\n/g, ' ')
           .replace(/\s+/g, ' ')
           .trim();
-        
+        setGeneratedHistory(prev => [...prev, cleanedText]);
         return cleanedText;
       }
       throw new Error("No text generated");
@@ -242,40 +246,40 @@ const useAITextGenerator = (ageGroup) => {
   
   const adjustLevel = (accuracy, wpm) => {
     setPerformanceHistory(prev => [...prev, { accuracy, wpm }]);
-    
+  
     const avgAccuracy = performanceHistory.reduce((sum, item) => sum + item.accuracy, accuracy) / 
                         (performanceHistory.length + 1);
     const avgWPM = performanceHistory.reduce((sum, item) => sum + item.wpm, wpm) / 
                    (performanceHistory.length + 1);
-    
+  
     let newLevel = currentLevel;
-    
+  
     if (ageGroup === "5-7") {
-      if (avgAccuracy > 90 && avgWPM > 10 && currentLevel === "letters") {
-        newLevel = "simple";
-      } else if (avgAccuracy < 80 && currentLevel === "simple") {
-        newLevel = "letters";
+      if (avgAccuracy > 90 && avgWPM > 10 && currentLevel === 1) {
+        newLevel = 2;
+      } else if (avgAccuracy < 80 && currentLevel === 2) {
+        newLevel = 1;
       }
     } else if (ageGroup === "8-10") {
-      if (avgAccuracy > 85 && avgWPM > 20 && currentLevel === "simple") {
-        newLevel = "intermediate";
+      if (avgAccuracy > 85 && avgWPM > 20 && currentLevel === 1) {
+        newLevel = 2;
       } else if (avgAccuracy < 70 || avgWPM < 15) {
-        newLevel = "simple";
+        newLevel = 1;
       }
     } else if (ageGroup === "11-12") {
-      if (avgAccuracy > 80 && avgWPM > 30 && currentLevel === "poems") {
-        newLevel = "intermediate";
-      } else if (avgAccuracy > 85 && avgWPM > 35 && currentLevel === "intermediate") {
-        newLevel = "advanced";
-      } else if ((avgAccuracy < 65 || avgWPM < 20) && currentLevel !== "poems") {
-        newLevel = currentLevel === "advanced" ? "intermediate" : "poems";
+      if (avgAccuracy > 80 && avgWPM > 30 && currentLevel === 1) { // 1 = poems
+        newLevel = 2; // to intermediate
+      } else if (avgAccuracy > 85 && avgWPM > 35 && currentLevel === 2) {
+        newLevel = 3; // to advanced
+      } else if ((avgAccuracy < 65 || avgWPM < 20) && currentLevel !== 1) {
+        newLevel = currentLevel === 3 ? 2 : 1;
       }
     }
-    
+  
     if (newLevel !== currentLevel) {
       setCurrentLevel(newLevel);
     }
-    
+  
     return newLevel;
   };
   
@@ -491,9 +495,19 @@ const StartButton = ({ onStart }) => {
 
 // Main Monkey Type Component
 const MonkeyTypeComponent = () => {
-  const params = useParams();
-  const storedAgeGroup = localStorage.getItem("userAgeGroup");
-  const ageGroup = params.ageGroup || storedAgeGroup || "8-10";
+    const params = useParams();
+    const storedAge = localStorage.getItem("userAge");
+    
+    // Function to determine age group from actual age
+    const getAgeGroup = (age) => {
+      if (!age) return "8-10"; // default
+      if (age >= 5 && age <= 7) return "5-7";
+      if (age >= 8 && age <= 10) return "8-10";
+      if (age >= 11 && age <= 12) return "11-12";
+      return "8-10"; // default for ages outside our ranges
+    };
+    
+    const ageGroup = params.ageGroup || getAgeGroup(storedAge) || "8-10";
   const {
     state,
     currentWords,
@@ -665,9 +679,7 @@ const MonkeyTypeComponent = () => {
             </div>
           ) : (
             <>
-              <div className="mb-8 text-2xl tracking-wide font-light text-gray-400 dark:text-gray-500">
-                {currentWords}
-              </div>
+              {/* Removed the preview text div */}
               
               <div style={{ marginTop: '30px' }}>
                 <UserTypings 

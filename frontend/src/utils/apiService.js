@@ -73,21 +73,29 @@ export const authService = {
       return response.data;
     },
   
-  login: async (credentials) => {
-    const response = await api.post('/auth/login', credentials);
-    if (response.data.token) {
-      localStorage.setItem('token', response.data.token);
+  // In authService.login:
+login: async (credentials) => {
+  const response = await api.post('/auth/login', credentials);
+  if (response.data.token) {
+    localStorage.setItem('token', response.data.token);
+    // Store user age if available
+    if (response.data.user?.age) {
+      localStorage.setItem('userAge', response.data.user.age);
     }
-    return response.data;
-  },
+  }
+  return response.data;
+},
   
-  logout: async () => {
-    try {
-      await api.post('/auth/logout');
-    } finally {
-      localStorage.removeItem('token');
-    }
-  },
+  // In authService in apiService.js:
+logout: async () => {
+  try {
+    await api.post('/auth/logout');
+  } finally {
+    localStorage.removeItem('token');
+    localStorage.removeItem('userAge'); // Add this line
+    localStorage.removeItem('userAgeGroup'); // Add this line
+  }
+},
   
   logoutAll: async () => {
     try {
