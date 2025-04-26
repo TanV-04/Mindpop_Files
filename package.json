@@ -24,6 +24,7 @@
     "express-rate-limit": "^6.7.0",
     "express-validator": "^7.0.1",
     "flowbite-react": "^0.10.2",
+    "groq-sdk": "^0.20.1",
     "helmet": "^7.0.0",
     "jsonwebtoken": "^9.0.0",
     "lucide-react": "^0.476.0",
