@@ -679,9 +679,7 @@ const MonkeyTypeComponent = () => {
             </div>
           ) : (
             <>
-              <div className="mb-8 text-2xl tracking-wide font-light text-gray-400 dark:text-gray-500">
-                {currentWords}
-              </div>
+              {/* Removed the preview text div */}
               
               <div style={{ marginTop: '30px' }}>
                 <UserTypings 
