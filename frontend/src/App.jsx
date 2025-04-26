@@ -20,7 +20,6 @@ import Jigsaw_12_to_14 from "./components/games/jigsawPuzzle/Jigsaw_12_to_14.jsx
 import MathsPuzzle from "./components/games/jigsawPuzzle/MathsPuzzle.jsx";
 //import MonkeyTypeComponent from "./components/games/monkeytype/MonkeyTypeComponent.jsx";
 
-
 function App() {
   return (
     <div className="min-h-screen flex flex-col">
@@ -59,10 +58,19 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            
+
             {/* <Route path="/games/monkeytype/5-7" element={<MonkeyType5to7 />} />
             <Route path="/games/monkeytype/8-10" element={<MonkeyType8to10 />} />
             <Route path="/games/monkeytype/11-12" element={<MonkeyType11to12 />} /> */}
+            <Route
+              path="/games/jigsaw_6_to_8"
+              element={
+                <ProtectedRoute>
+                  <Jigsaw_6_to_8 />
+                </ProtectedRoute>
+              }
+            />
+
             <Route
               path="/games/jigsaw_8_to_10"
               element={
@@ -95,7 +103,6 @@ function App() {
                 </ProtectedRoute>
               }
             />
-  
 
             {/* Add the route for Settings */}
             <Route
