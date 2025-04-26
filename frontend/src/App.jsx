@@ -18,10 +18,8 @@ import Jigsaw_8_to_10 from "./components/games/jigsawPuzzle/Jigsaw_8_to_10.jsx";
 import Jigsaw_10_to_12 from "./components/games/jigsawPuzzle/Jigsaw_10_to_12.jsx";
 import Jigsaw_12_to_14 from "./components/games/jigsawPuzzle/Jigsaw_12_to_14.jsx";
 import MathsPuzzle from "./components/games/jigsawPuzzle/MathsPuzzle.jsx";
-import MonkeyTypeComponent from "./components/games/monkeytype/MonkeyTypeComponent.jsx";
-import MonkeyType5to7 from "./components/games/monkeytype/MonkeyType5to7.jsx";
-import MonkeyType8to10 from "./components/games/monkeytype/MonkeyType8to10.jsx";
-import MonkeyType11to12 from "./components/games/monkeytype/MonkeyType11to12.jsx";
+//import MonkeyTypeComponent from "./components/games/monkeytype/MonkeyTypeComponent.jsx";
+
 
 function App() {
   return (
@@ -62,9 +60,9 @@ function App() {
               }
             />
             
-            <Route path="/games/5-7" element={<MonkeyType5to7 />} />
-            <Route path="/games/8-10" element={<MonkeyType8to10 />} />
-            <Route path="/games/11-12" element={<MonkeyType11to12 />} />
+            {/* <Route path="/games/monkeytype/5-7" element={<MonkeyType5to7 />} />
+            <Route path="/games/monkeytype/8-10" element={<MonkeyType8to10 />} />
+            <Route path="/games/monkeytype/11-12" element={<MonkeyType11to12 />} /> */}
             <Route
               path="/games/jigsaw_8_to_10"
               element={
