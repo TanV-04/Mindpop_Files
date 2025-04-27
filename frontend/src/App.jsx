@@ -18,102 +18,106 @@ import Jigsaw_8_to_10 from "./components/games/jigsawPuzzle/Jigsaw_8_to_10.jsx";
 import Jigsaw_10_to_12 from "./components/games/jigsawPuzzle/Jigsaw_10_to_12.jsx";
 import Jigsaw_12_to_14 from "./components/games/jigsawPuzzle/Jigsaw_12_to_14.jsx";
 import MathsPuzzle from "./components/games/jigsawPuzzle/MathsPuzzle.jsx";
+import Footer from "./components/Footer.jsx";
 //import MonkeyTypeComponent from "./components/games/monkeytype/MonkeyTypeComponent.jsx";
 
 function App() {
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-[calc(100vh-64px)] flex flex-col">
       <BrowserRouter>
-        <Navbar />
-        <BubbleCursor />
+        <div className="flex flex-col flex-1">
+          {" "}
+          <Navbar />
+          <BubbleCursor />
+          <div className="flex-1">
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/sign-in" element={<SignIn />} />
+              <Route path="/sign-up" element={<SignUp />} />
 
-        <div className="flex-1">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/sign-in" element={<SignIn />} />
-            <Route path="/sign-up" element={<SignUp />} />
+              {/* Protected routes for games */}
+              <Route
+                path="/games"
+                element={
+                  <ProtectedRoute>
+                    <Games />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/games/seguin-board"
+                element={
+                  <ProtectedRoute>
+                    <SeguinGame />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/games/monkeytype"
+                element={
+                  <ProtectedRoute>
+                    <MonkeyType />
+                  </ProtectedRoute>
+                }
+              />
 
-            {/* Protected routes for games */}
-            <Route
-              path="/games"
-              element={
-                <ProtectedRoute>
-                  <Games />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/games/seguin-board"
-              element={
-                <ProtectedRoute>
-                  <SeguinGame />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/games/monkeytype"
-              element={
-                <ProtectedRoute>
-                  <MonkeyType />
-                </ProtectedRoute>
-              }
-            />
-
-            {/* <Route path="/games/monkeytype/5-7" element={<MonkeyType5to7 />} />
+              {/* <Route path="/games/monkeytype/5-7" element={<MonkeyType5to7 />} />
             <Route path="/games/monkeytype/8-10" element={<MonkeyType8to10 />} />
             <Route path="/games/monkeytype/11-12" element={<MonkeyType11to12 />} /> */}
-            <Route
-              path="/games/jigsaw_6_to_8"
-              element={
-                <ProtectedRoute>
-                  <Jigsaw_6_to_8 />
-                </ProtectedRoute>
-              }
-            />
+              <Route
+                path="/games/jigsaw_6_to_8"
+                element={
+                  <ProtectedRoute>
+                    <Jigsaw_6_to_8 />
+                  </ProtectedRoute>
+                }
+              />
 
-            <Route
-              path="/games/jigsaw_8_to_10"
-              element={
-                <ProtectedRoute>
-                  <Jigsaw_8_to_10 />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/games/jigsaw_10_to_12"
-              element={
-                <ProtectedRoute>
-                  <Jigsaw_10_to_12 />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/games/jigsaw_12_to_14"
-              element={
-                <ProtectedRoute>
-                  <Jigsaw_12_to_14 />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/games/maths_puzzle"
-              element={
-                <ProtectedRoute>
-                  <MathsPuzzle />
-                </ProtectedRoute>
-              }
-            />
+              <Route
+                path="/games/jigsaw_8_to_10"
+                element={
+                  <ProtectedRoute>
+                    <Jigsaw_8_to_10 />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/games/jigsaw_10_to_12"
+                element={
+                  <ProtectedRoute>
+                    <Jigsaw_10_to_12 />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/games/jigsaw_12_to_14"
+                element={
+                  <ProtectedRoute>
+                    <Jigsaw_12_to_14 />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/games/maths_puzzle"
+                element={
+                  <ProtectedRoute>
+                    <MathsPuzzle />
+                  </ProtectedRoute>
+                }
+              />
 
-            {/* Add the route for Settings */}
-            <Route
-              path="/settings"
-              element={
-                <ProtectedRoute>
-                  <Settings />
-                </ProtectedRoute>
-              }
-            />
-          </Routes>
+              {/* Add the route for Settings */}
+              <Route
+                path="/settings"
+                element={
+                  <ProtectedRoute>
+                    <Settings />
+                  </ProtectedRoute>
+                }
+              />
+            </Routes>
+          </div>
+          <Footer className = "mt-auto" />
         </div>
       </BrowserRouter>
     </div>
