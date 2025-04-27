@@ -1,8 +1,8 @@
 /* Settings.css */
 
 .settings-container {
-  /* Use the same background as the main website */
-  /* No background color here to let the parent background show through */
+  min-height: 100vh;
+  flex-direction: column;
 }
 
 .settings-sidebar {
@@ -26,7 +26,7 @@
   cursor: pointer;
   transition: all 0.2s ease;
   background-color: rgba(255, 255, 255, 0.3); /* Semi-transparent white */
-  color: #66220B;
+  color: #66220b;
   font-weight: 500;
   text-align: left;
   width: 100%;
@@ -37,33 +37,43 @@
 }
 
 .settings-nav-item.active {
-  background-color: #F09000; /* Orange */
+  background-color: #f09000; /* Orange */
   color: white;
 }
 
 .settings-content {
-  /* Remove white background */
+  flex: 1;
   background-color: transparent;
   border-radius: 0.5rem;
   transition: all 0.3s ease;
 }
 
 /* Input fields and info boxes */
-.profile-info input, 
+.profile-info input,
 .profile-info .form-group > div {
-  background-color: rgba(255, 255, 255, 0.5) !important; /* Semi-transparent white */
+  background-color: rgba(
+    255,
+    255,
+    255,
+    0.5
+  ) !important; /* Semi-transparent white */
   border: 1px solid rgba(209, 213, 219, 0.5) !important;
   transition: all 0.2s ease;
 }
 
 .profile-info input:focus {
-  background-color: rgba(255, 255, 255, 0.8) !important; /* More opaque when focused */
+  background-color: rgba(
+    255,
+    255,
+    255,
+    0.8
+  ) !important; /* More opaque when focused */
   box-shadow: 0 0 0 2px rgba(240, 144, 0, 0.3) !important;
 }
 
 /* Labels */
 .profile-info label {
-  color: #66220B !important; /* Dark brown */
+  color: #66220b !important; /* Dark brown */
   font-weight: 500;
 }
 
@@ -92,4 +102,8 @@
 
 .settings-container::-webkit-scrollbar-thumb:hover {
   background: rgba(240, 144, 0, 0.7);
+}
+
+footer {
+  margin-top: auto; 
 }
