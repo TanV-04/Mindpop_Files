@@ -1,19 +1,28 @@
 import { useEffect, useState } from 'react';
 
-function Confetti() {
+function Confetti({ active = false }) {
   const [pieces, setPieces] = useState([]);
   
   useEffect(() => {
+    // Only create confetti pieces if active
+    if (!active) {
+      setPieces([]);
+      return;
+    }
+    
+    console.log("Confetti is active, creating pieces...");
+    
     // Create confetti pieces
-    const colors = ['#f00', '#0f0', '#00f', '#ff0', '#0ff', '#f0f', '#fc0'];
-    const newPieces = Array.from({ length: 100 }, (_, i) => ({
+    const colors = ['#f00', '#0f0', '#00f', '#ff0', '#0ff', '#f0f', '#fc0', '#f90', '#b0f'];
+    const newPieces = Array.from({ length: 150 }, (_, i) => ({
       id: i,
       x: Math.random() * 100,
-      y: -10 - Math.random() * 10,
-      size: 5 + Math.random() * 10,
+      y: -20 - Math.random() * 20, // Start higher above the screen
+      size: 5 + Math.random() * 15,
       color: colors[Math.floor(Math.random() * colors.length)],
       rotation: Math.random() * 360,
-      speed: 1 + Math.random() * 3
+      speed: 1 + Math.random() * 3,
+      shape: Math.random() > 0.5 ? 'circle' : 'square'
     }));
     
     setPieces(newPieces);
@@ -31,13 +40,13 @@ function Confetti() {
         prevPieces.map(piece => ({
           ...piece,
           y: piece.y + piece.speed * (deltaTime / 16),
-          rotation: (piece.rotation + 1) % 360,
+          rotation: (piece.rotation + piece.speed) % 360,
           // Add some horizontal movement
           x: piece.x + (Math.sin(time / 1000 + piece.id) * 0.5)
         })).filter(piece => piece.y < 110) // Remove pieces that have fallen off screen
       );
       
-      if (pieces.length > 0) {
+      if (active) {
         animationId = requestAnimationFrame(animate);
       }
     };
@@ -46,12 +55,16 @@ function Confetti() {
     
     // Cleanup
     return () => {
+      console.log("Cleaning up confetti animation");
       cancelAnimationFrame(animationId);
     };
-  }, []);
+  }, [active]); // Depend on active prop to re-run when it changes
+  
+  // If not active, don't render anything
+  if (!active) return null;
   
   return (
-    <div className="fixed inset-0 pointer-events-none">
+    <div className="fixed inset-0 pointer-events-none overflow-hidden z-50">
       {pieces.map(piece => (
         <div
           key={piece.id}
@@ -64,7 +77,8 @@ function Confetti() {
             backgroundColor: piece.color,
             transform: `rotate(${piece.rotation}deg)`,
             opacity: 0.8,
-            borderRadius: Math.random() > 0.5 ? '50%' : '0%'
+            borderRadius: piece.shape === 'circle' ? '50%' : '0%',
+            zIndex: 9999,
           }}
         />
       ))}
