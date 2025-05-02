@@ -54,6 +54,15 @@ const ProgressSettings = ({ userData }) => {
     { date: 'Week 5', wpm: 45, accuracy: 92, targetWpm: 40 },
   ];
   
+  // Sample data for Jigsaw chart
+  const sampleJigsawData = [
+    { date: 'Week 1', time: 240, standardTime: 180, pieces: 12 },
+    { date: 'Week 2', time: 210, standardTime: 180, pieces: 12 },
+    { date: 'Week 3', time: 190, standardTime: 180, pieces: 16 },
+    { date: 'Week 4', time: 165, standardTime: 180, pieces: 16 },
+    { date: 'Week 5', time: 150, standardTime: 180, pieces: 24 },
+  ];
+  
   // Sample data for skills
   const sampleSkills = [
     { name: 'Pattern Recognition', value: 85 },
@@ -110,27 +119,59 @@ const ProgressSettings = ({ userData }) => {
     return sampleMonkeyData;
   };
   
+  // Format data for Jigsaw chart
+  const formatJigsawChartData = () => {
+    // If we have real time series data, format it for the chart
+    if (progressData?.timeSeriesData && progressData.timeSeriesData.length > 0) {
+      return progressData.timeSeriesData.map(entry => {
+        // Extract jigsaw time and pieces
+        const time = entry.jigsaw || entry.jigsawTime || 0;
+        const pieces = entry.jigsawPieces || 16;
+        
+        // Standard completion time
+        const standardTime = progressData.benchmarks?.jigsaw?.standardTime || 180;
+        
+        return {
+          date: entry.date || 'Unknown',
+          time: time,
+          standardTime: standardTime,
+          pieces: pieces
+        };
+      });
+    }
+    
+    // If no real data, return sample data
+    return sampleJigsawData;
+  };
+  
   // Check if progressData has valid data
   const hasRealData = progressData && (
     (progressData.timeSeriesData && progressData.timeSeriesData.length > 0) ||
-    (progressData.gameDistribution && (progressData.gameDistribution.seguin > 0 || progressData.gameDistribution.monkey > 0))
+    (progressData.gameDistribution && (
+      progressData.gameDistribution.seguin > 0 || 
+      progressData.gameDistribution.monkey > 0 ||
+      progressData.gameDistribution.jigsaw > 0
+    ))
   );
 
   console.log('Has real data:', hasRealData);
   
   // Format game distribution data for pie chart
   const gameDistributionData = [
-    { name: 'Seguin Form Board', percentage: progressData?.gameDistribution?.seguin || 65 },
-    { name: 'Monkey Time', percentage: progressData?.gameDistribution?.monkey || 35 }
+    { name: 'Seguin Form Board', percentage: progressData?.gameDistribution?.seguin || 45 },
+    { name: 'Monkey Time', percentage: progressData?.gameDistribution?.monkey || 30 },
+    { name: 'Jigsaw', percentage: progressData?.gameDistribution?.jigsaw || 25 }
   ];
 
   // Get chart data
   const seguinChartData = formatSeguinChartData();
   const monkeyChartData = formatMonkeyChartData();
+  const jigsawChartData = formatJigsawChartData();
   
   // Determine which charts to show based on selected game
   const showSeguinChart = selectedGame === 'all' || selectedGame === 'seguin';
   const showMonkeyChart = selectedGame === 'all' || selectedGame === 'monkey';
+  const showJigsawChart = selectedGame === 'all' || selectedGame === 'jigsaw';
   
   // Render loading state if data is being fetched
   if (loading) {
@@ -172,6 +213,7 @@ const ProgressSettings = ({ userData }) => {
               <option value="all">All Games</option>
               <option value="seguin">Seguin Form Board</option>
               <option value="monkey">Monkey Time</option>
+              <option value="jigsaw">Jigsaw</option>
             </select>
             
             <select 
@@ -219,6 +261,7 @@ const ProgressSettings = ({ userData }) => {
             <option value="all">All Games</option>
             <option value="seguin">Seguin Form Board</option>
             <option value="monkey">Monkey Time</option>
+            <option value="jigsaw">Jigsaw</option>
           </select>
           
           <select 
@@ -372,6 +415,74 @@ const ProgressSettings = ({ userData }) => {
                   stroke="#28a745"
                   name="Accuracy %"
                   fillOpacity={0.3}
+                />
+              </ComposedChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      )}
+      
+      {/* Jigsaw Performance */}
+      {showJigsawChart && (
+        <div className="bg-white p-6 rounded-lg mb-6 shadow-sm">
+          <h3 className="text-lg font-semibold text-[#66220B] mb-4">Jigsaw Performance</h3>
+          <p className="text-gray-500 mb-4">
+            This chart shows your jigsaw completion time (lower is better) compared to standard performance.
+          </p>
+          {!hasRealData && (
+            <p className="text-xs text-gray-500 mb-2 italic">
+              Showing sample data. Play games to see your real statistics.
+            </p>
+          )}
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <ComposedChart
+                data={jigsawChartData}
+                margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="date" />
+                <YAxis 
+                  yAxisId="left" 
+                  label={{ value: 'Time (seconds)', angle: -90, position: 'insideLeft' }} 
+                />
+                <YAxis 
+                  yAxisId="right" 
+                  orientation="right" 
+                  label={{ value: 'Pieces', angle: 90, position: 'insideRight' }} 
+                  domain={[0, 'dataMax + 5']}
+                />
+                <Tooltip />
+                <Legend />
+                
+                {/* Time Line */}
+                <Line 
+                  yAxisId="left"
+                  type="monotone" 
+                  dataKey="time" 
+                  stroke="#FF8042" 
+                  name="Your Time" 
+                  activeDot={{ r: 8 }} 
+                  strokeWidth={2}
+                />
+                
+                {/* Standard Time Line */}
+                <Line 
+                  yAxisId="left"
+                  type="monotone" 
+                  dataKey="standardTime" 
+                  stroke="#0088FE" 
+                  name="Standard Time" 
+                  strokeDasharray="5 5" 
+                />
+                
+                {/* Pieces Bar */}
+                <Bar
+                  yAxisId="right"
+                  dataKey="pieces"
+                  fill="#82ca9d"
+                  name="Puzzle Pieces"
+                  barSize={20}
                 />
               </ComposedChart>
             </ResponsiveContainer>
