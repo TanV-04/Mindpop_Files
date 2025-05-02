@@ -1,4 +1,3 @@
-//progressController.js
 import GameProgress from '../models/GameProgress.js';
 import User from '../models/User.js';
 import asyncHandler from 'express-async-handler';
@@ -60,7 +59,7 @@ export const getProgressData = asyncHandler(async (req, res) => {
   const gameCount = allGames.length;
   
   if (gameCount > 0) {
-    const gameTypes = ['seguin', 'monkey'];
+    const gameTypes = ['seguin', 'monkey', 'jigsaw'];
     gameTypes.forEach(type => {
       const count = allGames.filter(game => game.gameType === type).length;
       processedData.gameDistribution[type] = Math.round((count / gameCount) * 100);
@@ -77,7 +76,8 @@ export const getProgressData = asyncHandler(async (req, res) => {
       timeSeriesMap.set(dateKey, {
         date: dateKey,
         seguin: null,
-        monkey: null
+        monkey: null,
+        jigsaw: null
       });
     }
     
@@ -90,6 +90,7 @@ export const getProgressData = asyncHandler(async (req, res) => {
   // Calculate average completion times
   const seguinData = progressData.filter(entry => entry.gameType === 'seguin');
   const monkeyData = progressData.filter(entry => entry.gameType === 'monkey');
+  const jigsawData = progressData.filter(entry => entry.gameType === 'jigsaw');
   
   if (seguinData.length > 0) {
     const avgTime = seguinData.reduce((sum, entry) => sum + entry.completionTime, 0) / seguinData.length;
@@ -99,6 +100,11 @@ export const getProgressData = asyncHandler(async (req, res) => {
   if (monkeyData.length > 0) {
     const avgTime = monkeyData.reduce((sum, entry) => sum + entry.completionTime, 0) / monkeyData.length;
     processedData.averageCompletionTimes.monkey = Math.round(avgTime * 10) / 10; // Round to 1 decimal
+  }
+  
+  if (jigsawData.length > 0) {
+    const avgTime = jigsawData.reduce((sum, entry) => sum + entry.completionTime, 0) / jigsawData.length;
+    processedData.averageCompletionTimes.jigsaw = Math.round(avgTime * 10) / 10; // Round to 1 decimal
   }
   
   // Calculate improvement metrics (if enough data points)
@@ -132,6 +138,21 @@ export const getProgressData = asyncHandler(async (req, res) => {
     }
   }
   
+  if (jigsawData.length >= 3) {
+    const sortedData = [...jigsawData].sort((a, b) => a.date - b.date);
+    const firstThree = sortedData.slice(0, 3);
+    const lastThree = sortedData.slice(-3);
+    
+    const avgFirst = firstThree.reduce((sum, entry) => sum + entry.completionTime, 0) / 3;
+    const avgLast = lastThree.reduce((sum, entry) => sum + entry.completionTime, 0) / 3;
+    
+    // Calculate improvement percentage (lower time is better)
+    if (avgFirst > 0) {
+      const improvement = ((avgFirst - avgLast) / avgFirst) * 100;
+      processedData.improvementMetrics.jigsaw = Math.round(improvement);
+    }
+  }
+  
   // Calculate total sessions count
   processedData.totalSessions = gameCount;
   
@@ -142,6 +163,9 @@ export const getProgressData = asyncHandler(async (req, res) => {
     },
     monkey: {
       standardTime: 120 // seconds (example standard time)
+    },
+    jigsaw: {
+      standardTime: 300 // seconds (example standard time for jigsaw)
     }
   };
   
@@ -165,7 +189,15 @@ export const saveGameProgress = asyncHandler(async (req, res) => {
     console.log('Received progress data:', req.body);
     console.log('User info:', req.user);
 
-    const { gameType, completionTime, level, accuracy } = req.body;
+    const { 
+      gameType, 
+      completionTime, 
+      level, 
+      accuracy, 
+      ageGroup, 
+      puzzleSize, 
+      totalPieces 
+    } = req.body;
     
     if (!gameType || completionTime === undefined) {
       console.error('Missing required fields:', { gameType, completionTime });
@@ -174,20 +206,30 @@ export const saveGameProgress = asyncHandler(async (req, res) => {
     }
     
     // Validate game type
-    if (!['seguin', 'monkey'].includes(gameType)) {
+    if (!['seguin', 'monkey', 'jigsaw'].includes(gameType)) {
       console.error('Invalid game type:', gameType);
       res.status(400);
       throw new Error('Invalid game type');
     }
     
-    const newProgress = await GameProgress.create({
+    // Create base progress object
+    const progressData = {
       userId: req.user.id,
       gameType,
       completionTime,
       level: level || 1,
       accuracy: accuracy || 100,
       date: new Date()
-    });
+    };
+    
+    // Add jigsaw-specific fields if game type is jigsaw
+    if (gameType === 'jigsaw') {
+      progressData.ageGroup = ageGroup;
+      progressData.puzzleSize = puzzleSize;
+      progressData.totalPieces = totalPieces;
+    }
+    
+    const newProgress = await GameProgress.create(progressData);
     
     res.status(201).json(newProgress);
   } catch (error) {
@@ -196,32 +238,6 @@ export const saveGameProgress = asyncHandler(async (req, res) => {
   }
 });
 
-// export const saveGameProgress = asyncHandler(async (req, res) => {
-//   const { gameType, completionTime, level, accuracy } = req.body;
-  
-//   if (!gameType || completionTime === undefined) {
-//     res.status(400);
-//     throw new Error('Please provide all required fields');
-//   }
-  
-//   // Validate game type
-//   if (!['seguin', 'monkey'].includes(gameType)) {
-//     res.status(400);
-//     throw new Error('Invalid game type');
-//   }
-  
-//   const newProgress = await GameProgress.create({
-//     userId: req.user.id,
-//     gameType,
-//     completionTime,
-//     level: level || 1,
-//     accuracy: accuracy || 100,
-//     date: new Date()
-//   });
-  
-//   res.status(201).json(newProgress);
-// });
-
 // @desc    Get statistics for specific game
 // @route   GET /api/progress/stats/:gameType
 // @access  Private
@@ -229,7 +245,7 @@ export const getGameStatistics = asyncHandler(async (req, res) => {
   const { gameType } = req.params;
   
   // Validate game type
-  if (!['seguin', 'monkey'].includes(gameType)) {
+  if (!['seguin', 'monkey', 'jigsaw'].includes(gameType)) {
     res.status(400);
     throw new Error('Invalid game type');
   }
