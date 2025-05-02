@@ -26,7 +26,7 @@ const Games = () => {
       icon: "fa fa-clock-o",
       description:
         "Enhance focus and problem-solving skills with this our jigsaw puzzles.",
-      paths: ["/games/jigsaw_6_to_8", "/games/jigsaw_8_to_10", "/games/jigsaw_10_to_12", "/games/jigsaw_12_to_14", "/games/maths_puzzle"],
+      path:"/games/jigsaw_8_to_10",
       available: true,
     },
   ];
