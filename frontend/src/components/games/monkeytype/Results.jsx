@@ -2,28 +2,28 @@ import React from "react";
 import { motion } from "framer-motion";
 import { formatPercentage, calculateWPM } from "../../../utils/helpers";
 
-// Enhanced visual design for result cards
+// Enhanced visual design for result cards with mobile responsiveness
 const ResultCard = ({ label, value, color = "text-indigo-400", icon, delay, bgColor = "bg-gray-800" }) => {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay }}
-      className={`${bgColor} rounded-xl p-5 flex items-center w-full shadow-lg`}
+      className={`${bgColor} rounded-xl p-3 sm:p-5 flex items-center w-full shadow-lg`}
       style={{ 
         boxShadow: `0 4px 6px rgba(0,0,0,0.1), 0 0 1px 1px rgba(${color === 'text-green-400' ? '52,199,89' : color === 'text-red-500' ? '255,59,48' : '0,122,255'},0.1)` 
       }}
     >
       {icon && (
-        <div className="mr-4 text-3xl flex items-center justify-center w-12 h-12 rounded-full bg-opacity-20"
+        <div className="mr-3 sm:mr-4 text-xl sm:text-3xl flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-opacity-20"
           style={{ backgroundColor: `rgba(${color === 'text-green-400' ? '52,199,89' : color === 'text-red-500' ? '255,59,48' : '0,122,255'},0.15)` }}
         >
           {icon}
         </div>
       )}
       <div className="flex-1">
-        <div className="text-sm text-gray-400 mb-1">{label}</div>
-        <div className={`text-2xl font-bold ${color}`}>{value}</div>
+        <div className="text-xs sm:text-sm text-gray-400 mb-1">{label}</div>
+        <div className={`text-xl sm:text-2xl font-bold ${color}`}>{value}</div>
       </div>
     </motion.div>
   );
@@ -35,15 +35,15 @@ const ProgressBadge = ({ delay = 1.1 }) => (
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
     transition={{ duration: 0.4, delay }}
-    className="bg-green-800 rounded-xl p-5 flex items-center w-full shadow-lg"
+    className="bg-green-800 rounded-xl p-3 sm:p-5 flex items-center w-full shadow-lg"
     style={{ boxShadow: '0 4px 10px rgba(52,199,89,0.2)' }}
   >
-    <div className="mr-4 text-3xl flex items-center justify-center w-12 h-12 rounded-full bg-green-700">
+    <div className="mr-3 sm:mr-4 text-xl sm:text-3xl flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-green-700">
       ✅
     </div>
     <div className="flex-1">
-      <div className="text-green-400 text-lg font-medium">Progress Saved</div>
-      <div className="text-green-200 text-sm">Your results have been saved to your profile</div>
+      <div className="text-green-400 text-base sm:text-lg font-medium">Progress Saved</div>
+      <div className="text-green-200 text-xs sm:text-sm">Your results have been saved to your profile</div>
     </div>
   </motion.div>
 );
@@ -148,14 +148,14 @@ const Results = ({
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.7 }}
-        className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white py-6 px-8 rounded-xl mb-8 text-center shadow-lg"
+        className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white py-4 sm:py-6 px-4 sm:px-8 rounded-xl mb-4 sm:mb-8 text-center shadow-lg"
       >
-        <div className="text-4xl mb-3">{feedback.emoji}</div>
-        <h2 className="text-3xl font-bold mb-2">Your Results</h2>
-        <p className={`${feedback.color} text-lg`}>{feedback.message}</p>
+        <div className="text-3xl sm:text-4xl mb-2 sm:mb-3">{feedback.emoji}</div>
+        <h2 className="text-xl sm:text-3xl font-bold mb-1 sm:mb-2">Your Results</h2>
+        <p className={`${feedback.color} text-sm sm:text-lg`}>{feedback.message}</p>
       </motion.div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-3 sm:mb-4">
         <ResultCard 
           label="Words Per Minute" 
           value={safeWPM} 
@@ -176,7 +176,7 @@ const Results = ({
         />
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-4 sm:mb-6">
         <ResultCard 
           label="Characters Typed" 
           value={safeTotal} 
@@ -200,26 +200,26 @@ const Results = ({
       {/* Progress saved indicator */}
       {savedProgress && <ProgressBadge delay={1.1} />}
 
-      {/* Additional statistics */}
+      {/* Additional statistics - now in grid that adapts for mobile */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5, delay: 1.3 }}
-        className="mt-8 grid grid-cols-3 gap-4"
+        className="mt-4 sm:mt-8 grid grid-cols-3 gap-2 sm:gap-4"
       >
-        <div className="text-center bg-gray-800 p-4 rounded-lg">
+        <div className="text-center bg-gray-800 p-2 sm:p-4 rounded-lg">
           <div className="text-xs text-gray-500 uppercase tracking-wide">Time</div>
-          <div className="text-xl font-semibold text-gray-200">{timeUsed}s</div>
+          <div className="text-base sm:text-xl font-semibold text-gray-200">{timeUsed}s</div>
         </div>
         
-        <div className="text-center bg-gray-800 p-4 rounded-lg">
+        <div className="text-center bg-gray-800 p-2 sm:p-4 rounded-lg">
           <div className="text-xs text-gray-500 uppercase tracking-wide">CPM</div>
-          <div className="text-xl font-semibold text-gray-200">{safeWPM * 5}</div>
+          <div className="text-base sm:text-xl font-semibold text-gray-200">{safeWPM * 5}</div>
         </div>
         
-        <div className="text-center bg-gray-800 p-4 rounded-lg">
+        <div className="text-center bg-gray-800 p-2 sm:p-4 rounded-lg">
           <div className="text-xs text-gray-500 uppercase tracking-wide">Correct</div>
-          <div className="text-xl font-semibold text-gray-200">{correctChars}</div>
+          <div className="text-base sm:text-xl font-semibold text-gray-200">{correctChars}</div>
         </div>
       </motion.div>
     </motion.div>
