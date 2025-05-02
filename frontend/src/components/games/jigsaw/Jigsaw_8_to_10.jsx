@@ -91,13 +91,13 @@ const Jigsaw_8_to_10 = () => {
     // Add grid lines to the container
     const board = puzzleContainer.querySelector(".jigsaw-puzzle__board");
     if (board) {
-      // Add cute dotted grid pattern
+      // Add cute dotted grid pattern with new color scheme
       board.style.backgroundImage = `
-      linear-gradient(to right, rgba(147, 51, 234, 0.2) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(147, 51, 234, 0.2) 1px, transparent 1px)
+      linear-gradient(to right, rgba(102, 34, 11, 0.2) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(102, 34, 11, 0.2) 1px, transparent 1px)
     `;
       board.style.backgroundSize = `${100 / difficulty.columns}% ${100 / difficulty.rows}%`;
-      board.style.border = "3px dashed rgba(147, 51, 234, 0.3)";
+      board.style.border = "3px dashed rgba(102, 34, 11, 0.3)";
       board.style.borderRadius = "16px";
       board.style.boxSizing = "border-box";
       board.classList.add("puzzle-board-with-grid");
@@ -112,7 +112,7 @@ const Jigsaw_8_to_10 = () => {
       cursor: grab !important;
       z-index: 10 !important;
       box-shadow: 0 4px 8px rgba(0,0,0,0.1) !important;
-      border: 2px solid white !important;
+      border: 2px solid #F9F0D0 !important;
       border-radius: 8px !important;
       transition: box-shadow 0.2s ease-in-out !important;
     `;
@@ -184,6 +184,8 @@ const Jigsaw_8_to_10 = () => {
     const now = Date.now();
     setEndTime(now);
     setSolved(true);
+    // FIX: Set correct pieces to total pieces when puzzle is solved
+    setCorrectPieces(totalPieces);
     setMessage("🎉 Puzzle completed! Great work!");
     if (timerRef.current) clearInterval(timerRef.current);
 
@@ -273,13 +275,16 @@ const Jigsaw_8_to_10 = () => {
     puzzleContainerRef.current = puzzleContainer;
 
     const observer = new MutationObserver(() => {
-      const solvedPieces = puzzleContainer.querySelectorAll(
-        ".jigsaw-puzzle__piece--solved"
-      ).length;
+      // Only update if we're not in solved state
+      if (!solved) {
+        const solvedPieces = puzzleContainer.querySelectorAll(
+          ".jigsaw-puzzle__piece--solved"
+        ).length;
 
-      if (solvedPieces > correctPieces && !solved) {
-        setCorrectPieces(solvedPieces);
-        showRandomAffirmation();
+        if (solvedPieces > correctPieces) {
+          setCorrectPieces(solvedPieces);
+          showRandomAffirmation();
+        }
       }
     });
 
@@ -304,18 +309,18 @@ const Jigsaw_8_to_10 = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50 p-4">
-      <div className="max-w-4xl w-full bg-white rounded-3xl shadow-xl p-8 mb-8 border-4 border-purple-100">
-        <h1 className="text-4xl font-bold text-center bg-gradient-to-r from-purple-600 to-pink-500 bg-clip-text text-transparent mb-2">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 p-4" style={{ backgroundColor: "#F9F0D0" }}>
+      <div className="max-w-4xl w-full bg-white rounded-3xl shadow-xl p-8 mb-8 border-4" style={{ borderColor: "#66220B", backgroundColor: "#F9F0D0" }}>
+        <h1 className="text-4xl font-bold text-center mb-2" style={{ color: "#66220B" }}>
           ✨ Puzzle Fun Time ✨
         </h1>
-        <p className="text-center text-gray-500 mb-8">Challenge your mind with our beautiful puzzles</p>
+        <p className="text-center mb-8" style={{ color: "#66220B" }}>Challenge your mind with our beautiful puzzles</p>
 
         <div className="flex flex-col items-center">
           <div className="w-full max-w-md relative">
             {!gameStarted && !loading && (
-              <div className="bg-gradient-to-r from-purple-100 to-pink-100 p-8 rounded-2xl shadow-md mb-6 border-2 border-purple-200">
-                <h2 className="text-2xl font-semibold text-purple-800 mb-6 text-center">
+              <div className="p-8 rounded-2xl shadow-md mb-6 border-2" style={{ backgroundColor: "#F9F0D0", borderColor: "#F09000" }}>
+                <h2 className="text-2xl font-semibold mb-6 text-center" style={{ color: "#66220B" }}>
                   Choose Your Challenge 🧩
                 </h2>
                 <div className="flex justify-between gap-4 mb-8">
@@ -323,10 +328,16 @@ const Jigsaw_8_to_10 = () => {
                     <button
                       key={level.name}
                       onClick={() => setDifficulty(level)}
-                      className={`flex-1 py-4 px-4 rounded-xl transition-all duration-300 flex flex-col items-center ${difficulty.name === level.name
-                          ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg transform scale-105"
-                          : "bg-white text-gray-700 hover:bg-gray-100 border-2 border-purple-200"
-                        }`}
+                      className={`flex-1 py-4 px-4 rounded-xl transition-all duration-300 flex flex-col items-center ${
+                        difficulty.name === level.name
+                          ? "text-white shadow-lg transform scale-105"
+                          : "text-gray-700 hover:bg-gray-100 border-2"
+                      }`}
+                      style={{
+                        backgroundColor: difficulty.name === level.name ? "#F09000" : "#F9F0D0",
+                        borderColor: "#66220B",
+                        color: difficulty.name === level.name ? "#F9F0D0" : "#66220B"
+                      }}
                     >
                       <span className="text-2xl mb-1">{level.emoji}</span>
                       <span>{level.name}</span>
@@ -335,7 +346,8 @@ const Jigsaw_8_to_10 = () => {
                 </div>
                 <button
                   onClick={handleStartGame}
-                  className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold py-4 px-6 rounded-xl shadow-md transform transition duration-300 hover:shadow-lg hover:from-purple-600 hover:to-pink-600 text-lg"
+                  className="w-full text-white font-semibold py-4 px-6 rounded-xl shadow-md transform transition duration-300 hover:shadow-lg text-lg"
+                  style={{ backgroundColor: "#F09000" }}
                 >
                   Let's Play! 🎮
                 </button>
@@ -343,54 +355,59 @@ const Jigsaw_8_to_10 = () => {
             )}
 
             {loading && (
-              <div className="bg-white rounded-2xl p-12 text-center shadow-md border-2 border-purple-100">
+              <div className="rounded-2xl p-12 text-center shadow-md border-2" style={{ backgroundColor: "#F9F0D0", borderColor: "#F09000" }}>
                 <div className="relative w-20 h-20 mx-auto mb-6">
-                  <div className="absolute top-0 w-full h-full rounded-full border-4 border-t-purple-500 border-r-pink-500 border-b-blue-500 border-l-transparent animate-spin"></div>
-                  <div className="absolute top-2 left-2 w-16 h-16 rounded-full border-4 border-t-transparent border-r-transparent border-b-transparent border-l-pink-300 animate-spin"></div>
+                  <div className="absolute top-0 w-full h-full rounded-full border-4 animate-spin" style={{ borderTopColor: "#F09000", borderRightColor: "#66220B", borderBottomColor: "#F09000", borderLeftColor: "transparent" }}></div>
+                  <div className="absolute top-2 left-2 w-16 h-16 rounded-full border-4 animate-spin" style={{ borderTopColor: "transparent", borderRightColor: "transparent", borderBottomColor: "transparent", borderLeftColor: "#66220B" }}></div>
                 </div>
-                <p className="text-xl text-purple-700">Creating your puzzle magic...</p>
+                <p className="text-xl" style={{ color: "#66220B" }}>Creating your puzzle magic...</p>
               </div>
             )}
 
             {gameStarted && (
               <div className="relative">
-                <div className="bg-white rounded-2xl shadow-md p-5 mb-6 border-2 border-purple-100">
+                <div className="rounded-2xl shadow-md p-5 mb-6 border-2" style={{ backgroundColor: "#F9F0D0", borderColor: "#F09000" }}>
                   <div className="flex justify-between items-center mb-4">
-                    <div className="flex items-center text-md text-gray-700 bg-purple-50 py-2 px-4 rounded-full">
-                      <span className="font-medium mr-1">Level:</span>
-                      <span className="text-purple-600 font-bold">{difficulty.name}</span>
+                    <div className="flex items-center text-md py-2 px-4 rounded-full" style={{ backgroundColor: "#F9F0D0", border: "2px solid #66220B" }}>
+                      <span className="font-medium mr-1" style={{ color: "#66220B" }}>Level:</span>
+                      <span className="font-bold" style={{ color: "#F09000" }}>{difficulty.name}</span>
                       <span className="ml-2">{difficulty.emoji}</span>
                     </div>
-                    <div className="flex items-center text-md bg-pink-50 py-2 px-4 rounded-full">
-                      <span className="font-medium mr-2">⏱️</span>
-                      <span className="text-pink-600 font-bold">{formatTime(elapsedTime)}</span>
+                    <div className="flex items-center text-md py-2 px-4 rounded-full" style={{ backgroundColor: "#F9F0D0", border: "2px solid #66220B" }}>
+                      <span className="font-medium mr-2" style={{ color: "#66220B" }}>⏱️</span>
+                      <span className="font-bold" style={{ color: "#F09000" }}>{formatTime(elapsedTime)}</span>
                     </div>
                   </div>
 
-                  <div className="w-full bg-gray-100 rounded-full h-3 mb-2 overflow-hidden">
+                  <div className="w-full rounded-full h-3 mb-2 overflow-hidden" style={{ backgroundColor: "#66220B", opacity: "0.2" }}>
                     <div
-                      className="bg-gradient-to-r from-purple-500 to-pink-500 h-3 rounded-full transition-all duration-500 ease-out"
-                      style={{ width: `${(correctPieces / totalPieces) * 100}%` }}
+                      className="h-3 rounded-full transition-all duration-500 ease-out"
+                      style={{ 
+                        backgroundColor: "#F09000", 
+                        width: `${(correctPieces / totalPieces) * 100}%` 
+                      }}
                     ></div>
                   </div>
 
                   <div className="flex justify-between text-sm">
-                    <span className="text-purple-600 font-medium">{correctPieces} of {totalPieces} pieces</span>
-                    <span className="text-pink-600 font-medium">{Math.round((correctPieces / totalPieces) * 100)}% complete</span>
+                    <span className="font-medium" style={{ color: "#66220B" }}>{correctPieces} of {totalPieces} pieces</span>
+                    <span className="font-medium" style={{ color: "#66220B" }}>{Math.round((correctPieces / totalPieces) * 100)}% complete</span>
                   </div>
                 </div>
 
                 <div
-                  className={`absolute left-1/2 transform -translate-x-1/2 z-20 text-lg font-bold px-6 py-3 rounded-full transition-all duration-500 ${showAffirmation
-                      ? "opacity-100 -top-14 bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg"
+                  className={`absolute left-1/2 transform -translate-x-1/2 z-20 text-lg font-bold px-6 py-3 rounded-full transition-all duration-500 ${
+                    showAffirmation
+                      ? "opacity-100 -top-14 text-white shadow-lg"
                       : "opacity-0 -top-8"
-                    }`}
+                  }`}
+                  style={{ backgroundColor: showAffirmation ? "#F09000" : "transparent" }}
                 >
                   {showAffirmation}
                 </div>
 
                 <div className="relative puzzle-container mb-6">
-                  <div className="bg-purple-50 p-6 rounded-2xl border-2 border-purple-100">
+                  <div className="p-6 rounded-2xl border-2" style={{ backgroundColor: "#F9F0D0", borderColor: "#66220B" }}>
                     <JigsawPuzzle
                       imageSrc={selectedImage}
                       rows={difficulty.rows}
@@ -401,13 +418,13 @@ const Jigsaw_8_to_10 = () => {
                   </div>
 
                   {showPreview && (
-                    <div className="absolute top-8 right-8 w-36 h-36 border-4 border-white rounded-lg shadow-lg overflow-hidden z-20">
+                    <div className="absolute top-8 right-8 w-36 h-36 border-4 rounded-lg shadow-lg overflow-hidden z-20" style={{ borderColor: "#F9F0D0" }}>
                       <img
                         src={selectedImage}
                         alt="Puzzle preview"
                         className="w-full h-full object-cover"
                       />
-                      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-r from-purple-500/70 to-pink-500/70 text-white text-xs py-1 text-center">
+                      <div className="absolute bottom-0 left-0 right-0 text-white text-xs py-1 text-center" style={{ backgroundColor: "rgba(102, 34, 11, 0.7)" }}>
                         Preview
                       </div>
                     </div>
@@ -421,17 +438,20 @@ const Jigsaw_8_to_10 = () => {
             <div className="flex gap-4 mt-4">
               <button
                 onClick={togglePreview}
-                className={`${showPreview
-                    ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white"
-                    : "bg-gradient-to-r from-purple-100 to-blue-100 text-gray-700 hover:from-purple-200 hover:to-blue-200"
-                  } font-medium py-3 px-6 rounded-full transition shadow-md flex items-center`}
+                className={`font-medium py-3 px-6 rounded-full transition shadow-md flex items-center`}
+                style={{ 
+                  backgroundColor: showPreview ? "#66220B" : "#F9F0D0", 
+                  color: showPreview ? "#F9F0D0" : "#66220B",
+                  border: "2px solid #66220B"
+                }}
               >
                 {showPreview ? "Hide Preview 👁️" : "Show Preview 👁️"}
               </button>
 
               <button
                 onClick={confirmOrRestart}
-                className="bg-gradient-to-r from-orange-400 to-pink-500 text-blue font-medium py-3 px-6 rounded-full transition shadow-md hover:from-orange-500 hover:to-pink-600 flex items-center"
+                className="text-white font-medium py-3 px-6 rounded-full transition shadow-md flex items-center"
+                style={{ backgroundColor: "#F09000" }}
               >
                 {solved ? "New Puzzle 🎮" : "Restart 🔄"}
               </button>
@@ -439,20 +459,21 @@ const Jigsaw_8_to_10 = () => {
           )}
 
           {solved && (
-            <div className="mt-8 bg-gradient-to-r from-green-50 to-blue-50 border-3 border-green-200 rounded-2xl p-8 text-center max-w-md animate-fade-in shadow-lg">
-              <div className="inline-block bg-yellow-100 p-3 rounded-full mb-4">
+            <div className="mt-8 border-3 rounded-2xl p-8 text-center max-w-md animate-fade-in shadow-lg" style={{ backgroundColor: "#F9F0D0", borderColor: "#F09000" }}>
+              <div className="inline-block p-3 rounded-full mb-4" style={{ backgroundColor: "#F09000", opacity: "0.3" }}>
                 <span className="text-4xl">🏆</span>
               </div>
-              <h3 className="text-2xl font-bold text-green-700 mb-3">
+              <h3 className="text-2xl font-bold mb-3" style={{ color: "#66220B" }}>
                 Woohoo! You Did It! 🎉
               </h3>
-              <p className="text-gray-700 mb-5">
+              <p className="mb-5" style={{ color: "#66220B" }}>
                 Amazing job! You completed the puzzle in{" "}
-                <strong className="text-purple-600">{formatTime(Math.round((endTime - startTime) / 1000))}</strong>
+                <strong style={{ color: "#F09000" }}>{formatTime(Math.round((endTime - startTime) / 1000))}</strong>
               </p>
               <button
                 onClick={handleStartGame}
-                className="bg-gradient-to-r from-green-500 to-blue-500 text-white font-semibold py-3 px-8 rounded-xl shadow-md transition hover:shadow-lg text-lg"
+                className="text-white font-semibold py-3 px-8 rounded-xl shadow-md transition hover:shadow-lg text-lg"
+                style={{ backgroundColor: "#F09000" }}
               >
                 Play Again 🎮
               </button>
