@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Groq from "groq-sdk";
+import OpenAI from "openai";
 import JigsawPuzzle from '../../components/games/jigsaw/JigsawPuzzle';
 import LoadingScreen from '../../components/games/jigsaw/LoadingScreen';
 import Confetti from '../../components/games/jigsaw/Confetti';
-import JigsawHome from '../../components/games/jigsaw/JigsawHome';
-import axios from 'axios';
 
 function JigsawGamePage() {
     const location = useLocation();
@@ -42,18 +41,24 @@ function JigsawGamePage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [completed, setCompleted] = useState(false);
+    
+    // Initialize OpenAI with client-side API key
+    const openai = new OpenAI({
+        apiKey: import.meta.env.VITE_OPENAI_API_KEY,
+        dangerouslyAllowBrowser: true // Required for client-side usage
+    });
 
     useEffect(() => {
         generateImage();
         setPieces(calculatePieces(age, difficulty));
     }, [age, difficulty, theme]);
 
-
     const generateImage = async () => {
         setLoading(true);
         setError(null);
 
         try {
+            // Step 1: Generate description using Groq
             const groq = new Groq({
                 apiKey: import.meta.env.VITE_GROQ_API_KEY,
                 dangerouslyAllowBrowser: true
@@ -78,12 +83,61 @@ function JigsawGamePage() {
             const imagePrompt = descriptionResponse.choices[0].message.content;
             console.log('Generated description:', imagePrompt);
 
-            // Send prompt to your backend server
-            const { data } = await axios.post('http://localhost:8001/api/generate-image', { prompt: imagePrompt });
+            // Step 2: Try OpenAI client-side image generation first
+            try {
+                // Use OpenAI directly from the frontend
+                console.log('Generating image with OpenAI...');
+                const result = await openai.images.generate({
+                    model: "dall-e-3", // Use DALL-E 3 (you can also try "gpt-image-1")
+                    prompt: `Create a child-friendly, colorful image for a jigsaw puzzle: ${imagePrompt}`,
+                    size: "1024x1024",
+                    quality: "standard",
+                    n: 1,
+                    response_format: "url" // Get URL directly
+                });
 
-            setImage(data.output); // Use the generated image URL
+                if (result && result.data && result.data.length > 0){
+                    const imageUrl = response.data[0].url;
+                    console.log('image generated successfully:', imageUrl);
+                    return imageUrl;
+                }else{
+                    throw new Error('no image data in response');
+                }
+            } catch (openaiError) {
+                console.error('OpenAI image generation failed:', openaiError);
+                
+                // Fallback to server-side generation if client-side fails
+                console.log('Falling back to server-side image generation...');
+                
+                try {
+                    const response = await fetch('http://localhost:8001/api/generate-image', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ prompt }),
+                    });
 
-            setLoading(false);
+                    if (!response.ok) {
+                        // Try to get more detailed error info
+                        const errorData = await response.json().catch(() => ({}));
+                        console.error('Server response:', errorData);
+                        throw new Error(`Image generation failed (${response.status})${errorData.error ? `: ${errorData.error}` : ''}`);
+                    }
+
+                    const data = await response.json();
+                    console.log('servr-side image generated successfully');
+                    return data.imageUrl;
+                } catch (serverError) {
+                    console.error('Server image generation error:', serverError);
+                    
+                    // Redirect to fallback URL if all image generation methods fail
+                    console.log('Redirecting to fallback jigsaw page');
+                    navigate('/games/jigsaw_8_to_10', { 
+                        state: { age, difficulty, theme } 
+                    });
+                }
+            }
         } catch (err) {
             console.error("Error generating puzzle:", err);
             setError("Failed to create your puzzle. Please try again.");
@@ -99,6 +153,11 @@ function JigsawGamePage() {
         navigate('/');
     };
 
+    // For testing - allows manually retrying the image generation
+    const handleRetry = () => {
+        generateImage();
+    };
+
     if (loading) {
         return <LoadingScreen theme={theme} />;
     }
@@ -109,12 +168,20 @@ function JigsawGamePage() {
                 <div className="p-6 bg-white rounded-lg shadow-lg">
                     <h2 className="text-2xl font-bold text-red-600 mb-4">Oops!</h2>
                     <p className="text-gray-700 mb-6">{error}</p>
-                    <button
-                        onClick={() => navigate('/')}
-                        className="w-full py-2 px-4 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
-                    >
-                        Go Back
-                    </button>
+                    <div className="flex gap-4">
+                        <button
+                            onClick={handleRetry}
+                            className="w-1/2 py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                        >
+                            Try Again
+                        </button>
+                        <button
+                            onClick={() => navigate('/')}
+                            className="w-1/2 py-2 px-4 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+                        >
+                            Go Back
+                        </button>
+                    </div>
                 </div>
             </div>
         );
@@ -125,9 +192,9 @@ function JigsawGamePage() {
             {completed && <Confetti />}
             <div className="absolute top-0 left-0 right-0 bottom-0 bg-white z-10 flex justify-center items-center p-4">
                 <JigsawPuzzle
-                    image={image}   //{/* ✅ Changed from imageUrl to image */}
+                    image={image}
                     rows={pieces.rows}
-                    columns={pieces.cols}  //{/* ✅ Changed from cols to columns */}
+                    columns={pieces.cols}
                     onComplete={handlePuzzleComplete}
                 />
             </div>
