@@ -6,8 +6,6 @@ import {
 } from 'recharts';
 import { progressService } from '../../utils/apiService';
 
-// This is a section to add to your ProgressSettings.jsx component
-
 const MonkeyTypePerformance = ({ progressData, hasRealData }) => {
   // Sample data for demo in case real data isn't available
   const sampleMonkeyData = [
@@ -24,9 +22,6 @@ const MonkeyTypePerformance = ({ progressData, hasRealData }) => {
     if (progressData?.timeSeriesData && progressData.timeSeriesData.length > 0) {
       return progressData.timeSeriesData.map(entry => {
         // Extract typing speed and accuracy
-        // The raw data might store typing speed as completionTime for the monkey game
-        // We may need to convert this to WPM
-        
         const wpm = entry.wpm || 
                    (entry.monkey && typeof entry.monkey === 'number' ? entry.monkey : 0);
         
@@ -53,10 +48,27 @@ const MonkeyTypePerformance = ({ progressData, hasRealData }) => {
   // Get chart data
   const monkeyChartData = formatMonkeyChartData();
   
+  // Custom tooltip for better mobile experience
+  const CustomTooltip = ({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-white p-2 rounded shadow-md text-xs sm:text-sm border border-gray-200">
+          <p className="font-bold mb-1">{`${label}`}</p>
+          {payload.map((entry, index) => (
+            <p key={`item-${index}`} style={{ color: entry.color }}>
+              {`${entry.name}: ${entry.value}${entry.name.includes('Accuracy') ? '%' : ''}`}
+            </p>
+          ))}
+        </div>
+      );
+    }
+    return null;
+  };
+  
   return (
-    <div className="bg-white p-6 rounded-lg mb-6 shadow-sm">
-      <h3 className="text-lg font-semibold text-[#66220B] mb-4">Monkey Type Performance</h3>
-      <p className="text-gray-500 mb-4">
+    <div className="bg-white p-3 sm:p-6 rounded-lg mb-4 sm:mb-6 shadow-sm">
+      <h3 className="text-base sm:text-lg font-semibold text-[#66220B] mb-2 sm:mb-4">Monkey Type Performance</h3>
+      <p className="text-xs sm:text-sm text-gray-500 mb-2 sm:mb-4">
         This chart shows your typing speed (higher is better) and accuracy over time.
       </p>
       {!hasRealData && (
@@ -64,27 +76,56 @@ const MonkeyTypePerformance = ({ progressData, hasRealData }) => {
           Showing sample data. Play games to see your real statistics.
         </p>
       )}
-      <div className="h-64">
+      
+      {/* Responsive chart container */}
+      <div className="h-48 sm:h-64 w-full">
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart
             data={monkeyChartData}
-            margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+            margin={{ 
+              top: 5, 
+              right: 10, 
+              left: 0, // Smaller margin on mobile 
+              bottom: 5 
+            }}
           >
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="date" />
+            <XAxis 
+              dataKey="date" 
+              tick={{ fontSize: '0.7rem' }} 
+              tickMargin={8}
+            />
             <YAxis 
               yAxisId="left" 
-              label={{ value: 'WPM', angle: -90, position: 'insideLeft' }} 
+              label={{ 
+                value: 'WPM', 
+                angle: -90, 
+                position: 'insideLeft',
+                style: { fontSize: '0.7rem' },
+                dx: -10
+              }} 
               domain={[0, 'dataMax + 10']}
+              tick={{ fontSize: '0.7rem' }}
+              width={25} // Narrower on mobile
             />
             <YAxis 
               yAxisId="right" 
               orientation="right" 
-              label={{ value: 'Accuracy %', angle: 90, position: 'insideRight' }} 
+              label={{ 
+                value: 'Accuracy %', 
+                angle: 90, 
+                position: 'insideRight',
+                style: { fontSize: '0.7rem' },
+                dx: 10
+              }} 
               domain={[0, 100]}
+              tick={{ fontSize: '0.7rem' }}
+              width={30} // Narrower on mobile
             />
-            <Tooltip />
-            <Legend />
+            <Tooltip content={<CustomTooltip />} />
+            <Legend 
+              wrapperStyle={{ fontSize: '0.7rem', paddingTop: '8px' }}
+            />
             
             {/* WPM Line */}
             <Line 
@@ -93,7 +134,7 @@ const MonkeyTypePerformance = ({ progressData, hasRealData }) => {
               dataKey="wpm" 
               stroke="#FF8042" 
               name="Your Speed (WPM)" 
-              activeDot={{ r: 8 }} 
+              activeDot={{ r: 6 }} // Smaller dot on mobile
               strokeWidth={2}
             />
             
@@ -104,7 +145,8 @@ const MonkeyTypePerformance = ({ progressData, hasRealData }) => {
               dataKey="targetWpm" 
               stroke="#0088FE" 
               name="Target Speed" 
-              strokeDasharray="5 5" 
+              strokeDasharray="5 5"
+              strokeWidth={1} // Thinner on mobile 
             />
             
             {/* Accuracy Area */}
@@ -119,6 +161,21 @@ const MonkeyTypePerformance = ({ progressData, hasRealData }) => {
             />
           </ComposedChart>
         </ResponsiveContainer>
+      </div>
+      
+      {/* Mobile-friendly legend explanation */}
+      <div className="mt-2 text-xs text-gray-500 hidden sm:block">
+        <ul className="flex flex-wrap gap-4">
+          <li className="flex items-center">
+            <div className="w-3 h-3 bg-[#FF8042] mr-1"></div> Your typing speed
+          </li>
+          <li className="flex items-center">
+            <div className="w-3 h-3 bg-[#0088FE] mr-1"></div> Target speed
+          </li>
+          <li className="flex items-center">
+            <div className="w-3 h-3 bg-[#82ca9d] mr-1"></div> Your accuracy
+          </li>
+        </ul>
       </div>
     </div>
   );
