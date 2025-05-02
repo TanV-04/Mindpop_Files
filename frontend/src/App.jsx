@@ -13,11 +13,14 @@ import SeguinGame from "./pages/games/SeguinGame.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import MonkeyType from "./pages/games/MonkeyType.jsx";
 import Settings from "./components/settings.jsx";
-import Jigsaw_6_to_8 from "./components/games/jigsawPuzzle/Jigsaw_6_to_8.jsx";
-import Jigsaw_8_to_10 from "./components/games/jigsawPuzzle/Jigsaw_8_to_10.jsx";
-import Jigsaw_10_to_12 from "./components/games/jigsawPuzzle/Jigsaw_10_to_12.jsx";
-import Jigsaw_12_to_14 from "./components/games/jigsawPuzzle/Jigsaw_12_to_14.jsx";
-import MathsPuzzle from "./components/games/jigsawPuzzle/MathsPuzzle.jsx";
+import Jigsaw_6_to_8 from "./components/games/jigsaw/Jigsaw_6_to_8.jsx";
+import Jigsaw_8_to_10 from "./components/games/jigsaw/Jigsaw_8_to_10.jsx";
+import Jigsaw_10_to_12 from "./components/games/jigsaw/Jigsaw_10_to_12.jsx";
+import Jigsaw_12_to_14 from "./components/games/jigsaw/Jigsaw_12_to_14.jsx";
+import MathsPuzzle from "./components/games/jigsaw/MathsPuzzle.jsx";
+import Footer from "./components/Footer.jsx";
+import JigsawHome from "./components/games/jigsaw/JigsawHome.jsx";
+import JigsawGamePage from "./pages/games/JigsawGamePage.jsx";
 //import MonkeyTypeComponent from "./components/games/monkeytype/MonkeyTypeComponent.jsx";
 
 
@@ -142,6 +145,12 @@ function App() {
                   </ProtectedRoute>
                 }
               />
+              <Route
+              path="/games/jigsaw"
+              element={<ProtectedRoute><JigsawHome/></ProtectedRoute>}/>
+              <Route
+              path="/jigsaw/jigsawstart"
+              element={<ProtectedRoute><JigsawGamePage/></ProtectedRoute>}/>
 
               {/* Add the route for Settings */}
               <Route
