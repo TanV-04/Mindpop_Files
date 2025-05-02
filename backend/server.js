@@ -6,7 +6,7 @@ import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { connectDB } from './config/database.js';  
+import { connectDB } from './config/database.js';
 import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoute.js';
 import progressRoutes from './routes/progressRoutes.js';
@@ -15,6 +15,7 @@ import corsOptions from './config/corsOptions.js';
 import { errorHandler } from './middleware/errorMiddleware.js';
 import { logger } from './utils/logger.js';
 import { handleUploadErrors } from './middleware/uploadMiddleware.js';
+import axios from 'axios';
 
 dotenv.config();
 const app = express();
@@ -60,8 +61,8 @@ app.use('/uploads', (req, res, next) => {
 
 // Rate limiting
 const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100 // limit each IP to 100 requests per windowMs
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100 // limit each IP to 100 requests per windowMs
 });
 app.use('/api', limiter);
 
@@ -78,8 +79,34 @@ app.use(handleUploadErrors);
 app.use(errorHandler);
 
 app.use('/api/users', userRoutes);
+// ** New Proxy Endpoint for Replicate API **
+app.post('/api/generate-text', async (req, res) => {
+  const { prompt } = req.body;
+
+  try {
+    const response = await axios.post(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${process.env.GOOGLE_GEMINI_KEY}`,
+      {
+        contents: [
+          {
+            parts: [{ text: prompt }]
+          }
+        ]
+      }
+    );
+
+    res.json({ output: response.data.candidates[0].content.parts[0].text });
+  } catch (err) {
+    console.error("Error generating text:", err.response?.data || err.message);
+    res.status(500).json({ error: 'Failed to generate text' });
+  }
+});
+
+// Error handling (should already be here)
+app.use(errorHandler);
+
 
 const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => {
-    logger.info(`Server running on port ${PORT}`);
+  logger.info(`Server running on port ${PORT}`);
 });
