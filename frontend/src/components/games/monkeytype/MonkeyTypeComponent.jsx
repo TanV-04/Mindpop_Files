@@ -68,7 +68,7 @@ const AGE_GROUPS = {
         }
       }
     },
-    "11-12": {
+    "11-14": {
       initialTimer: 90,  // 1.5 minutes
       minTimer: 60,      // 1 minute
       initialLevel: 1,
@@ -99,7 +99,7 @@ const AGE_GROUPS = {
   const FALLBACK_TEXTS = {
     "5-7": ["the cat sat on the mat", "i like to play outside", "my dog is very happy"],
     "8-10": ["what has teeth but cannot bite", "what flies without wings", "what gets bigger the more you take away"],
-    "11-12": ["it was a dark and stormy night", "all happy families are alike", "the old man was dreaming about the lions"]
+    "11-14": ["it was a dark and stormy night", "all happy families are alike", "the old man was dreaming about the lions"]
   };
 
 // Enhanced UserTypings component with bigger, bolder, and glowy text
@@ -267,7 +267,7 @@ const useAITextGenerator = (ageGroup) => {
       } else if (avgAccuracy < 70 || avgWPM < 15) {
         newLevel = 1;
       }
-    } else if (ageGroup === "11-12") {
+    } else if (ageGroup === "11-14") {
       if (avgAccuracy > 80 && avgWPM > 30 && currentLevel === 1) { // 1 = poems
         newLevel = 2; // to intermediate
       } else if (avgAccuracy > 85 && avgWPM > 35 && currentLevel === 2) {
@@ -504,7 +504,7 @@ const MonkeyTypeComponent = () => {
       if (!age) return "8-10"; // default
       if (age >= 5 && age <= 7) return "5-7";
       if (age >= 8 && age <= 10) return "8-10";
-      if (age >= 11 && age <= 12) return "11-12";
+      if (age >= 11 && age <= 14) return "11-14";
       return "8-10"; // default for ages outside our ranges
     };
     

@@ -13,6 +13,7 @@ import SeguinGame from "./pages/games/SeguinGame.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import MonkeyType from "./pages/games/MonkeyType.jsx";
 import Settings from "./components/settings.jsx";
+import JigsawComponent from "./components/games/jigsaw/JigsawComponent.jsx";
 import Jigsaw_6_to_8 from "./components/games/jigsaw/Jigsaw_6_to_8.jsx";
 import Jigsaw_8_to_10 from "./components/games/jigsaw/Jigsaw_8_to_10.jsx";
 import Jigsaw_10_to_12 from "./components/games/jigsaw/Jigsaw_10_to_12.jsx";
@@ -69,8 +70,18 @@ function App() {
               {/* <Route path="/games/monkeytype/5-7" element={<MonkeyType5to7 />} />
             <Route path="/games/monkeytype/8-10" element={<MonkeyType8to10 />} />
             <Route path="/games/monkeytype/11-12" element={<MonkeyType11to12 />} /> */}
-
+            
             <Route
+              path="/games/JigsawGamePage"
+              element={
+                <ProtectedRoute>
+                  <JigsawGamePage />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="/games/jigsaw_8_to_10" element={<JigsawComponent />} />
+
+            {/* <Route
               path="/games/jigsaw_8_to_10"
               element={
                 <ProtectedRoute>
@@ -150,7 +161,7 @@ function App() {
               element={<ProtectedRoute><JigsawHome/></ProtectedRoute>}/>
               <Route
               path="/jigsaw/jigsawstart"
-              element={<ProtectedRoute><JigsawGamePage/></ProtectedRoute>}/>
+              element={<ProtectedRoute><JigsawGamePage/></ProtectedRoute>}/> */}
 
               {/* Add the route for Settings */}
               <Route

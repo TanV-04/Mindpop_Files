@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PuzzleLogo from '../jigsaw/PuzzleLogo';
+import { progressService } from "../../../utils/apiService";
+import { useParams } from "react-router-dom";
 
 function JigsawHome() {
   const [age, setAge] = useState(5);
