@@ -15,6 +15,7 @@ import corsOptions from './config/corsOptions.js';
 import { errorHandler } from './middleware/errorMiddleware.js';
 import { logger } from './utils/logger.js';
 import { handleUploadErrors } from './middleware/uploadMiddleware.js';
+import analysisRoutes from './routes/analysisRoutes.js';
 
 dotenv.config();
 const app = express();
@@ -70,6 +71,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/progress', progressRoutes);
 app.use('/api/support', supportRoutes);
+app.use('/api/analysis', analysisRoutes);
 
 // Handle file upload errors
 app.use(handleUploadErrors);
