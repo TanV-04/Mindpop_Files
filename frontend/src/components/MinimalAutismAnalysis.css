@@ -1,0 +1,31 @@
+.minimal-container {
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.upload-section {
+  margin-bottom: 1rem;
+}
+
+.loading {
+  font-size: 1.2rem;
+  color: #f09000;
+}
+
+.results-section {
+  margin-top: 1rem;
+  text-align: left;
+}
+
+button {
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+}
+
+.error {
+  color: red;
+}

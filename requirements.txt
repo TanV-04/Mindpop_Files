@@ -1,0 +1,11 @@
+Flask
+tensorflow
+tensorflow-hub
+moviepy
+opencv-python
+joblib
+tqdm
+pandas
+scikit-learn
+flask-cors
+bootstrap

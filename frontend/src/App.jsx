@@ -19,6 +19,7 @@ import Jigsaw_10_to_12 from "./components/games/jigsawPuzzle/Jigsaw_10_to_12.jsx
 import Jigsaw_12_to_14 from "./components/games/jigsawPuzzle/Jigsaw_12_to_14.jsx";
 import MathsPuzzle from "./components/games/jigsawPuzzle/MathsPuzzle.jsx";
 import Footer from "./components/Footer.jsx";
+import AutismAnalysis from "./components/ParentFriendlyAnalysis.jsx";
 //import MonkeyTypeComponent from "./components/games/monkeytype/MonkeyTypeComponent.jsx";
 
 function App() {
@@ -115,9 +116,17 @@ function App() {
                   </ProtectedRoute>
                 }
               />
+              <Route
+                path="/autism-analysis"
+                element={
+                  <ProtectedRoute>
+                    <AutismAnalysis />
+                  </ProtectedRoute>
+                }
+              />
             </Routes>
           </div>
-          <Footer className = "mt-auto" />
+          <Footer className="mt-auto" />
         </div>
       </BrowserRouter>
     </div>

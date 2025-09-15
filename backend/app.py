@@ -13,8 +13,8 @@ UPLOAD_FOLDER = './uploads'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 detector = AutismBehaviorDetector(
-    model_path='D:\\TANVI_COLLEGE_FILES\\PBL2_SEM6\\Mindpop_Files_Clean\\backend\\ml-model\\enhanced_rf_model.pkl',
-    scaler_path='D:\\TANVI_COLLEGE_FILES\\PBL2_SEM6\\Mindpop_Files_Clean\\backend\\ml-model\\enhanced_scaler.pkl',
+    model_path='D:\\TANVI_COLLEGE_FILES\\PBL2_SEM6\\Mindpop_Files\\backend\\ml-model\\enhanced_rf_model.pkl',
+    scaler_path='D:\\TANVI_COLLEGE_FILES\\PBL2_SEM6\\Mindpop_Files\\backend\\ml-model\\enhanced_scaler.pkl',
     threshold=0.3
 )
 

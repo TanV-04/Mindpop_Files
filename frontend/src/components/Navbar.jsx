@@ -15,31 +15,31 @@ const Navbar = () => {
   useEffect(() => {
     const token = localStorage.getItem("token");
     setIsLoggedIn(!!token);
-    
+
     // Set active tab based on current path
-    if (location.pathname === '/') setActiveTab('HOME');
-    else if (location.pathname === '/about') setActiveTab('ABOUT');
-    else if (location.pathname.startsWith('/games')) setActiveTab('GAMES');
-    else if (location.pathname === '/settings') setActiveTab('SETTINGS');
+    if (location.pathname === "/") setActiveTab("HOME");
+    else if (location.pathname === "/about") setActiveTab("ABOUT");
+    else if (location.pathname.startsWith("/games")) setActiveTab("GAMES");
+    else if (location.pathname === "/settings") setActiveTab("SETTINGS");
   }, [location.pathname]); // Re-run when path changes
 
   // Listen for storage events (when token is added/removed in another tab)
   useEffect(() => {
     const handleStorageChange = () => {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       setIsLoggedIn(!!token);
     };
-    
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
+
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
     setIsLoggedIn(false);
     navigate("/");
-    window.dispatchEvent(new Event('auth-change'));
-    navigate('/');
+    window.dispatchEvent(new Event("auth-change"));
+    navigate("/");
     setIsMenuOpen(false);
   };
 
@@ -68,6 +68,8 @@ const Navbar = () => {
           aboutSection.scrollIntoView({ behavior: "smooth" });
         }
       }
+    } else if (tab === "ANALYSIS") {
+      navigate("/autism-analysis");
     } else {
       navigate(`/${tab.toLowerCase()}`);
     }
@@ -138,7 +140,7 @@ const Navbar = () => {
         <div className="p-4 flex flex-col items-center gap-4">
           {/* Mobile Navigation Links */}
           <div className="flex flex-col w-full items-center gap-3 mb-4">
-            {["HOME", "ABOUT", "GAMES", "SETTINGS"].map((tab) => (
+            {["HOME", "ABOUT", "GAMES", "ANALYSIS" ,"SETTINGS"].map((tab) => (
               <button
                 key={tab}
                 onClick={() => handleTabClick(tab)}
@@ -180,7 +182,7 @@ const SlideTabs = ({ activeTab, onTabClick }) => {
     opacity: 0,
   });
 
-  const tabs = ["HOME", "ABOUT", "GAMES", "SETTINGS"];
+  const tabs = ["HOME", "ABOUT", "GAMES", "ANALYSIS", "SETTINGS"];
 
   return (
     <nav
