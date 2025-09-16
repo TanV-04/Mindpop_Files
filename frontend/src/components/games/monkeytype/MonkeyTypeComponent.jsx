@@ -15,6 +15,15 @@ const groq = new Groq({
   dangerouslyAllowBrowser: true,
 });
 
+// const AVAILABLE_MODELS = [
+//   "llama3.1-8b-8192",
+//   "llama3.1-70b-8192",
+//   "mixtral-8x7b-32768",
+//   "gemma-7b-it",
+// ];
+
+// const MODEL = "llama3.1-70b-8192";
+
 // Age group configurations
 // Age group configurations
 const AGE_GROUPS = {
@@ -221,44 +230,77 @@ const useAITextGenerator = (ageGroup) => {
     setError(null);
 
     try {
-      const prompt = AGE_GROUPS[ageGroup].prompt(level);
-      const completion = await groq.chat.completions.create({
-        model: "llama3-70b-8192",
-        messages: [
-          {
-            role: "system",
-            content: `You are generating typing exercises. Follow these rules STRICTLY:
+      // Use currently available Groq models
+      const modelsToTry = [
+        "llama-3.1-8b-instant", // Fast and efficient
+        "llama-3.1-70b-versatile", // More powerful
+        "mixtral-8x7b-32768", // Alternative (if available)
+        "gemma-7b-it", // Google's model
+      ];
+
+      let lastError = null;
+
+      for (const model of modelsToTry) {
+        try {
+          const prompt = AGE_GROUPS[ageGroup].prompt(level);
+
+          // Create a promise with timeout
+          const timeoutPromise = new Promise((_, reject) => {
+            setTimeout(() => reject(new Error("Request timeout")), 10000);
+          });
+
+          const groqPromise = groq.chat.completions.create({
+            model: model,
+            messages: [
+              {
+                role: "system",
+                content: `You are generating typing exercises. Follow these rules STRICTLY:
                       1. NEVER repeat any of these sentences: ${JSON.stringify(
-                        generatedHistory
+                        generatedHistory.slice(-10)
                       )}
                       2. ALWAYS return ONLY what's requested (no explanations)
                       3. For multiple items, ALWAYS return valid JSON arrays
                       4. EVERY sentence must be COMPLETELY UNIQUE`,
-          },
-          { role: "user", content: prompt },
-        ],
-        max_tokens: 100,
-        temperature: 0.7,
-      });
+              },
+              { role: "user", content: prompt },
+            ],
+            max_tokens: 100,
+            temperature: 0.7,
+          });
 
-      const generatedText = completion.choices[0]?.message?.content;
-      if (generatedText) {
-        const cleanedText = generatedText
-          .replace(/"/g, "")
-          .replace(/\n/g, " ")
-          .replace(/\s+/g, " ")
-          .trim();
-        setGeneratedHistory((prev) => [...prev, cleanedText]);
-        return cleanedText;
+          // Race between Groq call and timeout
+          const completion = await Promise.race([groqPromise, timeoutPromise]);
+
+          const generatedText = completion.choices[0]?.message?.content;
+          if (generatedText) {
+            const cleanedText = generatedText
+              .replace(/"/g, "")
+              .replace(/\n/g, " ")
+              .replace(/\s+/g, " ")
+              .trim();
+
+            if (cleanedText.length > 0) {
+              setGeneratedHistory((prev) => [...prev.slice(-50), cleanedText]);
+              return cleanedText;
+            }
+          }
+        } catch (modelError) {
+          console.warn(`Model ${model} failed:`, modelError);
+          lastError = modelError;
+          continue;
+        }
       }
-      throw new Error("No text generated");
+
+      // If all models fail, use fallback
+      throw lastError || new Error("All models failed");
     } catch (err) {
-      console.error("Error generating text with Groq:", err);
-      setError(err);
-      const fallbacks =
-        FALLBACK_TEXTS[level] ||
-        FALLBACK_TEXTS[AGE_GROUPS[ageGroup].initialLevel];
-      return fallbacks[Math.floor(Math.random() * fallbacks.length)];
+      console.error("Error generating text:", err);
+      setError(err.message);
+
+      // Use fallback texts
+      const fallbacks = FALLBACK_TEXTS[ageGroup] || FALLBACK_TEXTS["8-10"];
+      const randomIndex = Math.floor(Math.random() * fallbacks.length);
+      return fallbacks[randomIndex];
     } finally {
       setIsLoading(false);
     }
@@ -500,7 +542,7 @@ const StartButton = ({ onStart }) => {
   return (
     <button
       onClick={onStart}
-      className="bg-[#00f034] hover:bg-[#C07000] text-black font-bold py-3 px-6 rounded-3xl transition-all duration-300 transform hover:scale-105 shadow-lg"
+      className="bg-[#F09000] hover:bg-[#C07000] text-black font-bold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg"
       style={{
         backgroundColor: "#F09000",
         color: "black",
@@ -613,12 +655,8 @@ const MonkeyTypeComponent = () => {
   return (
     <div className="min-h-screen flex justify-center items-center px-4 py-10">
       <div
-        className={`bg-white dark:bg-gray-800 rounded-2xl shadow-xl transform transition-all duration-700 ${
+        className={`bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-xl max-w-2xl w-full transform transition-all duration-700 ${
           isVisible ? "translate-y-0 opacity-100" : "translate-y-20 opacity-0"
-        } ${
-          state === "finish"
-            ? "flex flex-col md:flex-row max-w-5xl w-full"
-            : "max-w-2xl w-full p-8"
         }`}
         style={{
           boxShadow: "0 10px 25px rgba(0,122,255,0.1)",
