@@ -23,6 +23,7 @@ import MathsPuzzle from "./components/games/jigsawPuzzle/MathsPuzzle.jsx";
 
 import Footer from "./components/Footer.jsx";
 import AutismAnalysis from "./components/ParentFriendlyAnalysis.jsx";
+import DyslexiaTest from "./pages/DyslexiaTest";
 
 function App() {
   return (
@@ -122,6 +123,9 @@ function App() {
                   </ProtectedRoute>
                 }
               />
+              <Route path="/dyslexia" 
+              element={
+              <ProtectedRoute><DyslexiaTest /></ProtectedRoute>} />
             </Routes>
           </div>
           <Footer className="mt-auto" />

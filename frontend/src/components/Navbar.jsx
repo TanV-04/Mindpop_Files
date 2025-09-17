@@ -21,6 +21,7 @@ const Navbar = () => {
     else if (location.pathname.startsWith("/games")) setActiveTab("GAMES");
     else if (location.pathname === "/autism-analysis") setActiveTab("ANALYSIS");
     else if (location.pathname === "/settings") setActiveTab("SETTINGS");
+    else if (location.pathname === "/dyslexia") setActiveTab("DYSLEXIA");
   }, [location.pathname]);
 
   useEffect(() => {
@@ -68,7 +69,10 @@ const Navbar = () => {
       }
     } else if (tab === "ANALYSIS") {
       navigate("/autism-analysis");
-    } else {
+    } else if (tab === "DYSLEXIA") {            
+      navigate("/dyslexia");
+    }
+      else {
       navigate(`/${tab.toLowerCase()}`);
     }
   };
@@ -180,7 +184,7 @@ const SlideTabs = ({ activeTab, onTabClick }) => {
     opacity: 0,
   });
 
-  const tabs = ["HOME", "ABOUT", "GAMES", "ANALYSIS", "SETTINGS"];
+  const tabs = ["HOME", "ABOUT", "GAMES", "ANALYSIS", "SETTINGS", "DYSLEXIA"];
 
   return (
     <nav

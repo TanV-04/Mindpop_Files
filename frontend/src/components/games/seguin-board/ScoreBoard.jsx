@@ -1,7 +1,6 @@
-<<<<<<< HEAD
+
 //ScoreBoard.jsx
-=======
->>>>>>> origin/main
+
 import { useState, useEffect } from 'react';
 import ResultsAnalysis from './ResultAnalysis';
 import { Trophy, Clock, RotateCcw, ChevronDown, ChevronUp } from 'lucide-react';
@@ -17,8 +16,6 @@ const ScoreBoard = ({ time, age, onPlayAgain }) => {
     if (savedToDatabase) return; // Prevent multiple saves
     
     try {
-<<<<<<< HEAD
-=======
       // Get the appropriate age group based on age
       let ageGroup = '9-12'; // Default age group
       
@@ -30,20 +27,14 @@ const ScoreBoard = ({ time, age, onPlayAgain }) => {
         ageGroup = '9-12';
       }
       
->>>>>>> origin/main
       // Save the progress data to the database
       const progressData = {
         gameType: 'seguin', // This is the Seguin Form Board game
         completionTime: Number(time), // Ensure time is a number
         accuracy: 100, // Default accuracy (can be calculated if available)
-<<<<<<< HEAD
-        level: 1, // Default level (can be adjusted based on game settings)
-        date: new Date().toISOString() // Add current date
-=======
         level: age < 7 ? 1 : age > 10 ? 3 : 2, // Get level based on age
         date: new Date().toISOString(), // Add current date
         ageGroup // Add the age group for additional data
->>>>>>> origin/main
       };
       
       console.log('Saving progress data:', progressData);
@@ -70,8 +61,7 @@ const ScoreBoard = ({ time, age, onPlayAgain }) => {
     const seconds = (timeInSeconds % 60).toFixed(1);
     return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
   };
-  
-<<<<<<< HEAD
+
   // Calculate performance message based on time
   const getPerformanceMessage = (timeInSeconds) => {
     if (timeInSeconds < 30) {
@@ -79,30 +69,7 @@ const ScoreBoard = ({ time, age, onPlayAgain }) => {
     } else if (timeInSeconds < 60) {
       return { message: "Great work! You did well!", emoji: "🎉" };
     } else if (timeInSeconds < 90) {
-=======
-  // Calculate performance message based on time and age
-  const getPerformanceMessage = (timeInSeconds) => {
-    // Get benchmark for this age
-    const benchmarks = {
-      5: { excellent: 60, good: 90, average: 120 },
-      6: { excellent: 50, good: 80, average: 110 },
-      7: { excellent: 45, good: 70, average: 100 },
-      8: { excellent: 40, good: 65, average: 90 },
-      9: { excellent: 35, good: 60, average: 85 },
-      10: { excellent: 30, good: 55, average: 80 },
-      11: { excellent: 25, good: 50, average: 75 },
-      12: { excellent: 20, good: 45, average: 70 }
-    };
-    
-    // Use age 10 benchmark as default if age not found
-    const benchmark = benchmarks[age] || benchmarks[10];
-    
-    if (timeInSeconds <= benchmark.excellent) {
-      return { message: "Excellent job! Very fast completion!", emoji: "🌟" };
-    } else if (timeInSeconds <= benchmark.good) {
-      return { message: "Great work! You did well!", emoji: "🎉" };
-    } else if (timeInSeconds <= benchmark.average) {
->>>>>>> origin/main
+
       return { message: "Good job! You completed the task!", emoji: "👍" };
     } else {
       return { message: "Well done on finishing! Practice makes perfect!", emoji: "😊" };

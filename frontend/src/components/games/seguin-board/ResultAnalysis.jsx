@@ -1,20 +1,11 @@
-<<<<<<< HEAD
-//ResultAnalysis.jsx
-// import React from 'react';
-=======
->>>>>>> origin/main
 import { performanceBenchmarks } from '../../../constants/gameConstants';
 
 const ResultsAnalysis = ({ time, age, isVisible = false }) => {
   if (!isVisible) return null;
   
   // Get appropriate benchmark for the age
-<<<<<<< HEAD
-  const benchmark = performanceBenchmarks[age] || performanceBenchmarks[8]; // Default to age 8 if not found
-=======
   // Use age 10 as default if exact age not found in benchmarks
   const benchmark = performanceBenchmarks[age] || performanceBenchmarks[10]; 
->>>>>>> origin/main
   
   // Determine performance level
   let performanceLevel = 'needs_practice';
@@ -34,19 +25,6 @@ const ResultsAnalysis = ({ time, age, isVisible = false }) => {
     return 'Below 40th';
   };
   
-<<<<<<< HEAD
-  // Generate personalized feedback
-  const getFeedback = () => {
-    switch (performanceLevel) {
-      case 'excellent':
-        return "Outstanding performance! Your visual processing and spatial awareness skills are highly developed. You completed the task very quickly with excellent precision.";
-      case 'good':
-        return "Great job! You showed strong visual processing and good spatial awareness. Your performance was better than many children your age.";
-      case 'average':
-        return "Good work! You completed the task at a typical pace for your age group. With practice, you can improve your speed while maintaining accuracy.";
-      default:
-        return "You completed the task! The Seguin Form Board helps develop important skills like visual processing and hand-eye coordination. Regular practice can help improve your performance.";
-=======
   // Generate personalized feedback based on age group
   const getFeedback = () => {
     // Determine age group for more targeted feedback
@@ -84,29 +62,11 @@ const ResultsAnalysis = ({ time, age, isVisible = false }) => {
       return feedbackTemplates[performanceLevel].teen;
     } else {
       return feedbackTemplates[performanceLevel].middle;
->>>>>>> origin/main
     }
   };
   
   // Get age-appropriate recommendations
   const getRecommendations = () => {
-<<<<<<< HEAD
-    if (performanceLevel === 'needs_practice') {
-      return [
-        "Try practicing with simpler puzzles first",
-        "Focus on one shape at a time",
-        "Take breaks if you feel frustrated",
-        "Try to match shapes by looking at their features"
-      ];
-    }
-    
-    return [
-      "Challenge yourself with more complex puzzles",
-      "Try to beat your own time with each attempt",
-      "Practice with similar spatial reasoning games",
-      "Try the game with shape rotation for an extra challenge"
-    ];
-=======
     // Different recommendations based on age and performance
     if (age <= 8) {
       // Recommendations for younger children
@@ -160,7 +120,6 @@ const ResultsAnalysis = ({ time, age, isVisible = false }) => {
         ];
       }
     }
->>>>>>> origin/main
   };
   
   return (

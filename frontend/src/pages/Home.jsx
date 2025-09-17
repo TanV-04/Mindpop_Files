@@ -179,7 +179,7 @@ const Home = () => {
         }}
       >
         <CssBaseline />
-        <Collapse in={checked} timeout={1000} collapsedHeight={50}>
+        <Collapse in={checked} timeout={1000} collapsedSize={50}>
           <Box
             sx={{
               width: "100%",

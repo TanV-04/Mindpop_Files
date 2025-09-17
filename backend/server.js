@@ -19,6 +19,8 @@ import { errorHandler } from './middleware/errorMiddleware.js';
 import { logger } from './utils/logger.js';
 import { handleUploadErrors } from './middleware/uploadMiddleware.js';
 import OpenAI from 'openai';
+import dyslexiaRoutes from "./routes/dyslexia.js";
+import { PythonShell } from "python-shell";
 
 dotenv.config();
 
@@ -36,7 +38,7 @@ const corsMiddleware = cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 });
 app.use(corsMiddleware);
-
+app.use(cors());
 // Security headers
 app.use((req, res, next) => {
   res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
@@ -130,6 +132,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/progress', progressRoutes);
 app.use('/api/support', supportRoutes);
 app.use('/api/analysis', analysisRoutes);
+app.use("/api/dyslexia", dyslexiaRoutes);
 
 // Middleware for file upload errors
 app.use(handleUploadErrors);
@@ -138,7 +141,24 @@ app.use(handleUploadErrors);
 app.use(errorHandler);
 
 // ✅ Start the server
-const PORT = process.env.PORT || 8000;
+const PORT = process.env.PORT || 8002;
 app.listen(PORT, () => {
   logger.info(`Server running on port ${PORT}`);
+});
+
+// ---- Dyslexia Test Route ----
+app.post("/api/dyslexia/run", (req, res) => {
+  const options = {
+    pythonPath: "/usr/bin/python3",          // check with `which python3` on your Mac
+    scriptPath: path.join(__dirname, "dyslexia"), // folder containing dyslexia.py
+  };
+
+  PythonShell.run("dyslexia.py", options, (err, results) => {
+    if (err) {
+      console.error("Python Error:", err);
+      return res.status(500).json({ error: err.message });
+    }
+    console.log("Python Output:", results);
+    res.json({ output: results.join("\n") }); // send back full Python output
+  });
 });
