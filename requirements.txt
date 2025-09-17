@@ -15,3 +15,5 @@ speechrecognition
 pyaudio
 fuzzywuzzy
 python-Levenshtein
+react-mic
+multer

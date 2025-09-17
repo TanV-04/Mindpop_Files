@@ -58,3 +58,35 @@
   padding: 15px;
   border-radius: 8px;
 }
+
+.recording-status {
+  margin: 20px 0;
+  text-align: center;
+  font-weight: bold;
+}
+
+.recording-indicator {
+  color: #e74c3c;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.pulse {
+  width: 12px;
+  height: 12px;
+  background-color: #e74c3c;
+  border-radius: 50%;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.4; }
+  100% { opacity: 1; }
+}
+
+.recording-ready {
+  color: #27ae60;
+}
