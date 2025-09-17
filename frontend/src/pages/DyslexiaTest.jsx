@@ -1,58 +1,81 @@
 import { useState } from "react";
+import { ReactMic } from "react-mic";
+import axios from "axios";
 import "./Dyslexia.css";
 
-
 export default function DyslexiaTest() {
-    const [loading, setLoading] = useState(false);
-    const [result, setResult] = useState("");
+  const [recording, setRecording] = useState(false);
+  const [audioFile, setAudioFile] = useState(null);
+  const [result, setResult] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-    const startTest = async () => {
-        setLoading(true);
-        setResult("");
-        try {
-            const res = await fetch("http://localhost:8002/api/dyslexia/run", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ userText: "Sample Hindi text" }) // send text to Python
-            });
-            if (!res.ok) throw new Error(`Server error: ${res.status}`);
-            const data = await res.json();
-            setResult(data.output || "No result received.");
-        } catch (err) {
-            setResult("⚠️ Error running test: " + err.message);
-        } finally {
-            setLoading(false);
-        }
-    };
+  // Pick a random sentence for the test
+  const sentences = [
+    "पेड़ हमें स्वच्छ हवा और छाया प्रदान करते हैं।",
+    "हिमालय पर्वत श्रृंखला प्राकृतिक सौंदर्य का खजाना है।",
+    "भारत में विभिन्न भाषाएँ और परंपराएँ एकता में बंधी हैं।"
+  ];
+  const sentence = sentences[Math.floor(Math.random() * sentences.length)];
 
-    return (
-        <div className="flex flex-col items-center justify-center min-h-screen bg-[#F09000] p-6">
-            {/* Card */}
-            <div className="bg-[#F9F0D0] text-[#66220B] rounded-2xl shadow-2xl p-8 w-full max-w-2xl text-center">
-                <h1 className="text-3xl md:text-4xl font-bold mb-4">Dyslexia Analysis</h1>
+  const startRecording = () => setRecording(true);
+  const stopRecording = () => setRecording(false);
 
-                <p className="mb-6 text-base md:text-lg">
-                    Click the button below to start the Hindi reading test.
-                </p>
+  const onStop = (recordedData) => {
+    const file = new File([recordedData.blob], `sentence.wav`, {
+      type: "audio/wav",
+    });
+    setAudioFile(file);
+  };
 
-                <button
-                    onClick={startTest}
-                    disabled={loading}
-                    className={`px-8 py-3 rounded-full font-semibold transition-colors duration-200
-            ${loading
-                            ? "bg-gray-400 cursor-not-allowed text-white"
-                            : "bg-[#66220B] hover:bg-[#854533] text-[#F9F0D0]"
-                        }`}
-                >
-                    {loading ? "Running Test..." : "Start Test"}
-                </button>
+  const handleSubmit = async () => {
+    if (!audioFile) return;
+    setLoading(true);
+    const formData = new FormData();
+    formData.append("audio", audioFile);
+    formData.append("sentence", sentence);
 
-                {result && (
-                    <pre className="bg-white text-black mt-6 p-4 rounded-md whitespace-pre-wrap text-sm text-left border border-gray-200 shadow-inner">
-                        {result}
-                    </pre>
-                )}
-            </div>
+    try {
+      const response = await axios.post("http://localhost:8002/api/dyslexia/run", formData);
+      setResult(response.data);
+    } catch (err) {
+      console.error(err);
+      alert("Error submitting recording. Check backend.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="dyslexia-container">
+      <h2>Dyslexia Reading Test</h2>
+      <p className="sentence-text">👉 {sentence}</p>
+
+      <ReactMic
+        record={recording}
+        className="sound-wave"
+        onStop={onStop}
+        strokeColor="#F09000"
+        backgroundColor="#F9F0D0"
+      />
+
+      <div className="buttons">
+        <button className="start-btn" onClick={startRecording} disabled={recording}>
+          🎤 Start
+        </button>
+        <button className="stop-btn" onClick={stopRecording} disabled={!recording}>
+          ⏹ Stop
+        </button>
+        <button className="submit-btn" onClick={handleSubmit} disabled={loading || !audioFile}>
+          {loading ? "Analyzing..." : "Submit"}
+        </button>
+      </div>
+
+      {result && (
+        <div className="results">
+          <h3>Result:</h3>
+          <pre>{JSON.stringify(result, null, 2)}</pre>
         </div>
-    );
+      )}
+    </div>
+  );
 }
