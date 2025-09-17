@@ -15,16 +15,6 @@ const groq = new Groq({
   dangerouslyAllowBrowser: true,
 });
 
-// const AVAILABLE_MODELS = [
-//   "llama3.1-8b-8192",
-//   "llama3.1-70b-8192",
-//   "mixtral-8x7b-32768",
-//   "gemma-7b-it",
-// ];
-
-// const MODEL = "llama3.1-70b-8192";
-
-// Age group configurations
 // Age group configurations
 const AGE_GROUPS = {
   "5-7": {
@@ -111,16 +101,22 @@ const FALLBACK_TEXTS = {
     "the cat sat on the mat",
     "i like to play outside",
     "my dog is very happy",
+    "always brush your teeth",
+    "plants need water",
   ],
   "8-10": [
     "what has teeth but cannot bite",
     "what flies without wings",
     "what gets bigger the more you take away",
+    "the brain controls all body functions",
+    "planets orbit around the sun",
   ],
   "11-12": [
     "it was a dark and stormy night",
     "all happy families are alike",
     "the old man was dreaming about the lions",
+    "photosynthesis is how plants make their food",
+    "the constitution protects citizens rights",
   ],
 };
 
@@ -161,19 +157,17 @@ const UserTypings = ({ userInput = "", words = "", isDarkMode = false }) => {
   };
 
   return (
-    <div className="relative">
+    <div className="relative w-full">
       <div
-        className="tracking-wide font-light text-gray-400 dark:text-gray-600 opacity-0"
+        className="tracking-wide font-light text-gray-400 dark:text-gray-600 opacity-0 w-full break-words"
         style={glowStyle}
       >
         {words}
       </div>
 
       <div
-        className="absolute top-0 left-0"
-        style={{
-          ...glowStyle,
-        }}
+        className="absolute top-0 left-0 w-full break-words"
+        style={glowStyle}
       >
         {words.split("").map((char, index) => {
           const typedChar = index < userInput.length ? userInput[index] : "";
@@ -377,8 +371,7 @@ const useTypingEngine = (ageGroup) => {
       setNextWords(next);
     } catch (err) {
       console.error("Error initializing texts:", err);
-      const fallbacks =
-        FALLBACK_TEXTS[currentLevel] || FALLBACK_TEXTS[ageConfig.initialLevel];
+      const fallbacks = FALLBACK_TEXTS[ageGroup] || FALLBACK_TEXTS[ageConfig.initialLevel];
       setCurrentWords(fallbacks[0]);
       setNextWords(fallbacks[1]);
     }
@@ -393,8 +386,7 @@ const useTypingEngine = (ageGroup) => {
       setNextWords(next);
     } catch (err) {
       console.error("Error generating next text:", err);
-      const fallbacks =
-        FALLBACK_TEXTS[currentLevel] || FALLBACK_TEXTS[ageConfig.initialLevel];
+      const fallbacks = FALLBACK_TEXTS[ageGroup] || FALLBACK_TEXTS[ageConfig.initialLevel];
       setNextWords(fallbacks[Math.floor(Math.random() * fallbacks.length)]);
     }
 
@@ -653,9 +645,12 @@ const MonkeyTypeComponent = () => {
   };
 
   return (
-    <div className="min-h-screen flex justify-center items-center px-4 py-10">
+    <div
+      className="min-h-screen flex justify-center items-center px-4 py-6 sm:py-10"
+      style={{ paddingTop: "calc(36px + 1.5rem)" }}
+    >
       <div
-        className={`bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-xl max-w-2xl w-full transform transition-all duration-700 ${
+        className={`bg-white dark:bg-gray-800 p-4 sm:p-8 rounded-2xl shadow-xl max-w-2xl w-full transform transition-all duration-700 ${
           isVisible ? "translate-y-0 opacity-100" : "translate-y-20 opacity-0"
         }`}
         style={{
@@ -675,15 +670,15 @@ const MonkeyTypeComponent = () => {
           </div>
         )}
 
-        <div className="mb-8">
-          <h2 className="text-3xl font-bold text-center mb-3 dark:text-white text-black">
+        <div className="mb-6 sm:mb-8">
+          <h2 className="text-2xl sm:text-3xl font-bold text-center mb-2 sm:mb-3 dark:text-white text-black">
             {ageGroup === "5-7"
               ? "Fun Typing for Kids"
               : ageGroup === "8-10"
               ? "Tappy Type"
               : "Advanced Typing Challenge"}
           </h2>
-          <p className="text-center text-gray-600 dark:text-gray-300 px-4">
+          <p className="text-center text-gray-600 dark:text-gray-300 px-2 sm:px-4 text-sm sm:text-base">
             {ageGroup === "5-7"
               ? "Type the letters and words as they appear. Let's learn together!"
               : ageGroup === "8-10"
@@ -722,19 +717,21 @@ const MonkeyTypeComponent = () => {
           </div>
 
           {state === "start" && (
-            <div className="flex space-x-5">
-              <div className="text-center">
-                <div className="text-sm text-gray-500 dark:text-gray-400">
+            <div className="flex space-x-3 sm:space-x-5 flex-wrap justify-center">
+              <div className="text-center px-2">
+                <div className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
                   WPM
                 </div>
-                <div className="text-lg font-bold text-blue-500">{wpm}</div>
+                <div className="text-base sm:text-lg font-bold text-blue-500">
+                  {wpm}
+                </div>
               </div>
-              <div className="text-center">
-                <div className="text-sm text-gray-500 dark:text-gray-400">
+              <div className="text-center px-2">
+                <div className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
                   Accuracy
                 </div>
                 <div
-                  className="text-lg font-bold"
+                  className="text-base sm:text-lg font-bold"
                   style={{
                     color:
                       accuracy > 90
@@ -747,18 +744,22 @@ const MonkeyTypeComponent = () => {
                   {accuracy.toFixed(0)}%
                 </div>
               </div>
-              <div className="text-center">
-                <div className="text-sm text-gray-500 dark:text-gray-400">
+              <div className="text-center px-2">
+                <div className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
                   Level
                 </div>
-                <div className="text-lg font-bold text-indigo-500">
+                <div className="text-base sm:text-lg font-bold text-indigo-500">
                   {currentLevel}
                 </div>
               </div>
             </div>
           )}
 
-          {state === "finish" && <RestartButton onRestart={restartGame} />}
+          {state === "finish" && (
+            <div className="w-full sm:w-auto flex justify-center">
+              <RestartButton onRestart={restartGame} />
+            </div>
+          )}
         </div>
 
         {avatarMessage && (
@@ -768,16 +769,16 @@ const MonkeyTypeComponent = () => {
         )}
 
         <div
-          className="relative p-8 rounded-xl mb-6"
+          className="relative p-4 sm:p-8 rounded-xl mb-4 sm:mb-6"
           style={{
             boxShadow: "0 4px 6px rgba(0,0,0,0.04)",
-            marginBottom: "2rem",
-            minHeight: "160px",
+            marginBottom: "1rem sm:2rem",
+            minHeight: "120px sm:160px",
           }}
         >
           {state === "idle" ? (
-            <div className="flex flex-col items-center justify-center h-40">
-              <p className="text-gray-500 mb-6 text-center">
+            <div className="flex flex-col items-center justify-center h-32 sm:h-40">
+              <p className="text-gray-500 mb-4 sm:mb-6 text-center text-sm sm:text-base">
                 {ageGroup === "5-7"
                   ? "Ready to learn typing with fun?"
                   : "Ready to test your typing skills?"}
@@ -786,9 +787,7 @@ const MonkeyTypeComponent = () => {
             </div>
           ) : (
             <>
-              {/* Removed the preview text div */}
-
-              <div style={{ marginTop: "30px" }}>
+              <div className="mt-4 sm:mt-8 w-full overflow-x-hidden">
                 <UserTypings
                   words={currentWords}
                   userInput={typed}
@@ -800,13 +799,13 @@ const MonkeyTypeComponent = () => {
         </div>
 
         {state === "start" && (
-          <div className="border-l-4 border-gray-300 pl-4 mb-6 mt-3">
-            <p className="text-sm italic text-gray-500 dark:text-gray-400">
+          <div className="border-l-4 border-gray-300 pl-3 sm:pl-4 mb-4 sm:mb-6 mt-2 sm:mt-3 text-sm">
+            <p className="text-xs sm:text-sm italic text-gray-500 dark:text-gray-400">
               Coming next:
             </p>
-            <p className="text-sm text-gray-600 dark:text-gray-400 truncate">
-              {nextWords.length > 50
-                ? nextWords.substring(0, 50) + "..."
+            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 truncate">
+              {nextWords.length > 30
+                ? nextWords.substring(0, 30) + "..."
                 : nextWords}
             </p>
           </div>

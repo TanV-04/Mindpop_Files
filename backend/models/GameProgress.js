@@ -1,4 +1,3 @@
-//GameProgress.js
 import mongoose from 'mongoose';
 
 const gameProgressSchema = new mongoose.Schema({

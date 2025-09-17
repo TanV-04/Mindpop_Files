@@ -5,10 +5,10 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 
 // Create axios instance with base URL
 const api = axios.create({
-  baseURL: API_URL
+  baseURL: API_URL,
 });
 
-// Add request interceptor to add auth token to all requests
+// Request interceptor to add auth token
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
@@ -20,11 +20,11 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Add response interceptor for error handling
+// Response interceptor for handling 401 errors
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response && error.response.status === 401) {
+    if (error.response?.status === 401) {
       localStorage.removeItem('token');
       console.log('Your session has expired. Please log in again.');
       window.location.href = '/sign-in';
@@ -33,7 +33,7 @@ api.interceptors.response.use(
   }
 );
 
-// Local storage helper functions
+// Local Storage Helper
 const localStorageService = {
   getLocalProgressData: () => {
     try {
@@ -119,9 +119,7 @@ export const userService = {
 
   updateProfile: async (formData) => {
     const response = await api.put('/users/profile', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      }
+      headers: { 'Content-Type': 'multipart/form-data' }
     });
     return response.data;
   },
@@ -147,28 +145,26 @@ export const progressService = {
       return response.data;
     } catch (error) {
       console.warn('Failed to fetch progress from API, falling back to local storage:', error);
+
       const storedData = localStorage.getItem('typingProgress');
       if (storedData) {
         const parsedData = JSON.parse(storedData);
+
         if (gameType !== 'all') {
           const filteredTimeSeriesData = parsedData.timeSeriesData?.filter(entry =>
             (gameType === 'monkey' && (entry.wpm || entry.monkey)) ||
             (gameType === 'seguin' && entry.seguin)
           );
-          return {
-            ...parsedData,
-            timeSeriesData: filteredTimeSeriesData || []
-          };
+          return { ...parsedData, timeSeriesData: filteredTimeSeriesData || [] };
         }
+
         return parsedData;
       }
 
       return {
         timeSeriesData: [],
         totalSessions: 0,
-        benchmarks: {
-          monkey: { targetWpm: 40 }
-        }
+        benchmarks: { monkey: { targetWpm: 40 } }
       };
     }
   },
@@ -179,11 +175,11 @@ export const progressService = {
         progressData.date = new Date().toISOString();
       }
 
+      // Normalize progress data for monkey game
       if (progressData.gameType === 'monkey') {
         if (!progressData.wpm && progressData.completionTime) {
           progressData.wpm = progressData.completionTime;
         }
-
         if (!progressData.monkeyAccuracy) {
           progressData.monkeyAccuracy = progressData.accuracy;
         }
@@ -193,20 +189,18 @@ export const progressService = {
 
       if (token) {
         try {
-          console.log('Attempting to save progress to API with URL:', `${API_URL}/progress`);
-          console.log('Progress data being sent:', progressData);
-          console.log('Token exists:', !!token);
-
+          console.log('Saving progress to API:', progressData);
           const response = await api.post('/progress', progressData);
-          console.log('Progress saved to API successfully:', response.data);
+          console.log('Progress saved successfully:', response.data);
           return response.data;
         } catch (apiError) {
-          console.warn('Failed to save progress to API, falling back to local storage:', apiError);
+          console.warn('Failed to save progress to API, saving locally instead:', apiError);
         }
       } else {
-        console.log('User not authenticated, saving to local storage only');
+        console.log('No authentication token, saving progress locally');
       }
 
+      // Save locally if API call failed or no token
       const existingData = localStorageService.getLocalProgressData();
 
       const formattedEntry = {
@@ -246,6 +240,7 @@ export const progressService = {
 
       localStorageService.saveLocalProgressData(updatedData);
       return updatedData;
+
     } catch (error) {
       console.error('Error saving game progress:', error);
       throw error;
@@ -308,6 +303,7 @@ export const supportService = {
   }
 };
 
+// Analysis Services
 export const analysisService = {
   saveAnalysisResults: async (analysisData) => {
     try {

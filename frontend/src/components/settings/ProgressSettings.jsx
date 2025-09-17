@@ -16,9 +16,8 @@ import {
   ComposedChart,
   Area,
 } from "recharts";
-
 import { progressService, analysisService } from "../../utils/apiService";
-import AnalysisResults from "./AnalysisResults"; // Your component for analysis cards
+import AnalysisResults from "./AnalysisResults";
 
 const ProgressSettings = ({ userData }) => {
   const [progressData, setProgressData] = useState(null);
@@ -29,6 +28,31 @@ const ProgressSettings = ({ userData }) => {
   const [error, setError] = useState(null);
 
   const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884d8"];
+
+  // Sample data for when no real data is available
+  const sampleSeguinData = [
+    { date: "Week 1", time: 120, standardTime: 80 },
+    { date: "Week 2", time: 100, standardTime: 80 },
+    { date: "Week 3", time: 85, standardTime: 80 },
+    { date: "Week 4", time: 75, standardTime: 80 },
+    { date: "Week 5", time: 65, standardTime: 80 },
+  ];
+
+  const sampleMonkeyData = [
+    { date: "Week 1", wpm: 25, accuracy: 72, targetWpm: 40 },
+    { date: "Week 2", wpm: 31, accuracy: 78, targetWpm: 40 },
+    { date: "Week 3", wpm: 36, accuracy: 85, targetWpm: 40 },
+    { date: "Week 4", wpm: 42, accuracy: 88, targetWpm: 40 },
+    { date: "Week 5", wpm: 45, accuracy: 92, targetWpm: 40 },
+  ];
+
+  const sampleSkills = [
+    { name: "Pattern Recognition", value: 85 },
+    { name: "Hand-Eye Coordination", value: 70 },
+    { name: "Visual Processing", value: 75 },
+    { name: "Spatial Awareness", value: 80 },
+    { name: "Focus", value: 65 },
+  ];
 
   useEffect(() => {
     const fetchAllData = async () => {
@@ -54,16 +78,7 @@ const ProgressSettings = ({ userData }) => {
     fetchAllData();
   }, [selectedGame, timeFrame]);
 
-  const sampleSeguinData = [
-    /* ... */
-  ]; // Same as before
-  const sampleMonkeyData = [
-    /* ... */
-  ]; // Same as before
-  const sampleSkills = [
-    /* ... */
-  ]; // Same as before
-
+  // Format data for Seguin chart
   const formatSeguinChartData = () => {
     if (progressData?.timeSeriesData?.length) {
       return progressData.timeSeriesData.map((entry) => ({
@@ -78,24 +93,33 @@ const ProgressSettings = ({ userData }) => {
     return sampleSeguinData;
   };
 
+  // Format data for Monkey Type chart
   const formatMonkeyChartData = () => {
     if (progressData?.timeSeriesData?.length) {
-      return progressData.timeSeriesData.map((entry) => ({
-        date: entry.date || "Unknown",
-        wpm: entry.wpm || entry.monkey || 0,
-        accuracy: entry.accuracy || entry.monkeyAccuracy || 80,
-        targetWpm: progressData.benchmarks?.monkey?.targetWpm || 40,
-      }));
+      return progressData.timeSeriesData.map((entry) => {
+        const wpm = entry.wpm || (typeof entry.monkey === "number" ? entry.monkey : 0);
+        const accuracy = entry.accuracy || entry.monkeyAccuracy || 80;
+        const targetWpm = progressData.benchmarks?.monkey?.targetWpm || 40;
+
+        return {
+          date: entry.date || "Unknown",
+          wpm,
+          accuracy,
+          targetWpm,
+        };
+      });
     }
     return sampleMonkeyData;
   };
 
+  // Check if we have real data
   const hasRealData =
     progressData &&
     (progressData.timeSeriesData?.length ||
       progressData.gameDistribution?.seguin ||
       progressData.gameDistribution?.monkey);
 
+  // Format game distribution data
   const gameDistributionData = [
     {
       name: "Seguin Form Board",
@@ -110,9 +134,11 @@ const ProgressSettings = ({ userData }) => {
   const seguinChartData = formatSeguinChartData();
   const monkeyChartData = formatMonkeyChartData();
 
+  // Determine which charts to show
   const showSeguinChart = selectedGame === "all" || selectedGame === "seguin";
   const showMonkeyChart = selectedGame === "all" || selectedGame === "monkey";
 
+  // Render loading state
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -121,6 +147,7 @@ const ProgressSettings = ({ userData }) => {
     );
   }
 
+  // Render error state
   if (error) {
     return (
       <div className="text-center py-6">
@@ -131,6 +158,52 @@ const ProgressSettings = ({ userData }) => {
         >
           Retry
         </button>
+      </div>
+    );
+  }
+
+  // Show message if no data
+  if (!progressData?.totalSessions && !hasRealData) {
+    return (
+      <div className="progress-settings">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-bold text-[#66220B]">Progress Tracking</h2>
+          <div className="flex space-x-2">
+            <select
+              value={selectedGame}
+              onChange={(e) => setSelectedGame(e.target.value)}
+              className="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F09000]"
+            >
+              <option value="all">All Games</option>
+              <option value="seguin">Seguin Form Board</option>
+              <option value="monkey">Monkey Time</option>
+            </select>
+            <select
+              value={timeFrame}
+              onChange={(e) => setTimeFrame(e.target.value)}
+              className="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F09000]"
+            >
+              <option value="week">Week</option>
+              <option value="month">Month</option>
+              <option value="year">Year</option>
+            </select>
+          </div>
+        </div>
+        <div className="bg-white p-12 rounded-lg shadow text-center">
+          <h3 className="text-xl font-semibold text-[#66220B] mb-4">No Progress Data Yet</h3>
+          <p className="text-gray-600 mb-6">
+            You haven't played any games yet or there's no data for the selected time period.
+            Play some games to start tracking your progress!
+          </p>
+          <div className="flex justify-center">
+            <a
+              href="/games"
+              className="bg-[#F09000] text-white py-2 px-6 rounded-full hover:bg-[#D87D00] transition-colors"
+            >
+              Go to Games
+            </a>
+          </div>
+        </div>
       </div>
     );
   }
@@ -192,7 +265,7 @@ const ProgressSettings = ({ userData }) => {
         </div>
       </div>
 
-      {/* Charts */}
+      {/* Seguin Form Board Performance */}
       {showSeguinChart && (
         <div className="bg-white p-6 rounded-lg mb-6 shadow-sm">
           <h3 className="text-lg font-semibold text-[#66220B] mb-4">
@@ -203,13 +276,7 @@ const ProgressSettings = ({ userData }) => {
               <LineChart data={seguinChartData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="date" />
-                <YAxis
-                  label={{
-                    value: "Time (s)",
-                    angle: -90,
-                    position: "insideLeft",
-                  }}
-                />
+                <YAxis label={{ value: "Time (seconds)", angle: -90, position: "insideLeft" }} />
                 <Tooltip />
                 <Legend />
                 <Line
@@ -217,6 +284,7 @@ const ProgressSettings = ({ userData }) => {
                   dataKey="time"
                   stroke="#FF8042"
                   name="Your Time"
+                  activeDot={{ r: 8 }}
                 />
                 <Line
                   type="monotone"
@@ -231,6 +299,7 @@ const ProgressSettings = ({ userData }) => {
         </div>
       )}
 
+      {/* Monkey Type Performance */}
       {showMonkeyChart && (
         <div className="bg-white p-6 rounded-lg mb-6 shadow-sm">
           <h3 className="text-lg font-semibold text-[#66220B] mb-4">
@@ -244,15 +313,13 @@ const ProgressSettings = ({ userData }) => {
                 <YAxis
                   yAxisId="left"
                   label={{ value: "WPM", angle: -90, position: "insideLeft" }}
+                  domain={[0, "dataMax + 10"]}
                 />
                 <YAxis
                   yAxisId="right"
                   orientation="right"
-                  label={{
-                    value: "Accuracy %",
-                    angle: 90,
-                    position: "insideRight",
-                  }}
+                  label={{ value: "Accuracy %", angle: 90, position: "insideRight" }}
+                  domain={[0, 100]}
                 />
                 <Tooltip />
                 <Legend />
@@ -261,23 +328,25 @@ const ProgressSettings = ({ userData }) => {
                   type="monotone"
                   dataKey="wpm"
                   stroke="#FF8042"
-                  name="WPM"
+                  name="Your Speed (WPM)"
+                  activeDot={{ r: 8 }}
+                  strokeWidth={2}
                 />
                 <Line
                   yAxisId="left"
                   type="monotone"
                   dataKey="targetWpm"
                   stroke="#0088FE"
+                  name="Target Speed"
                   strokeDasharray="5 5"
-                  name="Target WPM"
                 />
                 <Area
                   yAxisId="right"
                   type="monotone"
                   dataKey="accuracy"
                   stroke="#28a745"
-                  fill="#82ca9d"
                   name="Accuracy %"
+                  fillOpacity={0.3}
                 />
               </ComposedChart>
             </ResponsiveContainer>
@@ -285,17 +354,23 @@ const ProgressSettings = ({ userData }) => {
         </div>
       )}
 
-      {/* Cognitive Skills */}
+      {/* Cognitive Skills Analysis */}
       <div className="bg-white p-6 rounded-lg mb-6 shadow-sm">
-        <h3 className="text-lg font-semibold text-[#66220B] mb-4">
-          Cognitive Skills Analysis
-        </h3>
+        <h3 className="text-lg font-semibold text-[#66220B] mb-4">Cognitive Skills Analysis</h3>
+        <p className="text-gray-500 mb-4">
+          Based on your game performance, we've analyzed your cognitive abilities across different areas.
+        </p>
+        {!hasRealData && (
+          <p className="text-xs text-gray-500 mb-2 italic">
+            Showing sample data. Play games to see your real statistics.
+          </p>
+        )}
         <div className="h-64">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={progressData?.cognitiveSkills || sampleSkills}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="name" />
-              <YAxis />
+              <YAxis label={{ value: "Score", angle: -90, position: "insideLeft" }} />
               <Tooltip />
               <Legend />
               <Bar dataKey="value" fill="#8884d8" name="Skill Level" />
@@ -306,29 +381,26 @@ const ProgressSettings = ({ userData }) => {
 
       {/* Behavior Analysis Results */}
       <div className="bg-white p-6 rounded-lg shadow-sm">
-        <h3 className="text-lg font-semibold text-[#66220B] mb-4">
-          Behavior Analysis Results
-        </h3>
+        <h3 className="text-lg font-semibold text-[#66220B] mb-4">Behavior Analysis Results</h3>
         {analysisHistory.length === 0 ? (
-          <p className="text-gray-500">
-            No analysis results yet. Upload a video to get started.
-          </p>
+          <p className="text-gray-500">No analysis results yet. Upload a video to get started.</p>
         ) : (
           <div className="space-y-6">
             {analysisHistory.slice(0, 3).map((analysis, index) => (
-              <AnalysisResults
-                key={analysis._id || index}
-                analysis={analysis}
-              />
+              <AnalysisResults key={analysis._id || index} analysis={analysis} />
             ))}
           </div>
         )}
       </div>
 
+      {/* Performance Summary */}
       <div className="bg-white p-6 rounded-lg mt-6 shadow-sm">
-        <h3 className="text-lg font-semibold text-[#66220B] mb-4">
-          Performance Summary
-        </h3>
+        <h3 className="text-lg font-semibold text-[#66220B] mb-4">Performance Summary</h3>
+        {!hasRealData && (
+          <p className="text-xs text-gray-500 mb-2 italic">
+            Showing sample data. Play games to see your real statistics.
+          </p>
+        )}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="bg-gray-50 p-4 rounded-lg text-center">
             <h4 className="text-[#F09000] text-lg font-semibold mb-2">
@@ -339,19 +411,13 @@ const ProgressSettings = ({ userData }) => {
             </p>
             <p className="text-sm text-gray-500">Since first assessment</p>
           </div>
-          <div className="bg-gray-50 p-4 rounded-lg text-center">
-            <h4 className="text-[#F09000] text-lg font-semibold mb-2">
-              Sessions
-            </h4>
-            <p className="text-3xl font-bold text-[#66220B]">
-              {progressData?.totalSessions || 28}
-            </p>
+          <div className="bg-gray-50 p-4 rounded-lg shadow-sm text-center">
+            <h4 className="text-[#F09000] text-lg font-semibold mb-2">Sessions</h4>
+            <p className="text-3xl font-bold text-[#66220B]">{progressData?.totalSessions || 28}</p>
             <p className="text-sm text-gray-500">Total completed</p>
           </div>
-          <div className="bg-gray-50 p-4 rounded-lg text-center">
-            <h4 className="text-[#F09000] text-lg font-semibold mb-2">
-              Percentile
-            </h4>
+          <div className="bg-gray-50 p-4 rounded-lg shadow-sm text-center">
+            <h4 className="text-[#F09000] text-lg font-semibold mb-2">Percentile</h4>
             <p className="text-3xl font-bold text-[#66220B]">75th</p>
             <p className="text-sm text-gray-500">Among your age group</p>
           </div>

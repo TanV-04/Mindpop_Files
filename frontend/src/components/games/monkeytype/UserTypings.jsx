@@ -2,28 +2,30 @@ import React, { useEffect } from "react";
 
 const UserTypings = ({ userInput = "", words = "", isDarkMode = false }) => {
   useEffect(() => {
-    const style = document.createElement('style');
-    style.type = 'text/css';
+    const style = document.createElement("style");
+    style.type = "text/css";
     style.innerHTML = `
       @keyframes cursorBlink {
         0%, 100% { opacity: 1; }
         50% { opacity: 0.3; }
       }
     `;
-    document.getElementsByTagName('head')[0].appendChild(style);
-    
+    document.getElementsByTagName("head")[0].appendChild(style);
+
     return () => {
-      if (document.getElementsByTagName('head')[0].contains(style)) {
-        document.getElementsByTagName('head')[0].removeChild(style);
+      if (document.getElementsByTagName("head")[0].contains(style)) {
+        document.getElementsByTagName("head")[0].removeChild(style);
       }
     };
   }, []);
 
   if (!words) return null;
 
+  // Get appropriate class name based on character status
   const getCharClassName = (isCorrect, isIncorrect) => {
     if (isCorrect) return isDarkMode ? "text-green-300" : "text-green-600";
-    if (isIncorrect) return "text-red-500 bg-red-100 dark:bg-red-900 dark:bg-opacity-30";
+    if (isIncorrect)
+      return "text-red-500 bg-red-100 dark:bg-red-900 dark:bg-opacity-30";
     return isDarkMode ? "text-gray-600" : "text-gray-400";
   };
 
@@ -38,7 +40,7 @@ const UserTypings = ({ userInput = "", words = "", isDarkMode = false }) => {
   return (
     <div className="relative w-full overflow-x-hidden">
       {/* Hidden text that establishes the layout */}
-      <div 
+      <div
         className="tracking-wide font-light text-gray-400 dark:text-gray-600 opacity-0 break-words w-full"
         style={responsiveText}
       >
@@ -46,7 +48,7 @@ const UserTypings = ({ userInput = "", words = "", isDarkMode = false }) => {
       </div>
 
       {/* Interactive overlay with user input highlighting */}
-      <div 
+      <div
         className="absolute top-0 left-0 w-full break-words"
         style={responsiveText}
       >
@@ -61,14 +63,13 @@ const UserTypings = ({ userInput = "", words = "", isDarkMode = false }) => {
               key={index}
               className={`${getCharClassName(isCorrect, isIncorrect)} relative`}
               style={{
-                textDecoration: isIncorrect ? 'underline' : 'none',
-                textDecorationColor: isIncorrect ? 'red' : 'transparent'
+                textDecoration: isIncorrect ? "underline" : "none",
+                textDecorationColor: isIncorrect ? "red" : "transparent",
               }}
             >
               {char}
-              
               {isCurrentPosition && (
-                <span 
+                <span
                   className="absolute"
                   style={{
                     left: 0,
@@ -78,7 +79,7 @@ const UserTypings = ({ userInput = "", words = "", isDarkMode = false }) => {
                     borderBottom: "3px dashed #3B82F6",
                     animation: "cursorBlink 1s step-end infinite",
                     boxShadow: "0 0 8px rgba(59, 130, 246, 0.6)",
-                    zIndex: 10
+                    zIndex: 10,
                   }}
                 />
               )}

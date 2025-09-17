@@ -1,8 +1,8 @@
 import "./index.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-// Import in your App.jsx or index.js
 import "react-toastify/dist/ReactToastify.css";
-// import pages and components
+
+// Pages and components
 import Home from "./pages/Home";
 import Navbar from "./components/Navbar";
 import BubbleCursor from "./components/BubbleCursor";
@@ -13,21 +13,22 @@ import SeguinGame from "./pages/games/SeguinGame.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import MonkeyType from "./pages/games/MonkeyType.jsx";
 import Settings from "./components/settings.jsx";
+
+// Jigsaw puzzle routes
 import Jigsaw_6_to_8 from "./components/games/jigsawPuzzle/Jigsaw_6_to_8.jsx";
 import Jigsaw_8_to_10 from "./components/games/jigsawPuzzle/Jigsaw_8_to_10.jsx";
 import Jigsaw_10_to_12 from "./components/games/jigsawPuzzle/Jigsaw_10_to_12.jsx";
 import Jigsaw_12_to_14 from "./components/games/jigsawPuzzle/Jigsaw_12_to_14.jsx";
 import MathsPuzzle from "./components/games/jigsawPuzzle/MathsPuzzle.jsx";
+
 import Footer from "./components/Footer.jsx";
 import AutismAnalysis from "./components/ParentFriendlyAnalysis.jsx";
-//import MonkeyTypeComponent from "./components/games/monkeytype/MonkeyTypeComponent.jsx";
 
 function App() {
   return (
     <div className="min-h-[calc(100vh-64px)] flex flex-col">
       <BrowserRouter>
         <div className="flex flex-col flex-1">
-          {" "}
           <Navbar />
           <BubbleCursor />
           <div className="flex-1">
@@ -36,7 +37,7 @@ function App() {
               <Route path="/sign-in" element={<SignIn />} />
               <Route path="/sign-up" element={<SignUp />} />
 
-              {/* Protected routes for games */}
+              {/* Protected routes */}
               <Route
                 path="/games"
                 element={
@@ -62,9 +63,7 @@ function App() {
                 }
               />
 
-              {/* <Route path="/games/monkeytype/5-7" element={<MonkeyType5to7 />} />
-            <Route path="/games/monkeytype/8-10" element={<MonkeyType8to10 />} />
-            <Route path="/games/monkeytype/11-12" element={<MonkeyType11to12 />} /> */}
+              {/* Jigsaw puzzle routes */}
               <Route
                 path="/games/jigsaw_6_to_8"
                 element={
@@ -73,7 +72,6 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-
               <Route
                 path="/games/jigsaw_8_to_10"
                 element={
@@ -107,7 +105,7 @@ function App() {
                 }
               />
 
-              {/* Add the route for Settings */}
+              {/* Settings and analysis */}
               <Route
                 path="/settings"
                 element={

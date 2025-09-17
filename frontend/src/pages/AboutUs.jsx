@@ -1,8 +1,7 @@
 import { Box } from "@mui/material";
-//import React from "react";
 import OutlinedCard from "./OutlinedCard.jsx";
 import useWindowPosition from "../hooks/useWindowPosition.js";
-import testImg from "/src/assets/adhd_img.png"
+import testImg from "/src/assets/adhd_img.png";
 
 const AboutUs = () => {
   const checked = useWindowPosition("header"); // get scroll position state
@@ -25,21 +24,21 @@ const AboutUs = () => {
       <Box
         sx={{
           display: "flex",
-          flexDirection: { xs: "column", md: "row" }, 
+          flexDirection: { xs: "column", md: "row" },
           alignItems: "center",
           justifyContent: "center",
           width: "100%",
           maxWidth: "1200px",
           padding: { xs: "1rem", sm: "2rem", md: "2rem" },
-          margin: 0
+          margin: 0,
         }}
       >
         {/* Left Side (Text) */}
         <Box
           sx={{
             flex: 1,
-            paddingRight: { md: "2rem" }, 
-            marginBottom: { xs: "2rem", md: 0 }, 
+            paddingRight: { md: "2rem" },
+            marginBottom: { xs: "2rem", md: 0 },
           }}
         >
           <OutlinedCard checked={checked} />
@@ -53,20 +52,20 @@ const AboutUs = () => {
             justifyContent: "center",
             alignItems: "center",
             opacity: checked ? 1 : 0,
-            transform: checked ? "scale(1)" : "scale(0.8)", 
+            transform: checked ? "scale(1)" : "scale(0.8)",
             transition: "all 0.5s ease-in-out",
           }}
         >
           <img
-            src={testImg} 
+            src={testImg}
             alt="About Us"
             style={{
               width: "100%",
               borderRadius: "5%",
               height: "auto",
               objectFit: "contain",
-              maxWidth: "400px", 
-              boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.7)"
+              maxWidth: "400px",
+              boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.7)",
             }}
           />
         </Box>

@@ -194,15 +194,16 @@ const Home = () => {
             {/* Animated Image (Right Half on Mobile) */}
             <img
               src="https://vincentgarreau.com/particles.js/assets/img/kbLd9vb_new.gif"
+              alt="Animated particles"
               style={{
-                width: isMobile ? "250%" : "75%", 
+                width: isMobile ? "250%" : "75%",
                 height: "auto",
                 objectFit: "contain",
-                maxWidth: isMobile ? "140vw" : "90vw", 
-                marginTop: isMobile ? "-40vh" : "5vh", 
+                maxWidth: isMobile ? "140vw" : "90vw",
+                marginTop: isMobile ? "-40vh" : "5vh",
                 position: isMobile ? "absolute" : "static",
-                right: isMobile ? "-10vw" : "auto", 
-                clipPath: isMobile ? "inset(0 0 0 50%)" : "none", 
+                right: isMobile ? "-10vw" : "auto",
+                clipPath: isMobile ? "inset(0 0 0 50%)" : "none",
               }}
             />
 
@@ -252,7 +253,9 @@ const Home = () => {
                 marginBottom: "2rem",
               }}
             >
-              <ExpandMoreIcon sx={{ color: "#66220B", fontSize: isMobile ? "1.5rem" : "2rem" }} />
+              <ExpandMoreIcon
+                sx={{ color: "#66220B", fontSize: isMobile ? "1.5rem" : "2rem" }}
+              />
             </IconButton>
           </Box>
         </Collapse>

@@ -21,12 +21,18 @@ const Games = () => {
       available: true,
     },
     {
-      id: "Jigsaw",
+      id: "jigsaw",
       title: "Jigsaw",
       icon: "fa fa-clock-o",
       description:
-        "Enhance focus and problem-solving skills with this our jigsaw puzzles.",
-      path:"/games/jigsaw",
+        "Enhance focus and problem-solving skills with our jigsaw puzzles.",
+      paths: [
+        "/games/jigsaw_6_to_8",
+        "/games/jigsaw_8_to_10",
+        "/games/jigsaw_10_to_12",
+        "/games/jigsaw_12_to_14",
+        "/games/maths_puzzle",
+      ],
       available: true,
     },
   ];
@@ -49,7 +55,7 @@ const Games = () => {
           {gameCards.map((game) =>
             game.available ? (
               <Link
-                to={game.path}
+                to={game.path || game.paths?.[0]} // fallback to first path if multiple
                 key={game.id}
                 className="block transform hover:scale-105 transition-all duration-300 no-underline"
               >

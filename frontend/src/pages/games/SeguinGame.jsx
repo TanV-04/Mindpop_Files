@@ -65,10 +65,12 @@ const SeguinGame = () => {
     );
     setCompletedAllShapes(true);
     setGameState("completed");
+
     const completionSound = new Audio(
       "https://cdn.freesound.org/previews/320/320654_5260872-lq.mp3"
     );
     completionSound.play().catch((e) => console.log("Audio play failed:", e));
+
     console.log("FINAL GAME COMPLETED - showing results!");
   };
 
@@ -76,6 +78,17 @@ const SeguinGame = () => {
     setGameState("playing");
     setTime(0);
     setCompletedAllShapes(false);
+  };
+
+  // Get instructions text based on age
+  const getInstructions = () => {
+    if (age < 7) {
+      return "Match each shape to its outline on the board! Drag the shapes from the tray to the matching spaces. Can you find where each shape belongs?";
+    } else if (age < 10) {
+      return "Drag each shape from the tray to its matching outline on the board. You need to place ALL TEN shapes to complete the game!";
+    } else {
+      return "Complete the Seguin Form Board by matching each shape to its outline. This exercise helps develop visual processing skills and spatial awareness. Try to complete it as quickly as possible!";
+    }
   };
 
   const renderIntro = () => {
@@ -118,14 +131,14 @@ const SeguinGame = () => {
         <button
           type="button"
           className={`start-button bg-red-700 relative bg-gradient-to-r from-[#00C853] to-[#B2FF59] text-black font-extrabold py-3 px-8 rounded-full text-lg transition-all duration-300 ease-in-out
-    ${
-      age === null
-        ? "opacity-50 cursor-not-allowed"
-        : "hover:scale-105 hover:shadow-green-400/60"
-    }`}
+            ${
+              age === null
+                ? "opacity-50 cursor-not-allowed"
+                : "hover:scale-105 hover:shadow-green-400/60"
+            }`}
           style={{
             backdropFilter: "blur(12px)",
-            boxShadow: "0 8px 20px rgba(0, 200, 83, 0.4)", // Greenish glow
+            boxShadow: "0 8px 20px rgba(0, 200, 83, 0.4)",
             border: "2px solid rgba(255, 255, 255, 0.2)",
             letterSpacing: "1px",
           }}
@@ -151,10 +164,7 @@ const SeguinGame = () => {
           Playing as age {age} | Difficulty: {difficulty}
         </p>
       </div>
-      <Instructions
-        text="Drag each shape from the tray to its matching outline on the board. You must place ALL TEN shapes to complete the game!"
-        isChild={true}
-      />
+      <Instructions text={getInstructions()} isChild={age < 10} />
       <Timer
         isRunning={gameState === "playing" && !completedAllShapes}
         onTimeUpdate={setTime}
@@ -173,8 +183,8 @@ const SeguinGame = () => {
     <div className="seguin-game-container py-8 px-4">
       {import.meta.env.DEV && (
         <div className="bg-gray-100 p-2 text-xs text-gray-600 rounded mb-2 max-w-md mx-auto">
-          Game State: {gameState}, Age: {age || "not set"}, Difficulty:{" "}
-          {difficulty}, Completed: {completedAllShapes ? "Yes" : "No"}
+          Game State: {gameState}, Age: {age || "not set"}, Difficulty: {difficulty}, Completed:{" "}
+          {completedAllShapes ? "Yes" : "No"}
         </div>
       )}
       {gameState === "intro" && renderIntro()}
