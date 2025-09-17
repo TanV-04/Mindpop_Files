@@ -9,9 +9,8 @@ const Navbar = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
-  const location = useLocation(); // Add this to detect route changes
+  const location = useLocation();
 
-  // Check authentication status - now with dependencies to re-run when needed
   useEffect(() => {
     const token = localStorage.getItem("token");
     setIsLoggedIn(!!token);
@@ -20,10 +19,10 @@ const Navbar = () => {
     if (location.pathname === "/") setActiveTab("HOME");
     else if (location.pathname === "/about") setActiveTab("ABOUT");
     else if (location.pathname.startsWith("/games")) setActiveTab("GAMES");
+    else if (location.pathname === "/autism-analysis") setActiveTab("ANALYSIS");
     else if (location.pathname === "/settings") setActiveTab("SETTINGS");
-  }, [location.pathname]); // Re-run when path changes
+  }, [location.pathname]);
 
-  // Listen for storage events (when token is added/removed in another tab)
   useEffect(() => {
     const handleStorageChange = () => {
       const token = localStorage.getItem("token");
@@ -39,7 +38,6 @@ const Navbar = () => {
     setIsLoggedIn(false);
     navigate("/");
     window.dispatchEvent(new Event("auth-change"));
-    navigate("/");
     setIsMenuOpen(false);
   };
 
@@ -74,7 +72,7 @@ const Navbar = () => {
       navigate(`/${tab.toLowerCase()}`);
     }
   };
-  // Toggle menu for mobile
+
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
@@ -140,7 +138,7 @@ const Navbar = () => {
         <div className="p-4 flex flex-col items-center gap-4">
           {/* Mobile Navigation Links */}
           <div className="flex flex-col w-full items-center gap-3 mb-4">
-            {["HOME", "ABOUT", "GAMES", "ANALYSIS" ,"SETTINGS"].map((tab) => (
+            {["HOME", "ABOUT", "GAMES", "ANALYSIS", "SETTINGS"].map((tab) => (
               <button
                 key={tab}
                 onClick={() => handleTabClick(tab)}

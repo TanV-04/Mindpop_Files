@@ -15,17 +15,7 @@ const groq = new Groq({
   dangerouslyAllowBrowser: true,
 });
 
-// const AVAILABLE_MODELS = [
-//   "llama3.1-8b-8192",
-//   "llama3.1-70b-8192",
-//   "mixtral-8x7b-32768",
-//   "gemma-7b-it",
-// ];
-
-// const MODEL = "llama3.1-70b-8192";
-
-// Age group configurations
-// Age group configurations
+// Age group configurations with improved educational prompts
 const AGE_GROUPS = {
   "5-7": {
     initialTimer: 150, // 2.5 minutes
@@ -39,18 +29,25 @@ const AGE_GROUPS = {
     prompt: (level, count = 1) => {
       if (count === 1) {
         return `Generate one unique simple sentence suitable for a 5-7 year old practicing typing.
-                    The sentence must contain only basic words like cat dog ball sun happy run jump toy etc.
-                    No sequences of random letters or numbers are allowed.
-                    The sentence should be 3 to 5 words long with no punctuation or special characters.
-                    Example: the dog plays ball
-                    Return ONLY the sentence without any extra text.`;
+                The sentence must teach something educational like:
+                - Basic science facts (example: "fish live in water")
+                - Simple life skills (example: "always wash your hands")
+                - Positive social behaviors (example: "sharing toys is nice")
+                - Basic math concepts (example: "two plus two is four")
+                - Nature facts (example: "trees give us oxygen")
+                
+                The sentence should be 3 to 5 words long with no punctuation or special characters.
+                Use basic vocabulary appropriate for early readers.
+                Return ONLY the sentence without any extra text.`;
       } else {
         return `Generate ${count} unique simple sentences suitable for 5-7 year olds for typing practice.
-                    Each sentence must be 3 to 5 words long.
-                    Use only basic everyday words like cat dog ball sun happy run jump toy etc.
-                    No numbers or random letter sequences.
-                    No punctuation or special characters.
-                    Return ONLY a valid JSON array of strings like: ["the dog jumps high", "sun is bright today"]`;
+                Each sentence must be 3 to 5 words long.
+                Each sentence should teach something educational like basic science, life skills, 
+                social behaviors, math concepts, or nature facts.
+                Use only basic vocabulary that early readers would know.
+                No numbers or random letter sequences.
+                No punctuation or special characters.
+                Return ONLY a JSON array of strings like: ["fish live in water", "always wash your hands"]`;
       }
     },
   },
@@ -65,16 +62,24 @@ const AGE_GROUPS = {
     },
     prompt: (level, count = 1) => {
       if (count === 1) {
-        return `Generate one simple riddle for 8-10 year olds typing practice.
-                  The riddle should be 6-10 words long with no punctuation.
-                  It should be easy to understand but still a riddle.
-                  Example: 'what has hands but cannot clap'
-                  Return ONLY the riddle with no other text.`;
+        return `Generate one interesting sentence for 8-10 year olds typing practice.
+                The sentence should be educational and focus on one of these topics:
+                - Science facts (example: "some dinosaurs had feathers")
+                - World geography (example: "the amazon river is very long")
+                - Historical facts (example: "ancient egyptians built the pyramids")
+                - Health and nutrition (example: "vegetables help you grow strong")
+                - Space or astronomy (example: "mars is the red planet")
+                
+                The sentence should be 6-10 words long with no punctuation.
+                Use vocabulary that 8-10 year olds would understand.
+                Return ONLY the sentence with no other text.`;
       } else {
-        return `Generate ${count} simple riddles for 8-10 year olds typing practice.
-                  Each riddle should be 6-10 words long with no punctuation.
-                  All riddles must be completely unique and different from each other.
-                  Return ONLY a JSON array like: ["what gets wet while drying", "what has keys but no locks"]`;
+        return `Generate ${count} educational sentences for 8-10 year olds typing practice.
+                Each sentence should be 6-10 words long with no punctuation.
+                Each sentence should teach something about science, geography, history, health, or space.
+                All sentences must be completely unique and different from each other.
+                Use vocabulary appropriate for 8-10 year olds.
+                Return ONLY a JSON array like: ["some dinosaurs had feathers", "the amazon river is very long"]`;
       }
     },
   },
@@ -89,42 +94,56 @@ const AGE_GROUPS = {
     },
     prompt: (level, count = 1) => {
       if (count === 1) {
-        return `Generate one line from classic literature or famous poetry for typing practice.
-                  Choose from well-known works like Shakespeare, Dickens, Poe, etc.
-                  The line should be 8-15 words long with no punctuation.
-                  It must be a verbatim quote from the original work.
-                  Example: 'to be or not to be that is the question'
-                  Return ONLY the line with no other text.`;
+        return `Generate one interesting and educational sentence for 11-12 year olds typing practice.
+                The sentence should focus on one of these topics:
+                - Advanced science concepts (example: "gravity pulls objects toward each other")
+                - Cultural diversity (example: "people celebrate different holidays around the world")
+                - Environmental awareness (example: "recycling helps protect our planet from pollution")
+                - Technology and innovation (example: "computers use binary code to process information")
+                - Critical thinking (example: "evidence helps us determine what is true")
+                
+                The sentence should be 10-15 words long with no punctuation.
+                Use vocabulary that challenges 11-12 year olds but remains understandable.
+                Return ONLY the sentence with no other text.`;
       } else {
-        return `Generate ${count} lines from classic literature or famous poetry for typing practice.
-                  Each line must be 8-15 words long with no punctuation.
-                  All lines must be verbatim quotes from different works.
-                  Return ONLY a JSON array like: ["call me ishmael some years ago", "it was the best of times it was"]`;
+        return `Generate ${count} educational sentences for 11-12 year olds typing practice.
+                Each sentence should be 10-15 words long with no punctuation.
+                Each sentence should teach something about advanced science, cultural diversity, 
+                environmental awareness, technology, or critical thinking.
+                All sentences must be completely unique and different from each other.
+                Use vocabulary that challenges 11-12 year olds but remains understandable.
+                Return ONLY a JSON array like: ["gravity pulls objects toward each other", "people celebrate different holidays around the world"]`;
       }
     },
   },
 };
 
-// Fallback texts in case API fails
+// Fallback texts in case API fails - updated to be more educational
 const FALLBACK_TEXTS = {
   "5-7": [
-    "the cat sat on the mat",
-    "i like to play outside",
-    "my dog is very happy",
+    "always brush your teeth",
+    "plants need water",
+    "birds build nests",
+    "fish swim in water",
+    "eat healthy food",
   ],
   "8-10": [
-    "what has teeth but cannot bite",
-    "what flies without wings",
-    "what gets bigger the more you take away",
+    "the brain controls all body functions",
+    "planets orbit around the sun",
+    "water freezes at zero degrees celsius",
+    "reading books helps grow your vocabulary",
+    "exercise keeps your body healthy",
   ],
   "11-12": [
-    "it was a dark and stormy night",
-    "all happy families are alike",
-    "the old man was dreaming about the lions",
+    "photosynthesis is how plants make their food",
+    "the constitution protects citizens rights",
+    "learning new languages connects people across cultures",
+    "the water cycle includes evaporation and precipitation",
+    "different ecosystems support unique plant and animal life",
   ],
 };
 
-// Enhanced UserTypings component with bigger, bolder, and glowy text
+// Enhanced UserTypings component with responsive design
 const UserTypings = ({ userInput = "", words = "", isDarkMode = false }) => {
   useEffect(() => {
     const style = document.createElement("style");
@@ -153,27 +172,26 @@ const UserTypings = ({ userInput = "", words = "", isDarkMode = false }) => {
     return isDarkMode ? "text-gray-600" : "text-gray-400";
   };
 
+  // Responsive text sizing based on screen width
   const glowStyle = {
     textShadow: "0 0 8px rgba(59, 130, 246, 0.6)",
     fontWeight: "600",
-    fontSize: "2.5rem",
+    fontSize: "clamp(1.5rem, 5vw, 2.5rem)", // Responsive font size
     letterSpacing: "0.05em",
   };
 
   return (
-    <div className="relative">
+    <div className="relative w-full">
       <div
-        className="tracking-wide font-light text-gray-400 dark:text-gray-600 opacity-0"
+        className="tracking-wide font-light text-gray-400 dark:text-gray-600 opacity-0 w-full break-words"
         style={glowStyle}
       >
         {words}
       </div>
 
       <div
-        className="absolute top-0 left-0"
-        style={{
-          ...glowStyle,
-        }}
+        className="absolute top-0 left-0 w-full break-words"
+        style={glowStyle}
       >
         {words.split("").map((char, index) => {
           const typedChar = index < userInput.length ? userInput[index] : "";
@@ -230,77 +248,43 @@ const useAITextGenerator = (ageGroup) => {
     setError(null);
 
     try {
-      // Use currently available Groq models
-      const modelsToTry = [
-        "llama-3.1-8b-instant", // Fast and efficient
-        "llama-3.1-70b-versatile", // More powerful
-        "mixtral-8x7b-32768", // Alternative (if available)
-        "gemma-7b-it", // Google's model
-      ];
-
-      let lastError = null;
-
-      for (const model of modelsToTry) {
-        try {
-          const prompt = AGE_GROUPS[ageGroup].prompt(level);
-
-          // Create a promise with timeout
-          const timeoutPromise = new Promise((_, reject) => {
-            setTimeout(() => reject(new Error("Request timeout")), 10000);
-          });
-
-          const groqPromise = groq.chat.completions.create({
-            model: model,
-            messages: [
-              {
-                role: "system",
-                content: `You are generating typing exercises. Follow these rules STRICTLY:
+      const prompt = AGE_GROUPS[ageGroup].prompt(level);
+      const completion = await groq.chat.completions.create({
+        model: "llama3-70b-8192",
+        messages: [
+          {
+            role: "system",
+            content: `You are generating typing exercises. Follow these rules STRICTLY:
                       1. NEVER repeat any of these sentences: ${JSON.stringify(
-                        generatedHistory.slice(-10)
+                        generatedHistory
                       )}
                       2. ALWAYS return ONLY what's requested (no explanations)
                       3. For multiple items, ALWAYS return valid JSON arrays
                       4. EVERY sentence must be COMPLETELY UNIQUE`,
-              },
-              { role: "user", content: prompt },
-            ],
-            max_tokens: 100,
-            temperature: 0.7,
-          });
+          },
+          { role: "user", content: prompt },
+        ],
+        max_tokens: 100,
+        temperature: 0.7,
+      });
 
-          // Race between Groq call and timeout
-          const completion = await Promise.race([groqPromise, timeoutPromise]);
-
-          const generatedText = completion.choices[0]?.message?.content;
-          if (generatedText) {
-            const cleanedText = generatedText
-              .replace(/"/g, "")
-              .replace(/\n/g, " ")
-              .replace(/\s+/g, " ")
-              .trim();
-
-            if (cleanedText.length > 0) {
-              setGeneratedHistory((prev) => [...prev.slice(-50), cleanedText]);
-              return cleanedText;
-            }
-          }
-        } catch (modelError) {
-          console.warn(`Model ${model} failed:`, modelError);
-          lastError = modelError;
-          continue;
-        }
+      const generatedText = completion.choices[0]?.message?.content;
+      if (generatedText) {
+        const cleanedText = generatedText
+          .replace(/"/g, "")
+          .replace(/\n/g, " ")
+          .replace(/\s+/g, " ")
+          .trim();
+        setGeneratedHistory((prev) => [...prev, cleanedText]);
+        return cleanedText;
       }
-
-      // If all models fail, use fallback
-      throw lastError || new Error("All models failed");
+      throw new Error("No text generated");
     } catch (err) {
-      console.error("Error generating text:", err);
-      setError(err.message);
-
-      // Use fallback texts
-      const fallbacks = FALLBACK_TEXTS[ageGroup] || FALLBACK_TEXTS["8-10"];
-      const randomIndex = Math.floor(Math.random() * fallbacks.length);
-      return fallbacks[randomIndex];
+      console.error("Error generating text with Groq:", err);
+      setError(err);
+      const fallbacks =
+        FALLBACK_TEXTS[ageGroup] || FALLBACK_TEXTS[AGE_GROUPS[ageGroup].initialLevel];
+      return fallbacks[Math.floor(Math.random() * fallbacks.length)];
     } finally {
       setIsLoading(false);
     }
@@ -378,7 +362,7 @@ const useTypingEngine = (ageGroup) => {
     } catch (err) {
       console.error("Error initializing texts:", err);
       const fallbacks =
-        FALLBACK_TEXTS[currentLevel] || FALLBACK_TEXTS[ageConfig.initialLevel];
+        FALLBACK_TEXTS[ageGroup] || FALLBACK_TEXTS[ageConfig.initialLevel];
       setCurrentWords(fallbacks[0]);
       setNextWords(fallbacks[1]);
     }
@@ -394,7 +378,7 @@ const useTypingEngine = (ageGroup) => {
     } catch (err) {
       console.error("Error generating next text:", err);
       const fallbacks =
-        FALLBACK_TEXTS[currentLevel] || FALLBACK_TEXTS[ageConfig.initialLevel];
+        FALLBACK_TEXTS[ageGroup] || FALLBACK_TEXTS[ageConfig.initialLevel];
       setNextWords(fallbacks[Math.floor(Math.random() * fallbacks.length)]);
     }
 
@@ -542,7 +526,7 @@ const StartButton = ({ onStart }) => {
   return (
     <button
       onClick={onStart}
-      className="bg-[#F09000] hover:bg-[#C07000] text-black font-bold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg"
+      className="bg-[#F09000] hover:bg-[#C07000] text-black font-bold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg w-full sm:w-auto"
       style={{
         backgroundColor: "#F09000",
         color: "black",
@@ -653,9 +637,12 @@ const MonkeyTypeComponent = () => {
   };
 
   return (
-    <div className="min-h-screen flex justify-center items-center px-4 py-10">
+    <div
+      className="min-h-screen flex justify-center items-center px-4 py-6 sm:py-10"
+      style={{ paddingTop: "calc(36px + 1.5rem)" }}
+    >
       <div
-        className={`bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-xl max-w-2xl w-full transform transition-all duration-700 ${
+        className={`bg-white dark:bg-gray-800 p-4 sm:p-8 rounded-2xl shadow-xl max-w-2xl w-full transform transition-all duration-700 ${
           isVisible ? "translate-y-0 opacity-100" : "translate-y-20 opacity-0"
         }`}
         style={{
@@ -675,15 +662,15 @@ const MonkeyTypeComponent = () => {
           </div>
         )}
 
-        <div className="mb-8">
-          <h2 className="text-3xl font-bold text-center mb-3 dark:text-white text-black">
+        <div className="mb-6 sm:mb-8">
+          <h2 className="text-2xl sm:text-3xl font-bold text-center mb-2 sm:mb-3 dark:text-white text-black">
             {ageGroup === "5-7"
               ? "Fun Typing for Kids"
               : ageGroup === "8-10"
               ? "Tappy Type"
               : "Advanced Typing Challenge"}
           </h2>
-          <p className="text-center text-gray-600 dark:text-gray-300 px-4">
+          <p className="text-center text-gray-600 dark:text-gray-300 px-2 sm:px-4 text-sm sm:text-base">
             {ageGroup === "5-7"
               ? "Type the letters and words as they appear. Let's learn together!"
               : ageGroup === "8-10"
@@ -692,8 +679,8 @@ const MonkeyTypeComponent = () => {
           </p>
         </div>
 
-        <div className="flex justify-between items-center mb-6 p-4 rounded-xl">
-          <div className="flex items-center space-x-2">
+        <div className="flex flex-col sm:flex-row justify-between items-center mb-4 sm:mb-6 p-3 sm:p-4 rounded-xl">
+          <div className="flex items-center space-x-2 mb-3 sm:mb-0">
             <div
               className="relative h-10 w-10 rounded-full flex items-center justify-center"
               style={{
@@ -722,19 +709,21 @@ const MonkeyTypeComponent = () => {
           </div>
 
           {state === "start" && (
-            <div className="flex space-x-5">
-              <div className="text-center">
-                <div className="text-sm text-gray-500 dark:text-gray-400">
+            <div className="flex space-x-3 sm:space-x-5 flex-wrap justify-center">
+              <div className="text-center px-2">
+                <div className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
                   WPM
                 </div>
-                <div className="text-lg font-bold text-blue-500">{wpm}</div>
+                <div className="text-base sm:text-lg font-bold text-blue-500">
+                  {wpm}
+                </div>
               </div>
-              <div className="text-center">
-                <div className="text-sm text-gray-500 dark:text-gray-400">
+              <div className="text-center px-2">
+                <div className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
                   Accuracy
                 </div>
                 <div
-                  className="text-lg font-bold"
+                  className="text-base sm:text-lg font-bold"
                   style={{
                     color:
                       accuracy > 90
@@ -747,18 +736,22 @@ const MonkeyTypeComponent = () => {
                   {accuracy.toFixed(0)}%
                 </div>
               </div>
-              <div className="text-center">
-                <div className="text-sm text-gray-500 dark:text-gray-400">
+              <div className="text-center px-2">
+                <div className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
                   Level
                 </div>
-                <div className="text-lg font-bold text-indigo-500">
+                <div className="text-base sm:text-lg font-bold text-indigo-500">
                   {currentLevel}
                 </div>
               </div>
             </div>
           )}
 
-          {state === "finish" && <RestartButton onRestart={restartGame} />}
+          {state === "finish" && (
+            <div className="w-full sm:w-auto flex justify-center">
+              <RestartButton onRestart={restartGame} />
+            </div>
+          )}
         </div>
 
         {avatarMessage && (
@@ -768,16 +761,16 @@ const MonkeyTypeComponent = () => {
         )}
 
         <div
-          className="relative p-8 rounded-xl mb-6"
+          className="relative p-4 sm:p-8 rounded-xl mb-4 sm:mb-6"
           style={{
             boxShadow: "0 4px 6px rgba(0,0,0,0.04)",
-            marginBottom: "2rem",
-            minHeight: "160px",
+            marginBottom: "1rem sm:2rem",
+            minHeight: "120px sm:160px",
           }}
         >
           {state === "idle" ? (
-            <div className="flex flex-col items-center justify-center h-40">
-              <p className="text-gray-500 mb-6 text-center">
+            <div className="flex flex-col items-center justify-center h-32 sm:h-40">
+              <p className="text-gray-500 mb-4 sm:mb-6 text-center text-sm sm:text-base">
                 {ageGroup === "5-7"
                   ? "Ready to learn typing with fun?"
                   : "Ready to test your typing skills?"}
@@ -786,9 +779,7 @@ const MonkeyTypeComponent = () => {
             </div>
           ) : (
             <>
-              {/* Removed the preview text div */}
-
-              <div style={{ marginTop: "30px" }}>
+              <div className="mt-4 sm:mt-8 w-full overflow-x-hidden">
                 <UserTypings
                   words={currentWords}
                   userInput={typed}
@@ -800,13 +791,13 @@ const MonkeyTypeComponent = () => {
         </div>
 
         {state === "start" && (
-          <div className="border-l-4 border-gray-300 pl-4 mb-6 mt-3">
-            <p className="text-sm italic text-gray-500 dark:text-gray-400">
+          <div className="border-l-4 border-gray-300 pl-3 sm:pl-4 mb-4 sm:mb-6 mt-2 sm:mt-3 text-sm">
+            <p className="text-xs sm:text-sm italic text-gray-500 dark:text-gray-400">
               Coming next:
             </p>
-            <p className="text-sm text-gray-600 dark:text-gray-400 truncate">
-              {nextWords.length > 50
-                ? nextWords.substring(0, 50) + "..."
+            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 truncate">
+              {nextWords.length > 30
+                ? nextWords.substring(0, 30) + "..."
                 : nextWords}
             </p>
           </div>
@@ -814,7 +805,7 @@ const MonkeyTypeComponent = () => {
 
         <Results
           state={state}
-          className="mt-8"
+          className="mt-6 sm:mt-8"
           errors={errors}
           accuracyPercentage={accuracy}
           total={totalTyped}

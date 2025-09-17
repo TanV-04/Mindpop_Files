@@ -3,22 +3,80 @@ import Board from "../../components/games/seguin-board/Board";
 import Timer from "../../components/games/seguin-board/Timer";
 import ScoreBoard from "../../components/games/seguin-board/ScoreBoard";
 import Instructions from "../../components/games/seguin-board/Instructions";
+import { userService } from "../../utils/apiService";
 import "../../components/games/seguin-board/styles/seguin.css";
 
 const SeguinGame = () => {
-  const [gameState, setGameState] = useState("intro"); // intro, playing, completed
+  const [gameState, setGameState] = useState("loading"); // loading, playing, completed
   const [time, setTime] = useState(0);
   const [difficulty, setDifficulty] = useState("normal"); // easy, normal, hard
   const [age, setAge] = useState(null);
   const [completedAllShapes, setCompletedAllShapes] = useState(false);
+  const [loading, setLoading] = useState(true);
 
+  // Fetch user data on component mount
   useEffect(() => {
-    console.log("Component mounted, resetting game state");
-    setGameState("intro");
-    setTime(0);
-    setAge(null);
-    setDifficulty("normal");
-    setCompletedAllShapes(false);
+    console.log("Component mounted, fetching user data");
+
+    const fetchUserData = async () => {
+      try {
+        setLoading(true);
+
+        // Try to get age from current user profile
+        const userData = await userService.getCurrentUser();
+        console.log("User data fetched:", userData);
+
+        let userAge;
+
+        if (userData && userData.age) {
+          userAge = userData.age;
+          console.log("User age from profile:", userAge);
+        } else {
+          // Fallback: Try to get age from localStorage
+          const storedAge = localStorage.getItem("userAge");
+          if (storedAge) {
+            userAge = parseInt(storedAge, 10);
+            console.log("User age from localStorage:", userAge);
+          } else {
+            userAge = 10; // default age
+            console.log("Using default age:", userAge);
+          }
+        }
+
+        setAge(userAge);
+
+        // Set difficulty based on age
+        if (userAge < 7) {
+          setDifficulty("easy");
+        } else if (userAge > 10) {
+          setDifficulty("hard");
+        } else {
+          setDifficulty("normal");
+        }
+
+        console.log(
+          `Age determined: ${userAge}, Difficulty set to: ${
+            userAge < 7 ? "easy" : userAge > 10 ? "hard" : "normal"
+          }`
+        );
+
+        setGameState("playing");
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+
+        // Fallback defaults on error
+        const defaultAge = 10;
+        setAge(defaultAge);
+        setDifficulty("normal");
+        console.log(`Using default age ${defaultAge} due to error`);
+
+        setGameState("playing");
+        setLoading(false);
+      }
+    };
+
+    fetchUserData();
 
     return () => {
       console.log("Component unmounting, cleaning up");
@@ -31,33 +89,6 @@ const SeguinGame = () => {
     );
   }, [gameState, completedAllShapes]);
 
-  const handleAgeSelect = (selectedAge) => {
-    setAge(selectedAge);
-    if (selectedAge < 7) {
-      setDifficulty("easy");
-    } else if (selectedAge > 10) {
-      setDifficulty("hard");
-    } else {
-      setDifficulty("normal");
-    }
-    console.log(
-      `Age selected: ${selectedAge}, Difficulty set to: ${
-        selectedAge < 7 ? "easy" : selectedAge > 10 ? "hard" : "normal"
-      }`
-    );
-  };
-
-  const startGame = () => {
-    if (age === null) {
-      console.log("Cannot start game without age selection");
-      return;
-    }
-    setCompletedAllShapes(false);
-    console.log(`Starting game with age ${age} and difficulty ${difficulty}`);
-    setGameState("playing");
-    setTime(0);
-  };
-
   const handleGameComplete = () => {
     console.log(`Game ACTUALLY completed with time: ${time}`);
     console.log(
@@ -65,10 +96,12 @@ const SeguinGame = () => {
     );
     setCompletedAllShapes(true);
     setGameState("completed");
+
     const completionSound = new Audio(
       "https://cdn.freesound.org/previews/320/320654_5260872-lq.mp3"
     );
     completionSound.play().catch((e) => console.log("Audio play failed:", e));
+
     console.log("FINAL GAME COMPLETED - showing results!");
   };
 
@@ -78,71 +111,23 @@ const SeguinGame = () => {
     setCompletedAllShapes(false);
   };
 
-  const renderIntro = () => {
-    console.log("Rendering intro with age:", age);
-    return (
-      <div className="intro-container bg-white rounded-xl shadow-lg p-6 max-w-md mx-auto text-center">
-        <h2 className="text-2xl font-bold text-[#66220B] mb-4">
-          Seguin Form Board Game
-        </h2>
-        <p className="text-gray-700 mb-6">
-          This game tests your ability to match shapes to their outlines.
-        </p>
-        <div className="mb-6">
-          <p className="text-lg font-semibold text-[#66220B] mb-4">
-            Select Your Age
-          </p>
-          <div className="grid grid-cols-4 gap-3 justify-center">
-            {[5, 6, 7, 8, 9, 10, 11, 12].map((ageOption) => (
-              <button
-                key={ageOption}
-                type="button"
-                className={`age-btn px-4 py-2 rounded-lg border-2 transition-all duration-200 text-lg font-medium 
-                  ${
-                    age === ageOption
-                      ? "bg-[#F09000] text-white border-[#F09000] scale-110 shadow-lg"
-                      : "bg-gray-100 text-gray-800 hover:bg-gray-200 border-gray-300"
-                  }`}
-                onClick={() => handleAgeSelect(ageOption)}
-              >
-                {ageOption}
-              </button>
-            ))}
-          </div>
-          {age !== null && (
-            <p className="text-green-600 mt-3 font-semibold">
-              You selected age: {age}
-            </p>
-          )}
-        </div>
-        <button
-          type="button"
-          className={`start-button bg-red-700 relative bg-gradient-to-r from-[#00C853] to-[#B2FF59] text-black font-extrabold py-3 px-8 rounded-full text-lg transition-all duration-300 ease-in-out
-    ${
-      age === null
-        ? "opacity-50 cursor-not-allowed"
-        : "hover:scale-105 hover:shadow-green-400/60"
-    }`}
-          style={{
-            backdropFilter: "blur(12px)",
-            boxShadow: "0 8px 20px rgba(0, 200, 83, 0.4)", // Greenish glow
-            border: "2px solid rgba(255, 255, 255, 0.2)",
-            letterSpacing: "1px",
-          }}
-          onClick={() => {
-            if (age !== null) {
-              console.log("Starting game with age:", age);
-              startGame();
-            }
-          }}
-          disabled={age === null}
-        >
-          <span className="absolute inset-0 rounded-full bg-white opacity-10 blur-sm"></span>
-          <span className="relative z-10">Start Game!</span>
-        </button>
-      </div>
-    );
+  // Get instructions text based on age
+  const getInstructions = () => {
+    if (age < 7) {
+      return "Match each shape to its outline on the board! Drag the shapes from the tray to the matching spaces. Can you find where each shape belongs?";
+    } else if (age < 10) {
+      return "Drag each shape from the tray to its matching outline on the board. You need to place ALL TEN shapes to complete the game!";
+    } else {
+      return "Complete the Seguin Form Board by matching each shape to its outline. This exercise helps develop visual processing skills and spatial awareness. Try to complete it as quickly as possible!";
+    }
   };
+
+  const renderLoading = () => (
+    <div className="loading-container flex items-center justify-center h-64 bg-white rounded-xl shadow-lg p-6 max-w-md mx-auto text-center">
+      <div className="loading-spinner mr-3 h-8 w-8 animate-spin rounded-full border-4 border-solid border-[#F09000] border-r-transparent"></div>
+      <p className="text-lg font-semibold text-[#66220B]">Loading game...</p>
+    </div>
+  );
 
   const renderGame = () => (
     <>
@@ -151,19 +136,12 @@ const SeguinGame = () => {
           Playing as age {age} | Difficulty: {difficulty}
         </p>
       </div>
-      <Instructions
-        text="Drag each shape from the tray to its matching outline on the board. You must place ALL TEN shapes to complete the game!"
-        isChild={true}
-      />
+      <Instructions text={getInstructions()} isChild={age < 10} />
       <Timer
         isRunning={gameState === "playing" && !completedAllShapes}
         onTimeUpdate={setTime}
       />
-      <Board
-        onComplete={handleGameComplete}
-        difficulty={difficulty}
-        key={gameState}
-      />
+      <Board onComplete={handleGameComplete} difficulty={difficulty} key={gameState} />
     </>
   );
 
@@ -173,11 +151,11 @@ const SeguinGame = () => {
     <div className="seguin-game-container py-8 px-4">
       {import.meta.env.DEV && (
         <div className="bg-gray-100 p-2 text-xs text-gray-600 rounded mb-2 max-w-md mx-auto">
-          Game State: {gameState}, Age: {age || "not set"}, Difficulty:{" "}
-          {difficulty}, Completed: {completedAllShapes ? "Yes" : "No"}
+          Game State: {gameState}, Age: {age || "not set"}, Difficulty: {difficulty}, Completed:{" "}
+          {completedAllShapes ? "Yes" : "No"}
         </div>
       )}
-      {gameState === "intro" && renderIntro()}
+      {gameState === "loading" && renderLoading()}
       {gameState === "playing" && renderGame()}
       {gameState === "completed" && (
         <ScoreBoard time={time} age={age} onPlayAgain={playAgain} />

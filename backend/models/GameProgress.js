@@ -1,4 +1,3 @@
-//GameProgress.js
 import mongoose from 'mongoose';
 
 const gameProgressSchema = new mongoose.Schema({
@@ -10,7 +9,7 @@ const gameProgressSchema = new mongoose.Schema({
   gameType: { 
     type: String, 
     required: true, 
-    enum: ['seguin', 'monkey'] 
+    enum: ['seguin', 'monkey', 'jigsaw'] 
   },
   completionTime: { 
     type: Number, 
@@ -29,6 +28,26 @@ const gameProgressSchema = new mongoose.Schema({
   level: { 
     type: Number, 
     default: 1 
+  },
+  // Additional fields for jigsaw puzzle
+  ageGroup: {
+    type: String,
+    enum: ['6-8', '8-10', '10-12', '12-14'],
+    required: function() {
+      return this.gameType === 'jigsaw';
+    }
+  },
+  puzzleSize: {
+    type: String,
+    required: function() {
+      return this.gameType === 'jigsaw';
+    }
+  },
+  totalPieces: {
+    type: Number,
+    required: function() {
+      return this.gameType === 'jigsaw';
+    }
   }
 }, {
   timestamps: true
