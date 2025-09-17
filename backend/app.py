@@ -12,6 +12,7 @@ CORS(app, resources={r"/api/*": {"origins": "http://localhost:5173"}})
 UPLOAD_FOLDER = './uploads'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
+# ✅ CHOOSE THE CORRECT PATHS BASED ON YOUR FOLDER STRUCTURE
 detector = AutismBehaviorDetector(
     model_path='D:\\TANVI_COLLEGE_FILES\\PBL2_SEM6\\Mindpop_Files_Clean\\backend\\ml-model\\enhanced_rf_model.pkl',
     scaler_path='D:\\TANVI_COLLEGE_FILES\\PBL2_SEM6\\Mindpop_Files_Clean\\backend\\ml-model\\enhanced_scaler.pkl',

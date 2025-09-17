@@ -46,14 +46,6 @@ const ProgressSettings = ({ userData }) => {
     { date: "Week 5", wpm: 45, accuracy: 92, targetWpm: 40 },
   ];
 
-  const sampleJigsawData = [
-    { date: "Week 1", time: 240, standardTime: 180, pieces: 12 },
-    { date: "Week 2", time: 210, standardTime: 180, pieces: 12 },
-    { date: "Week 3", time: 190, standardTime: 180, pieces: 16 },
-    { date: "Week 4", time: 165, standardTime: 180, pieces: 16 },
-    { date: "Week 5", time: 150, standardTime: 180, pieces: 24 },
-  ];
-
   const sampleSkills = [
     { name: "Pattern Recognition", value: 85 },
     { name: "Hand-Eye Coordination", value: 70 },
@@ -120,52 +112,31 @@ const ProgressSettings = ({ userData }) => {
     return sampleMonkeyData;
   };
 
-  // Format data for Jigsaw chart
-  const formatJigsawChartData = () => {
-    if (progressData?.timeSeriesData?.length) {
-      return progressData.timeSeriesData.map((entry) => {
-        const time = entry.jigsaw || entry.jigsawTime || 0;
-        const pieces = entry.jigsawPieces || 16;
-        const standardTime = progressData.benchmarks?.jigsaw?.standardTime || 180;
-
-        return {
-          date: entry.date || "Unknown",
-          time,
-          standardTime,
-          pieces,
-        };
-      });
-    }
-    return sampleJigsawData;
-  };
-
   // Check if we have real data
   const hasRealData =
     progressData &&
     (progressData.timeSeriesData?.length ||
       progressData.gameDistribution?.seguin ||
-      progressData.gameDistribution?.monkey ||
-      progressData.gameDistribution?.jigsaw);
+      progressData.gameDistribution?.monkey);
 
   // Format game distribution data
   const gameDistributionData = [
     {
       name: "Seguin Form Board",
-      percentage: progressData?.gameDistribution?.seguin || 45,
+      percentage: progressData?.gameDistribution?.seguin || 65,
     },
-    { name: "Monkey Time", percentage: progressData?.gameDistribution?.monkey || 30 },
-    { name: "Jigsaw", percentage: progressData?.gameDistribution?.jigsaw || 25 },
+    {
+      name: "Monkey Time",
+      percentage: progressData?.gameDistribution?.monkey || 35,
+    },
   ];
 
-  // Get chart data
   const seguinChartData = formatSeguinChartData();
   const monkeyChartData = formatMonkeyChartData();
-  const jigsawChartData = formatJigsawChartData();
 
   // Determine which charts to show
   const showSeguinChart = selectedGame === "all" || selectedGame === "seguin";
   const showMonkeyChart = selectedGame === "all" || selectedGame === "monkey";
-  const showJigsawChart = selectedGame === "all" || selectedGame === "jigsaw";
 
   // Render loading state
   if (loading) {
@@ -206,7 +177,6 @@ const ProgressSettings = ({ userData }) => {
               <option value="all">All Games</option>
               <option value="seguin">Seguin Form Board</option>
               <option value="monkey">Monkey Time</option>
-              <option value="jigsaw">Jigsaw</option>
             </select>
             <select
               value={timeFrame}
@@ -251,7 +221,6 @@ const ProgressSettings = ({ userData }) => {
             <option value="all">All Games</option>
             <option value="seguin">Seguin Form Board</option>
             <option value="monkey">Monkey Time</option>
-            <option value="jigsaw">Jigsaw</option>
           </select>
           <select
             value={timeFrame}
@@ -265,14 +234,11 @@ const ProgressSettings = ({ userData }) => {
         </div>
       </div>
 
-      {/* Game Usage Overview */}
+      {/* Game Usage Pie Chart */}
       <div className="bg-white p-6 rounded-lg mb-6 shadow-sm">
-        <h3 className="text-lg font-semibold text-[#66220B] mb-4">Game Usage</h3>
-        {!hasRealData && (
-          <p className="text-xs text-gray-500 mb-2 italic">
-            Showing sample data. Play games to see your real statistics.
-          </p>
-        )}
+        <h3 className="text-lg font-semibold text-[#66220B] mb-4">
+          Game Usage
+        </h3>
         <div className="h-64">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
@@ -283,11 +249,13 @@ const ProgressSettings = ({ userData }) => {
                 labelLine={true}
                 label={({ name, percentage }) => `${name}: ${percentage}%`}
                 outerRadius={80}
-                fill="#8884d8"
                 dataKey="percentage"
               >
                 {gameDistributionData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={COLORS[index % COLORS.length]}
+                  />
                 ))}
               </Pie>
               <Tooltip />
@@ -300,21 +268,12 @@ const ProgressSettings = ({ userData }) => {
       {/* Seguin Form Board Performance */}
       {showSeguinChart && (
         <div className="bg-white p-6 rounded-lg mb-6 shadow-sm">
-          <h3 className="text-lg font-semibold text-[#66220B] mb-4">Seguin Form Board Performance</h3>
-          <p className="text-gray-500 mb-4">
-            This chart shows your completion time (lower is better) over time compared to standard performance.
-          </p>
-          {!hasRealData && (
-            <p className="text-xs text-gray-500 mb-2 italic">
-              Showing sample data. Play games to see your real statistics.
-            </p>
-          )}
+          <h3 className="text-lg font-semibold text-[#66220B] mb-4">
+            Seguin Form Board Performance
+          </h3>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart
-                data={seguinChartData}
-                margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-              >
+              <LineChart data={seguinChartData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="date" />
                 <YAxis label={{ value: "Time (seconds)", angle: -90, position: "insideLeft" }} />
@@ -343,21 +302,12 @@ const ProgressSettings = ({ userData }) => {
       {/* Monkey Type Performance */}
       {showMonkeyChart && (
         <div className="bg-white p-6 rounded-lg mb-6 shadow-sm">
-          <h3 className="text-lg font-semibold text-[#66220B] mb-4">Monkey Type Performance</h3>
-          <p className="text-gray-500 mb-4">
-            This chart shows your typing speed (higher is better) and accuracy over time.
-          </p>
-          {!hasRealData && (
-            <p className="text-xs text-gray-500 mb-2 italic">
-              Showing sample data. Play games to see your real statistics.
-            </p>
-          )}
+          <h3 className="text-lg font-semibold text-[#66220B] mb-4">
+            Monkey Type Performance
+          </h3>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
-              <ComposedChart
-                data={monkeyChartData}
-                margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-              >
+              <ComposedChart data={monkeyChartData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="date" />
                 <YAxis
@@ -394,72 +344,9 @@ const ProgressSettings = ({ userData }) => {
                   yAxisId="right"
                   type="monotone"
                   dataKey="accuracy"
-                  fill="#82ca9d"
                   stroke="#28a745"
                   name="Accuracy %"
                   fillOpacity={0.3}
-                />
-              </ComposedChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-      )}
-
-      {/* Jigsaw Performance */}
-      {showJigsawChart && (
-        <div className="bg-white p-6 rounded-lg mb-6 shadow-sm">
-          <h3 className="text-lg font-semibold text-[#66220B] mb-4">Jigsaw Performance</h3>
-          <p className="text-gray-500 mb-4">
-            This chart shows your jigsaw completion time (lower is better) compared to standard performance.
-          </p>
-          {!hasRealData && (
-            <p className="text-xs text-gray-500 mb-2 italic">
-              Showing sample data. Play games to see your real statistics.
-            </p>
-          )}
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <ComposedChart
-                data={jigsawChartData}
-                margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" />
-                <YAxis
-                  yAxisId="left"
-                  label={{ value: "Time (seconds)", angle: -90, position: "insideLeft" }}
-                />
-                <YAxis
-                  yAxisId="right"
-                  orientation="right"
-                  label={{ value: "Pieces", angle: 90, position: "insideRight" }}
-                  domain={[0, "dataMax + 5"]}
-                />
-                <Tooltip />
-                <Legend />
-                <Line
-                  yAxisId="left"
-                  type="monotone"
-                  dataKey="time"
-                  stroke="#FF8042"
-                  name="Your Time"
-                  activeDot={{ r: 8 }}
-                  strokeWidth={2}
-                />
-                <Line
-                  yAxisId="left"
-                  type="monotone"
-                  dataKey="standardTime"
-                  stroke="#0088FE"
-                  name="Standard Time"
-                  strokeDasharray="5 5"
-                />
-                <Bar
-                  yAxisId="right"
-                  dataKey="pieces"
-                  fill="#82ca9d"
-                  name="Puzzle Pieces"
-                  barSize={20}
                 />
               </ComposedChart>
             </ResponsiveContainer>
@@ -480,16 +367,13 @@ const ProgressSettings = ({ userData }) => {
         )}
         <div className="h-64">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart
-              data={progressData?.cognitiveSkills || sampleSkills}
-              margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-            >
+            <BarChart data={progressData?.cognitiveSkills || sampleSkills}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="name" />
               <YAxis label={{ value: "Score", angle: -90, position: "insideLeft" }} />
               <Tooltip />
               <Legend />
-              <Bar dataKey="value" name="Skill Level" fill="#8884d8" />
+              <Bar dataKey="value" fill="#8884d8" name="Skill Level" />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -518,8 +402,10 @@ const ProgressSettings = ({ userData }) => {
           </p>
         )}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-gray-50 p-4 rounded-lg shadow-sm text-center">
-            <h4 className="text-[#F09000] text-lg font-semibold mb-2">Improvement</h4>
+          <div className="bg-gray-50 p-4 rounded-lg text-center">
+            <h4 className="text-[#F09000] text-lg font-semibold mb-2">
+              Improvement
+            </h4>
             <p className="text-3xl font-bold text-[#66220B]">
               {progressData?.improvementMetrics?.seguin || 45}%
             </p>

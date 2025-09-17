@@ -2,7 +2,7 @@ import "./index.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
 
-// Import pages and components
+// Pages and components
 import Home from "./pages/Home";
 import Navbar from "./components/Navbar";
 import BubbleCursor from "./components/BubbleCursor";
@@ -14,7 +14,7 @@ import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import MonkeyType from "./pages/games/MonkeyType.jsx";
 import Settings from "./components/settings.jsx";
 
-// Jigsaw puzzle components/pages
+// Jigsaw puzzle routes
 import Jigsaw_6_to_8 from "./components/games/jigsawPuzzle/Jigsaw_6_to_8.jsx";
 import Jigsaw_8_to_10 from "./components/games/jigsawPuzzle/Jigsaw_8_to_10.jsx";
 import Jigsaw_10_to_12 from "./components/games/jigsawPuzzle/Jigsaw_10_to_12.jsx";
@@ -23,6 +23,7 @@ import MathsPuzzle from "./components/games/jigsawPuzzle/MathsPuzzle.jsx";
 
 import Footer from "./components/Footer.jsx";
 import AutismAnalysis from "./components/ParentFriendlyAnalysis.jsx";
+import DyslexiaTest from "./pages/DyslexiaTest";
 
 function App() {
   return (
@@ -105,7 +106,7 @@ function App() {
                 }
               />
 
-              {/* Settings and Analysis */}
+              {/* Settings and analysis */}
               <Route
                 path="/settings"
                 element={
@@ -122,6 +123,9 @@ function App() {
                   </ProtectedRoute>
                 }
               />
+              <Route path="/dyslexia" 
+              element={
+              <ProtectedRoute><DyslexiaTest /></ProtectedRoute>} />
             </Routes>
           </div>
           <Footer className="mt-auto" />

@@ -1,4 +1,5 @@
 Flask
+flask-cors
 tensorflow
 tensorflow-hub
 moviepy
@@ -7,6 +8,10 @@ joblib
 tqdm
 pandas
 scikit-learn
-flask-cors
 bootstrap
 openai
+bootstrap-py
+speechrecognition
+pyaudio
+fuzzywuzzy
+python-Levenshtein
