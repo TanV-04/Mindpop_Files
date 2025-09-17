@@ -12,7 +12,7 @@ import sys
 import speech_recognition as sr
 from fuzzywuzzy import fuzz
 
-# Get arguments from Node.js
+# Get arguments from command line
 if len(sys.argv) < 3:
     print("Error: Missing audio file or sentence")
     sys.exit(1)
@@ -35,7 +35,7 @@ try:
         print("⚠️ आवाज़ समझ में नहीं आई।")
         user_speech = ""
     except sr.RequestError:
-        print("⚠️ इंटरनेट कनेक्शन नहीं।")
+        print("⚠️ इंटरनेक् कनेक्शन नहीं।")
         user_speech = ""
 
     # Calculate accuracy

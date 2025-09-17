@@ -8,8 +8,12 @@ joblib
 tqdm
 pandas
 scikit-learn
+bootstrap
+openai
 bootstrap-py
 speechrecognition
 pyaudio
 fuzzywuzzy
 python-Levenshtein
+react-mic
+multer
