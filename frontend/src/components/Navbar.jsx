@@ -231,7 +231,7 @@ const Tab = ({ children, setHoverPosition, isActive, onClick }) => {
         ${
           isActive
             ? "bg-transparent text-white"
-            : "hover: text-wheat rounded-full"
+            : "hover:text-wheat rounded-full"
         }
       `}
     >

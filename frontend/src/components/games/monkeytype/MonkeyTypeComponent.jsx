@@ -15,7 +15,7 @@ const groq = new Groq({
   dangerouslyAllowBrowser: true,
 });
 
-// Age group configurations with improved educational prompts
+// Age group configurations
 const AGE_GROUPS = {
   "5-7": {
     initialTimer: 150, // 2.5 minutes
@@ -29,25 +29,18 @@ const AGE_GROUPS = {
     prompt: (level, count = 1) => {
       if (count === 1) {
         return `Generate one unique simple sentence suitable for a 5-7 year old practicing typing.
-                The sentence must teach something educational like:
-                - Basic science facts (example: "fish live in water")
-                - Simple life skills (example: "always wash your hands")
-                - Positive social behaviors (example: "sharing toys is nice")
-                - Basic math concepts (example: "two plus two is four")
-                - Nature facts (example: "trees give us oxygen")
-                
-                The sentence should be 3 to 5 words long with no punctuation or special characters.
-                Use basic vocabulary appropriate for early readers.
-                Return ONLY the sentence without any extra text.`;
+                    The sentence must contain only basic words like cat dog ball sun happy run jump toy etc.
+                    No sequences of random letters or numbers are allowed.
+                    The sentence should be 3 to 5 words long with no punctuation or special characters.
+                    Example: the dog plays ball
+                    Return ONLY the sentence without any extra text.`;
       } else {
         return `Generate ${count} unique simple sentences suitable for 5-7 year olds for typing practice.
-                Each sentence must be 3 to 5 words long.
-                Each sentence should teach something educational like basic science, life skills, 
-                social behaviors, math concepts, or nature facts.
-                Use only basic vocabulary that early readers would know.
-                No numbers or random letter sequences.
-                No punctuation or special characters.
-                Return ONLY a JSON array of strings like: ["fish live in water", "always wash your hands"]`;
+                    Each sentence must be 3 to 5 words long.
+                    Use only basic everyday words like cat dog ball sun happy run jump toy etc.
+                    No numbers or random letter sequences.
+                    No punctuation or special characters.
+                    Return ONLY a valid JSON array of strings like: ["the dog jumps high", "sun is bright today"]`;
       }
     },
   },
@@ -62,24 +55,16 @@ const AGE_GROUPS = {
     },
     prompt: (level, count = 1) => {
       if (count === 1) {
-        return `Generate one interesting sentence for 8-10 year olds typing practice.
-                The sentence should be educational and focus on one of these topics:
-                - Science facts (example: "some dinosaurs had feathers")
-                - World geography (example: "the amazon river is very long")
-                - Historical facts (example: "ancient egyptians built the pyramids")
-                - Health and nutrition (example: "vegetables help you grow strong")
-                - Space or astronomy (example: "mars is the red planet")
-                
-                The sentence should be 6-10 words long with no punctuation.
-                Use vocabulary that 8-10 year olds would understand.
-                Return ONLY the sentence with no other text.`;
+        return `Generate one simple riddle for 8-10 year olds typing practice.
+                  The riddle should be 6-10 words long with no punctuation.
+                  It should be easy to understand but still a riddle.
+                  Example: 'what has hands but cannot clap'
+                  Return ONLY the riddle with no other text.`;
       } else {
-        return `Generate ${count} educational sentences for 8-10 year olds typing practice.
-                Each sentence should be 6-10 words long with no punctuation.
-                Each sentence should teach something about science, geography, history, health, or space.
-                All sentences must be completely unique and different from each other.
-                Use vocabulary appropriate for 8-10 year olds.
-                Return ONLY a JSON array like: ["some dinosaurs had feathers", "the amazon river is very long"]`;
+        return `Generate ${count} simple riddles for 8-10 year olds typing practice.
+                  Each riddle should be 6-10 words long with no punctuation.
+                  All riddles must be completely unique and different from each other.
+                  Return ONLY a JSON array like: ["what gets wet while drying", "what has keys but no locks"]`;
       }
     },
   },
@@ -94,56 +79,48 @@ const AGE_GROUPS = {
     },
     prompt: (level, count = 1) => {
       if (count === 1) {
-        return `Generate one interesting and educational sentence for 11-12 year olds typing practice.
-                The sentence should focus on one of these topics:
-                - Advanced science concepts (example: "gravity pulls objects toward each other")
-                - Cultural diversity (example: "people celebrate different holidays around the world")
-                - Environmental awareness (example: "recycling helps protect our planet from pollution")
-                - Technology and innovation (example: "computers use binary code to process information")
-                - Critical thinking (example: "evidence helps us determine what is true")
-                
-                The sentence should be 10-15 words long with no punctuation.
-                Use vocabulary that challenges 11-12 year olds but remains understandable.
-                Return ONLY the sentence with no other text.`;
+        return `Generate one line from classic literature or famous poetry for typing practice.
+                  Choose from well-known works like Shakespeare, Dickens, Poe, etc.
+                  The line should be 8-15 words long with no punctuation.
+                  It must be a verbatim quote from the original work.
+                  Example: 'to be or not to be that is the question'
+                  Return ONLY the line with no other text.`;
       } else {
-        return `Generate ${count} educational sentences for 11-12 year olds typing practice.
-                Each sentence should be 10-15 words long with no punctuation.
-                Each sentence should teach something about advanced science, cultural diversity, 
-                environmental awareness, technology, or critical thinking.
-                All sentences must be completely unique and different from each other.
-                Use vocabulary that challenges 11-12 year olds but remains understandable.
-                Return ONLY a JSON array like: ["gravity pulls objects toward each other", "people celebrate different holidays around the world"]`;
+        return `Generate ${count} lines from classic literature or famous poetry for typing practice.
+                  Each line must be 8-15 words long with no punctuation.
+                  All lines must be verbatim quotes from different works.
+                  Return ONLY a JSON array like: ["call me ishmael some years ago", "it was the best of times it was"]`;
       }
     },
   },
 };
 
-// Fallback texts in case API fails - updated to be more educational
+// Fallback texts in case API fails
 const FALLBACK_TEXTS = {
   "5-7": [
+    "the cat sat on the mat",
+    "i like to play outside",
+    "my dog is very happy",
     "always brush your teeth",
     "plants need water",
-    "birds build nests",
-    "fish swim in water",
-    "eat healthy food",
   ],
   "8-10": [
+    "what has teeth but cannot bite",
+    "what flies without wings",
+    "what gets bigger the more you take away",
     "the brain controls all body functions",
     "planets orbit around the sun",
-    "water freezes at zero degrees celsius",
-    "reading books helps grow your vocabulary",
-    "exercise keeps your body healthy",
   ],
   "11-12": [
+    "it was a dark and stormy night",
+    "all happy families are alike",
+    "the old man was dreaming about the lions",
     "photosynthesis is how plants make their food",
     "the constitution protects citizens rights",
-    "learning new languages connects people across cultures",
-    "the water cycle includes evaporation and precipitation",
-    "different ecosystems support unique plant and animal life",
   ],
 };
 
-// Enhanced UserTypings component with responsive design
+// Enhanced UserTypings component with bigger, bolder, and glowy text
 const UserTypings = ({ userInput = "", words = "", isDarkMode = false }) => {
   useEffect(() => {
     const style = document.createElement("style");
@@ -172,11 +149,10 @@ const UserTypings = ({ userInput = "", words = "", isDarkMode = false }) => {
     return isDarkMode ? "text-gray-600" : "text-gray-400";
   };
 
-  // Responsive text sizing based on screen width
   const glowStyle = {
     textShadow: "0 0 8px rgba(59, 130, 246, 0.6)",
     fontWeight: "600",
-    fontSize: "clamp(1.5rem, 5vw, 2.5rem)", // Responsive font size
+    fontSize: "2.5rem",
     letterSpacing: "0.05em",
   };
 
@@ -248,43 +224,77 @@ const useAITextGenerator = (ageGroup) => {
     setError(null);
 
     try {
-      const prompt = AGE_GROUPS[ageGroup].prompt(level);
-      const completion = await groq.chat.completions.create({
-        model: "llama3-70b-8192",
-        messages: [
-          {
-            role: "system",
-            content: `You are generating typing exercises. Follow these rules STRICTLY:
+      // Use currently available Groq models
+      const modelsToTry = [
+        "llama-3.1-8b-instant", // Fast and efficient
+        "llama-3.1-70b-versatile", // More powerful
+        "mixtral-8x7b-32768", // Alternative (if available)
+        "gemma-7b-it", // Google's model
+      ];
+
+      let lastError = null;
+
+      for (const model of modelsToTry) {
+        try {
+          const prompt = AGE_GROUPS[ageGroup].prompt(level);
+
+          // Create a promise with timeout
+          const timeoutPromise = new Promise((_, reject) => {
+            setTimeout(() => reject(new Error("Request timeout")), 10000);
+          });
+
+          const groqPromise = groq.chat.completions.create({
+            model: model,
+            messages: [
+              {
+                role: "system",
+                content: `You are generating typing exercises. Follow these rules STRICTLY:
                       1. NEVER repeat any of these sentences: ${JSON.stringify(
-                        generatedHistory
+                        generatedHistory.slice(-10)
                       )}
                       2. ALWAYS return ONLY what's requested (no explanations)
                       3. For multiple items, ALWAYS return valid JSON arrays
                       4. EVERY sentence must be COMPLETELY UNIQUE`,
-          },
-          { role: "user", content: prompt },
-        ],
-        max_tokens: 100,
-        temperature: 0.7,
-      });
+              },
+              { role: "user", content: prompt },
+            ],
+            max_tokens: 100,
+            temperature: 0.7,
+          });
 
-      const generatedText = completion.choices[0]?.message?.content;
-      if (generatedText) {
-        const cleanedText = generatedText
-          .replace(/"/g, "")
-          .replace(/\n/g, " ")
-          .replace(/\s+/g, " ")
-          .trim();
-        setGeneratedHistory((prev) => [...prev, cleanedText]);
-        return cleanedText;
+          // Race between Groq call and timeout
+          const completion = await Promise.race([groqPromise, timeoutPromise]);
+
+          const generatedText = completion.choices[0]?.message?.content;
+          if (generatedText) {
+            const cleanedText = generatedText
+              .replace(/"/g, "")
+              .replace(/\n/g, " ")
+              .replace(/\s+/g, " ")
+              .trim();
+
+            if (cleanedText.length > 0) {
+              setGeneratedHistory((prev) => [...prev.slice(-50), cleanedText]);
+              return cleanedText;
+            }
+          }
+        } catch (modelError) {
+          console.warn(`Model ${model} failed:`, modelError);
+          lastError = modelError;
+          continue;
+        }
       }
-      throw new Error("No text generated");
+
+      // If all models fail, use fallback
+      throw lastError || new Error("All models failed");
     } catch (err) {
-      console.error("Error generating text with Groq:", err);
-      setError(err);
-      const fallbacks =
-        FALLBACK_TEXTS[ageGroup] || FALLBACK_TEXTS[AGE_GROUPS[ageGroup].initialLevel];
-      return fallbacks[Math.floor(Math.random() * fallbacks.length)];
+      console.error("Error generating text:", err);
+      setError(err.message);
+
+      // Use fallback texts
+      const fallbacks = FALLBACK_TEXTS[ageGroup] || FALLBACK_TEXTS["8-10"];
+      const randomIndex = Math.floor(Math.random() * fallbacks.length);
+      return fallbacks[randomIndex];
     } finally {
       setIsLoading(false);
     }
@@ -361,8 +371,7 @@ const useTypingEngine = (ageGroup) => {
       setNextWords(next);
     } catch (err) {
       console.error("Error initializing texts:", err);
-      const fallbacks =
-        FALLBACK_TEXTS[ageGroup] || FALLBACK_TEXTS[ageConfig.initialLevel];
+      const fallbacks = FALLBACK_TEXTS[ageGroup] || FALLBACK_TEXTS[ageConfig.initialLevel];
       setCurrentWords(fallbacks[0]);
       setNextWords(fallbacks[1]);
     }
@@ -377,8 +386,7 @@ const useTypingEngine = (ageGroup) => {
       setNextWords(next);
     } catch (err) {
       console.error("Error generating next text:", err);
-      const fallbacks =
-        FALLBACK_TEXTS[ageGroup] || FALLBACK_TEXTS[ageConfig.initialLevel];
+      const fallbacks = FALLBACK_TEXTS[ageGroup] || FALLBACK_TEXTS[ageConfig.initialLevel];
       setNextWords(fallbacks[Math.floor(Math.random() * fallbacks.length)]);
     }
 
@@ -526,7 +534,7 @@ const StartButton = ({ onStart }) => {
   return (
     <button
       onClick={onStart}
-      className="bg-[#F09000] hover:bg-[#C07000] text-black font-bold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg w-full sm:w-auto"
+      className="bg-[#F09000] hover:bg-[#C07000] text-black font-bold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg"
       style={{
         backgroundColor: "#F09000",
         color: "black",
@@ -679,8 +687,8 @@ const MonkeyTypeComponent = () => {
           </p>
         </div>
 
-        <div className="flex flex-col sm:flex-row justify-between items-center mb-4 sm:mb-6 p-3 sm:p-4 rounded-xl">
-          <div className="flex items-center space-x-2 mb-3 sm:mb-0">
+        <div className="flex justify-between items-center mb-6 p-4 rounded-xl">
+          <div className="flex items-center space-x-2">
             <div
               className="relative h-10 w-10 rounded-full flex items-center justify-center"
               style={{
@@ -805,7 +813,7 @@ const MonkeyTypeComponent = () => {
 
         <Results
           state={state}
-          className="mt-6 sm:mt-8"
+          className="mt-8"
           errors={errors}
           accuracyPercentage={accuracy}
           total={totalTyped}
