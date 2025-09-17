@@ -38,7 +38,7 @@ const corsMiddleware = cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 });
 app.use(corsMiddleware);
-app.use(cors());
+
 // Security headers
 app.use((req, res, next) => {
   res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');

@@ -38,6 +38,10 @@ function App() {
               <Route path="/sign-in" element={<SignIn />} />
               <Route path="/sign-up" element={<SignUp />} />
 
+              <Route path="/dyslexia" 
+              element={
+              <DyslexiaTest />} />
+
               {/* Protected routes */}
               <Route
                 path="/games"
@@ -123,9 +127,6 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-              <Route path="/dyslexia" 
-              element={
-              <ProtectedRoute><DyslexiaTest /></ProtectedRoute>} />
             </Routes>
           </div>
           <Footer className="mt-auto" />

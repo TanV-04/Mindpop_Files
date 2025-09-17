@@ -1,28 +1,38 @@
 import express from "express";
+import multer from "multer";
 import { PythonShell } from "python-shell";
 import path from "path";
-import { fileURLToPath } from "url";
 
 const router = express.Router();
+const upload = multer({ dest: "uploads/" });
 
-// Fix __dirname in ES module
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// POST route to run 1-sentence dyslexia test
+router.post("/run", upload.single("audio"), (req, res) => {
+  const file = req.file; // single audio file
+  const { sentence } = req.body; // single sentence
 
-router.post("/run", (req, res) => {
-  const { userText } = req.body || ""; // optional: send user input
+  if (!file || !sentence) {
+    return res.status(400).json({ error: "Audio file or sentence missing" });
+  }
 
-  let options = {
-    pythonPath: "python3",
-    args: userText ? [userText] : []
+  const audioPath = file.path;
+
+  const options = {
+    mode: "text",
+    pythonOptions: ["-u"],
+    args: [audioPath, sentence],
   };
 
-  const scriptPath = path.join(__dirname, "../dyslexia/dyslexia.py");
-
-  PythonShell.run(scriptPath, options, (err, results) => {
-    if (err) return res.status(500).json({ error: err.message });
-    res.json({ output: results.join("\n") });
-  });
+  PythonShell.run(
+    path.join("backend", "dyslexia", "dyslexia.py"),
+    options,
+    (err, output) => {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+      res.json({ sentence, output });
+    }
+  );
 });
 
 export default router;
