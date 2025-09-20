@@ -38,10 +38,6 @@ function App() {
               <Route path="/sign-in" element={<SignIn />} />
               <Route path="/sign-up" element={<SignUp />} />
 
-              <Route path="/dyslexia" 
-              element={
-              <DyslexiaTest />} />
-
               {/* Protected routes */}
               <Route
                 path="/games"
@@ -124,6 +120,14 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <AutismAnalysis />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/dyslexia"
+                element={
+                  <ProtectedRoute>
+                    <DyslexiaTest />
                   </ProtectedRoute>
                 }
               />
