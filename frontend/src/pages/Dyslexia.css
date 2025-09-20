@@ -1,0 +1,92 @@
+.dyslexia-container {
+  max-width: 600px;
+  margin: auto;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  background: #f9f0d0;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  text-align: center;
+}
+
+.sentence-number {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.sentence-text {
+  font-size: 1.2rem;
+  margin-bottom: 20px;
+}
+
+.sound-wave {
+  margin: 20px 0;
+  border-radius: 10px;
+}
+
+.buttons button {
+  margin: 5px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.start-btn {
+  background-color: #F09000;
+  color: white;
+}
+
+.stop-btn {
+  background-color: #66220B;
+  color: white;
+}
+
+.submit-btn {
+  background-color: #009688;
+  color: white;
+  padding: 12px 25px;
+  font-size: 1rem;
+  margin-top: 20px;
+}
+
+.results {
+  margin-top: 20px;
+  text-align: left;
+  background: #fff3cd;
+  padding: 15px;
+  border-radius: 8px;
+}
+
+.recording-status {
+  margin: 20px 0;
+  text-align: center;
+  font-weight: bold;
+}
+
+.recording-indicator {
+  color: #e74c3c;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.pulse {
+  width: 12px;
+  height: 12px;
+  background-color: #e74c3c;
+  border-radius: 50%;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.4; }
+  100% { opacity: 1; }
+}
+
+.recording-ready {
+  color: #27ae60;
+}

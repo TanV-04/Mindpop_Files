@@ -271,7 +271,9 @@ const useAITextGenerator = (ageGroup) => {
         setGeneratedHistory(prev => [...prev, cleanedText]);
         return cleanedText;
       }
-      throw new Error("No text generated");
+
+      // If all models fail, use fallback
+      throw lastError || new Error("All models failed");
     } catch (err) {
       console.error("Error generating text with Groq:", err);
       setError(err);

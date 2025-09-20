@@ -17,24 +17,24 @@ const SeguinGame = () => {
   // Fetch user data on component mount
   useEffect(() => {
     console.log("Component mounted, fetching user data");
-    
+
     const fetchUserData = async () => {
       try {
         setLoading(true);
-        
+
         // First try to get age from current user profile
         const userData = await userService.getCurrentUser();
         console.log("User data fetched:", userData);
-        
+
         let userAge;
-        
+
         // Check if the user data contains age information
         if (userData && userData.age) {
           userAge = userData.age;
           console.log("User age from profile:", userAge);
         } else {
           // Fallback: Try to get age from localStorage (might have been stored at login)
-          const storedAge = localStorage.getItem('userAge');
+          const storedAge = localStorage.getItem("userAge");
           if (storedAge) {
             userAge = parseInt(storedAge, 10);
             console.log("User age from localStorage:", userAge);
@@ -44,10 +44,10 @@ const SeguinGame = () => {
             console.log("Using default age:", userAge);
           }
         }
-        
+
         // Set the age state
         setAge(userAge);
-        
+
         // Set difficulty based on age
         if (userAge < 7) {
           setDifficulty("easy");
@@ -56,30 +56,32 @@ const SeguinGame = () => {
         } else {
           setDifficulty("normal");
         }
-        
-        console.log(`Age determined: ${userAge}, Difficulty set to: ${
-          userAge < 7 ? "easy" : userAge > 10 ? "hard" : "normal"
-        }`);
-        
+
+        console.log(
+          `Age determined: ${userAge}, Difficulty set to: ${
+            userAge < 7 ? "easy" : userAge > 10 ? "hard" : "normal"
+          }`
+        );
+
         // Ready to start
         setGameState("playing");
         setLoading(false);
       } catch (error) {
         console.error("Error fetching user data:", error);
-        
+
         // Fallback to default age in case of error
         const defaultAge = 10;
         setAge(defaultAge);
         setDifficulty("normal");
         console.log(`Using default age ${defaultAge} due to error`);
-        
+
         setGameState("playing");
         setLoading(false);
       }
     };
-    
+
     fetchUserData();
-    
+
     return () => {
       console.log("Component unmounting, cleaning up");
     };
@@ -98,10 +100,12 @@ const SeguinGame = () => {
     );
     setCompletedAllShapes(true);
     setGameState("completed");
+
     const completionSound = new Audio(
       "https://cdn.freesound.org/previews/320/320654_5260872-lq.mp3"
     );
     completionSound.play().catch((e) => console.log("Audio play failed:", e));
+
     console.log("FINAL GAME COMPLETED - showing results!");
   };
 
@@ -110,8 +114,8 @@ const SeguinGame = () => {
     setTime(0);
     setCompletedAllShapes(false);
   };
-  
-  // Get appropriate instructions based on user age
+
+  // Get instructions text based on age
   const getInstructions = () => {
     if (age < 7) {
       return "Match each shape to its outline on the board! Drag the shapes from the tray to the matching spaces. Can you find where each shape belongs?";
@@ -125,9 +129,7 @@ const SeguinGame = () => {
   const renderLoading = () => (
     <div className="loading-container flex items-center justify-center h-64 bg-white rounded-xl shadow-lg p-6 max-w-md mx-auto text-center">
       <div className="loading-spinner mr-3 h-8 w-8 animate-spin rounded-full border-4 border-solid border-[#F09000] border-r-transparent"></div>
-      <p className="text-lg font-semibold text-[#66220B]">
-        Loading game...
-      </p>
+      <p className="text-lg font-semibold text-[#66220B]">Loading game...</p>
     </div>
   );
 
@@ -138,19 +140,12 @@ const SeguinGame = () => {
           Playing as age {age} | Difficulty: {difficulty}
         </p>
       </div>
-      <Instructions
-        text={getInstructions()}
-        isChild={age < 10}
-      />
+      <Instructions text={getInstructions()} isChild={age < 10} />
       <Timer
         isRunning={gameState === "playing" && !completedAllShapes}
         onTimeUpdate={setTime}
       />
-      <Board
-        onComplete={handleGameComplete}
-        difficulty={difficulty}
-        key={gameState}
-      />
+      <Board onComplete={handleGameComplete} difficulty={difficulty} key={gameState} />
     </>
   );
 
@@ -160,11 +155,11 @@ const SeguinGame = () => {
     <div className="seguin-game-container py-8 px-4">
       {import.meta.env.DEV && (
         <div className="bg-gray-100 p-2 text-xs text-gray-600 rounded mb-2 max-w-md mx-auto">
-          Game State: {gameState}, Age: {age || "not set"}, Difficulty:{" "}
-          {difficulty}, Completed: {completedAllShapes ? "Yes" : "No"}
+          Game State: {gameState}, Age: {age || "not set"}, Difficulty: {difficulty}, Completed:{" "}
+          {completedAllShapes ? "Yes" : "No"}
         </div>
       )}
-      
+
       {gameState === "loading" && renderLoading()}
       {gameState === "playing" && renderGame()}
       {gameState === "completed" && (

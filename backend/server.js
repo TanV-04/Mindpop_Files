@@ -1,45 +1,47 @@
-import express, { response } from 'express';
+// ---------- IMPORTS ----------
+import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
-import mongoSanitize from 'express-mongo-sanitize';
 import helmet from 'helmet';
+import mongoSanitize from 'express-mongo-sanitize';
 import rateLimit from 'express-rate-limit';
 import path from 'path';
+import multer from 'multer';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { connectDB } from './config/database.js';
+import { PythonShell } from 'python-shell';
+import OpenAI from 'openai';
+
+// ---------- ROUTES ----------
 import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoute.js';
 import progressRoutes from './routes/progressRoutes.js';
 import supportRoutes from './routes/supportRoutes.js';
+import analysisRoutes from './routes/analysisRoutes.js';
+
+// ---------- MIDDLEWARE ----------
 import corsOptions from './config/corsOptions.js';
 import { errorHandler } from './middleware/errorMiddleware.js';
 import { logger } from './utils/logger.js';
 import { handleUploadErrors } from './middleware/uploadMiddleware.js';
-import { OpenAI } from 'openai';
 
-// Load environment variables early in the application
+// ---------- INITIAL SETUP ----------
 dotenv.config();
-
 const app = express();
-
-// Get directory name using ES module
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-// Connect to MongoDB
+// ---------- CONNECT TO DB ----------
 connectDB();
 
-// Enhanced CORS configuration - add your frontend URL with correct port
-const corsMiddleware = cors({
-  origin: ["http://localhost:5173", "http://localhost:3000"], // Add all your frontend URLs
+// ---------- SECURITY & GLOBAL MIDDLEWARE ----------
+app.use(cors({
+  origin: ["http://localhost:5173", "http://localhost:3000"],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
-});
+}));
 
-// Apply CORS globally
-app.use(corsMiddleware);
-
-// Add specific headers to disable resource policy restrictions
 app.use((req, res, next) => {
   res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
   res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
@@ -47,118 +49,84 @@ app.use((req, res, next) => {
   next();
 });
 
-// Security Middleware
-app.use(helmet({
-  crossOriginResourcePolicy: { policy: "cross-origin" } // Allow cross-origin resource sharing
-}));
-app.use(mongoSanitize()); // Prevent NoSQL injection
-app.use(express.json({ limit: '10kb' })); // Body parser with size limit
+app.use(helmet({ crossOriginResourcePolicy: { policy: "cross-origin" } }));
+app.use(mongoSanitize());
+app.use(express.json({ limit: '10kb' }));
 
-// Serve static files from uploads directory with CORS headers
+// ---------- STATIC FILES ----------
 app.use('/uploads', (req, res, next) => {
   res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
   res.setHeader('Access-Control-Allow-Origin', '*');
   next();
 }, express.static(path.join(__dirname, 'uploads')));
 
-// Rate limiting
+// ---------- RATE LIMITING ----------
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100 // limit each IP to 100 requests per windowMs
+  windowMs: 15 * 60 * 1000,
+  max: 100
 });
 app.use('/api', limiter);
 
-// Initialize OpenAI with API key from environment variables
+// ---------- OPENAI SETUP ----------
 let openai;
 try {
   const apiKey = process.env.OPENAI_API_KEY;
-  
-  if (!apiKey) {
-    logger.error('OpenAI API key is not defined in environment variables');
-    throw new Error('OpenAI API key is missing');
-  }
-  
-  openai = new OpenAI({
-    apiKey: apiKey
-  });
-  
+  if (!apiKey) throw new Error('OpenAI API key is missing');
+  openai = new OpenAI({ apiKey });
   logger.info('OpenAI client initialized successfully');
 } catch (error) {
   logger.error(`Error initializing OpenAI client: ${error.message}`);
 }
 
-// Route to generate image
+// ---------- OPENAI IMAGE GENERATION ----------
 app.post('/api/generate-image', async (req, res) => {
   try {
-    // Check if OpenAI client is properly initialized
-    if (!openai.apiKey) {
+    if (!openai?.apiKey) {
       logger.error('OpenAI client not initialized');
       return res.status(500).json({ error: 'OpenAI client not properly initialized' });
     }
 
     const { prompt } = req.body;
 
-    if (!prompt) {
-      logger.error('Missing prompt in request body');
-      return res.status(400).json({ error: 'Prompt is required' });
-    }
-
-    // Ensure the prompt meets OpenAI guidelines (not too short)
-    if (prompt.length < 10) {
+    if (!prompt || prompt.length < 10) {
       return res.status(400).json({ error: 'Prompt must be at least 10 characters long' });
     }
 
-    logger.info(`Generating image with prompt: ${prompt}`);
+    const result = await openai.images.generate({
+      model: "dall-e-3",
+      prompt: `Create a child-friendly, colorful image for a jigsaw puzzle: ${prompt}`,
+      size: "1024x1024",
+      quality: "standard",
+      n: 1,
+      response_format: "url"
+    });
 
-    try {
-      const result = await openai.images.generate({
-        model: "dall-e-3",
-        prompt: `Create a child-friendly, colorful image for a jigsaw puzzle: ${prompt}`,
-        size: "1024x1024",
-        quality: "standard",
-        n: 1,
-        response_format: "url"
-      });
+    const imageUrl = result.data[0]?.url;
+    if (!imageUrl) throw new Error('Failed to generate image');
 
-      if (!result || !result.data || !result.data[0] || !result.data[0].url) {
-        logger.error('Invalid response from OpenAI API');
-        return res.status(500).json({ error: 'Failed to generate image (invalid response format)' });
-      }
-
-      const imageUrl = result.data[0].url;
-      logger.info('Image generated successfully');
-
-      return res.json({ output: imageUrl });
-    } catch (openaiError) {
-      logger.error(`OpenAI API error: ${JSON.stringify(openaiError)}`);
-      return res.status(500).json({ 
-        error: `OpenAI API error: ${openaiError.message || 'Unknown error'}`,
-        details: openaiError.response?.data || openaiError.message
-      });
-    }
+    res.json({ output: imageUrl });
   } catch (error) {
-    logger.error(`Error in image generation route: ${error.message}`);
-    // Send more detailed error info for debugging
-    return res.status(500).json({ 
+    logger.error(`Image generation error: ${error.message}`);
+    res.status(500).json({
       error: error.message,
       stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
     });
   }
 });
 
-// Routes
+// ---------- API ROUTES ----------
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/progress', progressRoutes);
 app.use('/api/support', supportRoutes);
+app.use('/api/analysis', analysisRoutes);
 
-// Handle file upload errors
+// ---------- ERROR HANDLING ----------
 app.use(handleUploadErrors);
-
-// Error handling middleware should be the last one
 app.use(errorHandler);
 
-const PORT = process.env.PORT || 8001; // Make sure this matches the port your frontend is calling
+// ---------- START SERVER ----------
+const PORT = process.env.PORT || 8001;
 app.listen(PORT, () => {
   logger.info(`Server running on port ${PORT}`);
 });
