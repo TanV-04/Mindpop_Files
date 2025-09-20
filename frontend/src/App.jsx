@@ -151,6 +151,14 @@ function App() {
                   </ProtectedRoute>
                 }
               />
+              <Route
+                path="/dyslexia"
+                element={
+                  <ProtectedRoute>
+                    <DyslexiaTest />
+                  </ProtectedRoute>
+                }
+              />
             </Routes>
           </div>
           <Footer className="mt-auto" />
