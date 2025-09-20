@@ -142,7 +142,7 @@ const Navbar = () => {
         <div className="p-4 flex flex-col items-center gap-4">
           {/* Mobile Navigation Links */}
           <div className="flex flex-col w-full items-center gap-3 mb-4">
-            {["HOME", "ABOUT", "GAMES", "ANALYSIS", "SETTINGS"].map((tab) => (
+            {["HOME", "ABOUT", "GAMES", "ANALYSIS","DYSLEXIA", "SETTINGS"].map((tab) => (
               <button
                 key={tab}
                 onClick={() => handleTabClick(tab)}
