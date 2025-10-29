@@ -21,7 +21,6 @@ const UserTypings = ({ userInput = "", words = "", isDarkMode = false }) => {
 
   if (!words) return null;
 
-  // Get appropriate class name based on character status
   const getCharClassName = (isCorrect, isIncorrect) => {
     if (isCorrect) return isDarkMode ? "text-green-300" : "text-green-600";
     if (isIncorrect)
@@ -32,7 +31,7 @@ const UserTypings = ({ userInput = "", words = "", isDarkMode = false }) => {
   // Responsive font size using clamp for smooth sizing across devices
   const responsiveText = {
     fontWeight: "600",
-    fontSize: "clamp(1.25rem, 5vw, 2.5rem)", // Responsive font sizing
+    fontSize: "clamp(1.25rem, 5vw, 2.5rem)",
     letterSpacing: "0.05em",
     textShadow: "0 0 8px rgba(59, 130, 246, 0.6)",
   };

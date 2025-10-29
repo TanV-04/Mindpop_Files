@@ -198,22 +198,23 @@
 
 // export default SeguinGame;
 
-
 import { useState, useEffect } from "react";
 import Board from "../../components/games/seguin-board/Board";
 import Timer from "../../components/games/seguin-board/Timer";
 import ScoreBoard from "../../components/games/seguin-board/ScoreBoard";
 import Instructions from "../../components/games/seguin-board/Instructions";
+import { userService } from "../../utils/apiService";
 import "../../components/games/seguin-board/styles/seguin.css";
 import { useNavigate, useBeforeUnload } from "react-router-dom";
 
 const SeguinGame = () => {
-  const [gameState, setGameState] = useState("intro"); // intro, playing, completed
+  const [gameState, setGameState] = useState("loading"); // loading, intro, playing, completed
   const [time, setTime] = useState(0);
   const [difficulty, setDifficulty] = useState("normal");
   const [age, setAge] = useState(null);
   const [completedAllShapes, setCompletedAllShapes] = useState(false);
   const [userName, setUserName] = useState("");
+  const [loading, setLoading] = useState(true);
 
   const navigate = useNavigate();
 
@@ -236,10 +237,10 @@ const SeguinGame = () => {
           "Do you want to go back? Your progress will not be saved."
         );
         if (confirmLeave) {
-          navigate("/games"); // ✅ Redirect to /games on OK
+          navigate("/games");
         } else {
           event.preventDefault();
-          window.history.pushState(null, "", window.location.href); // stay on page
+          window.history.pushState(null, "", window.location.href);
         }
       }
     };
@@ -252,21 +253,47 @@ const SeguinGame = () => {
     };
   }, [gameState, completedAllShapes, navigate]);
 
-  // ✅ 3. Load user info from localStorage
+  // ✅ 3. Fetch user data safely (merged from main)
   useEffect(() => {
-    const storedUser = JSON.parse(localStorage.getItem("user"));
-    if (!storedUser || !storedUser.age) {
-      console.error("User age not found, cannot start game");
-      navigate("/sign-in");
-      return;
-    }
+    const fetchUserData = async () => {
+      try {
+        setLoading(true);
 
-    setAge(storedUser.age);
-    setUserName(storedUser.name || "Player");
+        // Try to get from API
+        const userData = await userService.getCurrentUser();
+        let userAge;
 
-    if (storedUser.age < 7) setDifficulty("easy");
-    else if (storedUser.age > 10) setDifficulty("hard");
-    else setDifficulty("normal");
+        if (userData && userData.age) {
+          userAge = userData.age;
+          setUserName(userData.name || "Player");
+        } else {
+          const storedAge = localStorage.getItem("userAge");
+          const storedUser = JSON.parse(localStorage.getItem("user"));
+          if (storedAge) {
+            userAge = parseInt(storedAge, 10);
+            setUserName(storedUser?.name || "Player");
+          } else {
+            userAge = 10;
+            setUserName("Player");
+          }
+        }
+
+        setAge(userAge);
+        setDifficulty(userAge < 7 ? "easy" : userAge > 10 ? "hard" : "normal");
+
+        setGameState("intro");
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+        setAge(10);
+        setDifficulty("normal");
+        setUserName("Player");
+        setGameState("intro");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserData();
   }, [navigate]);
 
   const startGame = () => {
@@ -294,12 +321,13 @@ const SeguinGame = () => {
 
   const getInstructions = () => {
     if (age < 7)
-      return "Match each shape to its outline on the board! Drag the shapes from the tray to the matching spaces. Can you find where each shape belongs?";
+      return "Match each shape to its outline on the board! Drag the shapes from the tray to the matching spaces.";
     if (age < 10)
       return "Drag each shape from the tray to its matching outline on the board. You need to place ALL TEN shapes to complete the game!";
-    return "Complete the Seguin Form Board by matching each shape to its outline. This exercise helps develop visual processing skills and spatial awareness. Try to complete it as quickly as possible!";
+    return "Complete the Seguin Form Board by matching each shape to its outline. Try to complete it as quickly as possible!";
   };
 
+  // ✅ Intro screen
   const renderIntro = () => (
     <div className="intro-container bg-white rounded-xl shadow-lg p-6 max-w-md mx-auto text-center">
       <h2 className="text-2xl font-bold text-[#66220B] mb-4">
@@ -330,6 +358,7 @@ const SeguinGame = () => {
     </div>
   );
 
+  // ✅ Main game
   const renderGame = () => (
     <>
       <div className="max-w-2xl mx-auto mb-4 bg-white rounded-lg shadow-md p-3 text-center">
@@ -342,32 +371,24 @@ const SeguinGame = () => {
         isRunning={gameState === "playing" && !completedAllShapes}
         onTimeUpdate={setTime}
       />
-      <Board
-        onComplete={handleGameComplete}
-        difficulty={difficulty}
-        key={gameState}
-      />
+      <Board onComplete={handleGameComplete} difficulty={difficulty} key={gameState} />
     </>
+  );
+
+  // ✅ Loading screen
+  const renderLoading = () => (
+    <div className="loading-container flex items-center justify-center h-64 bg-white rounded-xl shadow-lg p-6 max-w-md mx-auto text-center">
+      <div className="loading-spinner mr-3 h-8 w-8 animate-spin rounded-full border-4 border-solid border-[#F09000] border-r-transparent"></div>
+      <p className="text-lg font-semibold text-[#66220B]">Loading game...</p>
+    </div>
   );
 
   return (
     <div className="seguin-game-container py-8 px-4">
-      {/* {import.meta.env.DEV && (
-        <div className="bg-gray-100 p-2 text-xs text-gray-600 rounded mb-2 max-w-md mx-auto">
-          Game State: {gameState}, Age: {age || "not set"}, Difficulty:{" "}
-          {difficulty}, Completed: {completedAllShapes ? "Yes" : "No"}
-        </div>
-      )} */}
-
-      {!age && (
-        <p className="text-red-500 text-center font-semibold mb-4">
-          User age not found, cannot start game
-        </p>
-      )}
-
-      {age && gameState === "intro" && renderIntro()}
-      {gameState === "playing" && renderGame()}
-      {gameState === "completed" && (
+      {loading && renderLoading()}
+      {!loading && gameState === "intro" && renderIntro()}
+      {!loading && gameState === "playing" && renderGame()}
+      {!loading && gameState === "completed" && (
         <ScoreBoard time={time} age={age} onPlayAgain={playAgain} />
       )}
     </div>

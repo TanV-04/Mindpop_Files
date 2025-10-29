@@ -10,9 +10,10 @@ import SignIn from "./pages/SignIn/SignIn.jsx";
 import SignUp from "./pages/SignUp/SignUp.jsx";
 import Games from "./pages/games/Games.jsx";
 import SeguinGame from "./pages/games/SeguinGame.jsx";
-import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import MonkeyType from "./pages/games/MonkeyType.jsx";
 import Settings from "./components/settings.jsx";
+import Footer from "./components/Footer.jsx";
+import ProtectedRoute from "./components/ProtectedRoute.jsx";
 
 // Jigsaw puzzle routes
 import Jigsaw_6_to_8 from "./components/games/jigsawPuzzle/Jigsaw_6_to_8.jsx";
@@ -20,8 +21,10 @@ import Jigsaw_8_to_10 from "./components/games/jigsawPuzzle/Jigsaw_8_to_10.jsx";
 import Jigsaw_10_to_12 from "./components/games/jigsawPuzzle/Jigsaw_10_to_12.jsx";
 import Jigsaw_12_to_14 from "./components/games/jigsawPuzzle/Jigsaw_12_to_14.jsx";
 import MathsPuzzle from "./components/games/jigsawPuzzle/MathsPuzzle.jsx";
+import JigsawHome from "./components/games/jigsaw/JigsawHome.jsx";
+import JigsawGamePage from "./pages/games/JigsawGamePage.jsx";
 
-import Footer from "./components/Footer.jsx";
+// Analysis and test routes
 import AutismAnalysis from "./components/ParentFriendlyAnalysis.jsx";
 import DyslexiaTest from "./pages/DyslexiaTest";
 
@@ -34,11 +37,22 @@ function App() {
           <BubbleCursor />
           <div className="flex-1">
             <Routes>
+              {/* Public Routes */}
               <Route path="/" element={<Home />} />
               <Route path="/sign-in" element={<SignIn />} />
               <Route path="/sign-up" element={<SignUp />} />
 
-              {/* Protected routes */}
+              {/* Protected Dyslexia Test */}
+              <Route
+                path="/dyslexia"
+                element={
+                  <ProtectedRoute>
+                    <DyslexiaTest />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* Protected Game Routes */}
               <Route
                 path="/games"
                 element={
@@ -63,8 +77,6 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-
-              {/* Jigsaw puzzle routes */}
               <Route
                 path="/games/jigsaw_6_to_8"
                 element={
@@ -105,8 +117,24 @@ function App() {
                   </ProtectedRoute>
                 }
               />
+              <Route
+                path="/games/jigsaw"
+                element={
+                  <ProtectedRoute>
+                    <JigsawHome />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/jigsaw/jigsawstart"
+                element={
+                  <ProtectedRoute>
+                    <JigsawGamePage />
+                  </ProtectedRoute>
+                }
+              />
 
-              {/* Settings and analysis */}
+              {/* Protected Settings & Analysis */}
               <Route
                 path="/settings"
                 element={

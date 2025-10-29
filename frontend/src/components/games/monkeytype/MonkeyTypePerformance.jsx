@@ -30,7 +30,6 @@ const MonkeyTypePerformance = ({ progressData, hasRealData }) => {
         };
       });
     }
-
     return sampleMonkeyData;
   };
 
@@ -65,7 +64,6 @@ const MonkeyTypePerformance = ({ progressData, hasRealData }) => {
           Showing sample data. Play games to see your real statistics.
         </p>
       )}
-
       <div className="h-48 sm:h-64 w-full">
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart

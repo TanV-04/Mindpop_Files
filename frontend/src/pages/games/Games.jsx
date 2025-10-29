@@ -55,7 +55,7 @@ const Games = () => {
           {gameCards.map((game) =>
             game.available ? (
               <Link
-                to={game.path || game.paths?.[0]} // fallback to first path if multiple
+                to={game.path || game.paths?.[0]} // use first path if multiple
                 key={game.id}
                 className="block transform hover:scale-105 transition-all duration-300 no-underline"
               >

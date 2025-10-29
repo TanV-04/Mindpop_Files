@@ -297,7 +297,7 @@ export const getProgressData = asyncHandler(async (req, res) => {
   }
 
   const progressData = await GameProgress.find(query).sort({ date: 1 });
-  
+
   // Calculate game distribution based on ACTUAL data only
   const allGames = await GameProgress.find({ userId: req.user.id });
   const gameCount = allGames.length;
@@ -313,7 +313,7 @@ export const getProgressData = asyncHandler(async (req, res) => {
       monkey: { standardTime: 120 },
       jigsaw: { standardTime: 300 }
     },
-    cognitiveSkills: [] // Remove hardcoded cognitive skills
+    cognitiveSkills: []
   };
 
   // Calculate game distribution percentages
@@ -324,7 +324,6 @@ export const getProgressData = asyncHandler(async (req, res) => {
       processedData.gameDistribution[type] = Math.round((count / gameCount) * 100);
     });
   } else {
-    // If no games played, set all to 0
     processedData.gameDistribution = {
       seguin: 0,
       monkey: 0,
@@ -334,7 +333,6 @@ export const getProgressData = asyncHandler(async (req, res) => {
 
   // Process time series data from ACTUAL progress
   const timeSeriesMap = new Map();
-
   progressData.forEach(entry => {
     const dateKey = entry.date.toISOString().split('T')[0];
 
@@ -374,41 +372,25 @@ export const getProgressData = asyncHandler(async (req, res) => {
   }
 
   // Calculate improvement metrics for ACTUAL data
-  if (seguinData.length >= 3) {
-    const sortedData = [...seguinData].sort((a, b) => a.date - b.date);
-    const avgFirst = sortedData.slice(0, 3).reduce((sum, entry) => sum + entry.completionTime, 0) / 3;
-    const avgLast = sortedData.slice(-3).reduce((sum, entry) => sum + entry.completionTime, 0) / 3;
-    if (avgFirst > 0) {
-      const improvement = ((avgFirst - avgLast) / avgFirst) * 100;
-      processedData.improvementMetrics.seguin = Math.round(improvement);
+  const calcImprovement = (data, type) => {
+    if (data.length >= 3) {
+      const sortedData = [...data].sort((a, b) => a.date - b.date);
+      const avgFirst = sortedData.slice(0, 3).reduce((sum, entry) => sum + entry.completionTime, 0) / 3;
+      const avgLast = sortedData.slice(-3).reduce((sum, entry) => sum + entry.completionTime, 0) / 3;
+      if (avgFirst > 0) {
+        const improvement = ((avgFirst - avgLast) / avgFirst) * 100;
+        processedData.improvementMetrics[type] = Math.round(improvement);
+      }
     }
-  }
+  };
 
-  if (monkeyData.length >= 3) {
-    const sortedData = [...monkeyData].sort((a, b) => a.date - b.date);
-    const avgFirst = sortedData.slice(0, 3).reduce((sum, entry) => sum + entry.completionTime, 0) / 3;
-    const avgLast = sortedData.slice(-3).reduce((sum, entry) => sum + entry.completionTime, 0) / 3;
-    if (avgFirst > 0) {
-      const improvement = ((avgFirst - avgLast) / avgFirst) * 100;
-      processedData.improvementMetrics.monkey = Math.round(improvement);
-    }
-  }
-
-  if (jigsawData.length >= 3) {
-    const sortedData = [...jigsawData].sort((a, b) => a.date - b.date);
-    const avgFirst = sortedData.slice(0, 3).reduce((sum, entry) => sum + entry.completionTime, 0) / 3;
-    const avgLast = sortedData.slice(-3).reduce((sum, entry) => sum + entry.completionTime, 0) / 3;
-    if (avgFirst > 0) {
-      const improvement = ((avgFirst - avgLast) / avgFirst) * 100;
-      processedData.improvementMetrics.jigsaw = Math.round(improvement);
-    }
-  }
+  calcImprovement(seguinData, 'seguin');
+  calcImprovement(monkeyData, 'monkey');
+  calcImprovement(jigsawData, 'jigsaw');
 
   // Calculate cognitive skills based on ACTUAL performance
   if (gameCount > 0) {
     processedData.cognitiveSkills = calculateCognitiveSkills(progressData);
-  } else {
-    processedData.cognitiveSkills = [];
   }
 
   res.status(200).json(processedData);
@@ -417,35 +399,33 @@ export const getProgressData = asyncHandler(async (req, res) => {
 // Helper function to calculate cognitive skills from actual game data
 const calculateCognitiveSkills = (progressData) => {
   const skills = [];
-  
-  // Only calculate if we have data
   if (progressData.length === 0) return skills;
-  
-  // Pattern Recognition - based on seguin game performance
-  const seguinGames = progressData.filter(game => game.gameType === 'seguin');
+
+  // Pattern Recognition - based on Seguin
+  const seguinGames = progressData.filter(g => g.gameType === 'seguin');
   if (seguinGames.length > 0) {
-    const avgSeguinTime = seguinGames.reduce((sum, game) => sum + game.completionTime, 0) / seguinGames.length;
+    const avgSeguinTime = seguinGames.reduce((sum, g) => sum + g.completionTime, 0) / seguinGames.length;
     const patternRecognition = Math.max(0, Math.min(100, 100 - (avgSeguinTime / 120 * 100) + 50));
     skills.push({ name: 'Pattern Recognition', value: Math.round(patternRecognition) });
   }
-  
-  // Visual Processing - based on jigsaw game performance
-  const jigsawGames = progressData.filter(game => game.gameType === 'jigsaw');
+
+  // Visual Processing - based on Jigsaw
+  const jigsawGames = progressData.filter(g => g.gameType === 'jigsaw');
   if (jigsawGames.length > 0) {
-    const avgJigsawTime = jigsawGames.reduce((sum, game) => sum + game.completionTime, 0) / jigsawGames.length;
+    const avgJigsawTime = jigsawGames.reduce((sum, g) => sum + g.completionTime, 0) / jigsawGames.length;
     const visualProcessing = Math.max(0, Math.min(100, 100 - (avgJigsawTime / 400 * 100) + 40));
     skills.push({ name: 'Visual Processing', value: Math.round(visualProcessing) });
   }
-  
-  // Focus - based on consistency across all games
+
+  // Focus - based on variance
   if (progressData.length >= 3) {
-    const times = progressData.map(game => game.completionTime);
-    const avgTime = times.reduce((sum, time) => sum + time, 0) / times.length;
-    const variance = times.reduce((sum, time) => sum + Math.pow(time - avgTime, 2), 0) / times.length;
+    const times = progressData.map(g => g.completionTime);
+    const avgTime = times.reduce((s, t) => s + t, 0) / times.length;
+    const variance = times.reduce((s, t) => s + Math.pow(t - avgTime, 2), 0) / times.length;
     const focus = Math.max(0, Math.min(100, 100 - (variance / 1000 * 100)));
     skills.push({ name: 'Focus', value: Math.round(focus) });
   }
-  
+
   return skills;
 };
 
@@ -457,24 +437,14 @@ export const saveGameProgress = asyncHandler(async (req, res) => {
     console.log('Received progress data:', req.body);
     console.log('User info:', req.user);
 
-    const { 
-      gameType, 
-      completionTime, 
-      level, 
-      accuracy, 
-      ageGroup, 
-      puzzleSize, 
-      totalPieces 
-    } = req.body;
+    const { gameType, completionTime, level, accuracy, ageGroup, puzzleSize, totalPieces } = req.body;
 
     if (!gameType || completionTime === undefined) {
-      console.error('Missing required fields:', { gameType, completionTime });
       res.status(400);
       throw new Error('Please provide all required fields');
     }
 
     if (!['seguin', 'monkey', 'jigsaw'].includes(gameType)) {
-      console.error('Invalid game type:', gameType);
       res.status(400);
       throw new Error('Invalid game type');
     }
@@ -495,7 +465,6 @@ export const saveGameProgress = asyncHandler(async (req, res) => {
     }
 
     const newProgress = await GameProgress.create(progressData);
-
     res.status(201).json(newProgress);
   } catch (error) {
     console.error('Error in saveGameProgress:', error);
