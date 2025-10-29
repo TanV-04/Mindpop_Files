@@ -29,31 +29,6 @@ const ProgressSettings = ({ userData }) => {
 
   const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884d8"];
 
-  // Sample data for when no real data is available
-  const sampleSeguinData = [
-    { date: "Week 1", time: 120, standardTime: 80 },
-    { date: "Week 2", time: 100, standardTime: 80 },
-    { date: "Week 3", time: 85, standardTime: 80 },
-    { date: "Week 4", time: 75, standardTime: 80 },
-    { date: "Week 5", time: 65, standardTime: 80 },
-  ];
-
-  const sampleMonkeyData = [
-    { date: "Week 1", wpm: 25, accuracy: 72, targetWpm: 40 },
-    { date: "Week 2", wpm: 31, accuracy: 78, targetWpm: 40 },
-    { date: "Week 3", wpm: 36, accuracy: 85, targetWpm: 40 },
-    { date: "Week 4", wpm: 42, accuracy: 88, targetWpm: 40 },
-    { date: "Week 5", wpm: 45, accuracy: 92, targetWpm: 40 },
-  ];
-
-  const sampleSkills = [
-    { name: "Pattern Recognition", value: 85 },
-    { name: "Hand-Eye Coordination", value: 70 },
-    { name: "Visual Processing", value: 75 },
-    { name: "Spatial Awareness", value: 80 },
-    { name: "Focus", value: 65 },
-  ];
-
   useEffect(() => {
     const fetchAllData = async () => {
       try {
@@ -65,6 +40,7 @@ const ProgressSettings = ({ userData }) => {
           analysisService.getAnalysisHistory(),
         ]);
 
+        console.log('Progress Data Received:', progress); // Debug log
         setProgressData(progress);
         setAnalysisHistory(analysis);
       } catch (err) {
@@ -78,27 +54,28 @@ const ProgressSettings = ({ userData }) => {
     fetchAllData();
   }, [selectedGame, timeFrame]);
 
-  // Format data for Seguin chart
+  // Format data for Seguin chart - ONLY REAL DATA
   const formatSeguinChartData = () => {
-    if (progressData?.timeSeriesData?.length) {
-      return progressData.timeSeriesData.map((entry) => ({
+    if (!progressData?.timeSeriesData?.length) return [];
+    
+    return progressData.timeSeriesData
+      .filter(entry => entry.seguin !== null && entry.seguin !== undefined)
+      .map((entry) => ({
         date: entry.date || "Unknown",
-        time: entry.seguin || entry.time || 0,
-        standardTime:
-          entry.standardTime ||
-          progressData.benchmarks?.seguin?.standardTime ||
-          80,
+        time: entry.seguin,
+        standardTime: progressData.benchmarks?.seguin?.standardTime || 80,
       }));
-    }
-    return sampleSeguinData;
   };
 
-  // Format data for Monkey Type chart
+  // Format data for Monkey Type chart - ONLY REAL DATA
   const formatMonkeyChartData = () => {
-    if (progressData?.timeSeriesData?.length) {
-      return progressData.timeSeriesData.map((entry) => {
-        const wpm = entry.wpm || (typeof entry.monkey === "number" ? entry.monkey : 0);
-        const accuracy = entry.accuracy || entry.monkeyAccuracy || 80;
+    if (!progressData?.timeSeriesData?.length) return [];
+    
+    return progressData.timeSeriesData
+      .filter(entry => entry.monkey !== null && entry.monkey !== undefined)
+      .map((entry) => {
+        const wpm = entry.monkey || 0;
+        const accuracy = entry.monkeyAccuracy || 80;
         const targetWpm = progressData.benchmarks?.monkey?.targetWpm || 40;
 
         return {
@@ -108,35 +85,54 @@ const ProgressSettings = ({ userData }) => {
           targetWpm,
         };
       });
-    }
-    return sampleMonkeyData;
   };
 
-  // Check if we have real data
-  const hasRealData =
-    progressData &&
-    (progressData.timeSeriesData?.length ||
-      progressData.gameDistribution?.seguin ||
-      progressData.gameDistribution?.monkey);
+  // Check if we have real data for specific games
+  const hasSeguinData = progressData?.gameDistribution?.seguin > 0 || formatSeguinChartData().length > 0;
+  const hasMonkeyData = progressData?.gameDistribution?.monkey > 0 || formatMonkeyChartData().length > 0;
+  const hasJigsawData = progressData?.gameDistribution?.jigsaw > 0;
+  
+  const hasAnyGameData = hasSeguinData || hasMonkeyData || hasJigsawData;
+  const hasRealData = progressData?.totalSessions > 0;
 
-  // Format game distribution data
-  const gameDistributionData = [
-    {
-      name: "Seguin Form Board",
-      percentage: progressData?.gameDistribution?.seguin || 65,
-    },
-    {
-      name: "Monkey Time",
-      percentage: progressData?.gameDistribution?.monkey || 35,
-    },
-  ];
+  // Format game distribution data - ONLY REAL GAMES
+  const getGameDistributionData = () => {
+    if (!progressData?.gameDistribution) return [];
+    
+    const distribution = [];
+    
+    if (progressData.gameDistribution.seguin > 0) {
+      distribution.push({
+        name: "Seguin Form Board",
+        percentage: progressData.gameDistribution.seguin,
+      });
+    }
+    
+    if (progressData.gameDistribution.monkey > 0) {
+      distribution.push({
+        name: "Monkey Time",
+        percentage: progressData.gameDistribution.monkey,
+      });
+    }
+    
+    if (progressData.gameDistribution.jigsaw > 0) {
+      distribution.push({
+        name: "Jigsaw Puzzle",
+        percentage: progressData.gameDistribution.jigsaw,
+      });
+    }
+    
+    return distribution;
+  };
 
   const seguinChartData = formatSeguinChartData();
   const monkeyChartData = formatMonkeyChartData();
+  const gameDistributionData = getGameDistributionData();
 
-  // Determine which charts to show
-  const showSeguinChart = selectedGame === "all" || selectedGame === "seguin";
-  const showMonkeyChart = selectedGame === "all" || selectedGame === "monkey";
+  // Determine which charts to show based on REAL data
+  const showSeguinChart = (selectedGame === "all" || selectedGame === "seguin") && hasSeguinData;
+  const showMonkeyChart = (selectedGame === "all" || selectedGame === "monkey") && hasMonkeyData;
+  const showGameUsageChart = gameDistributionData.length > 0;
 
   // Render loading state
   if (loading) {
@@ -163,7 +159,7 @@ const ProgressSettings = ({ userData }) => {
   }
 
   // Show message if no data
-  if (!progressData?.totalSessions && !hasRealData) {
+  if (!hasRealData || !hasAnyGameData) {
     return (
       <div className="progress-settings">
         <div className="flex justify-between items-center mb-6">
@@ -219,8 +215,8 @@ const ProgressSettings = ({ userData }) => {
             className="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F09000]"
           >
             <option value="all">All Games</option>
-            <option value="seguin">Seguin Form Board</option>
-            <option value="monkey">Monkey Time</option>
+            {hasSeguinData && <option value="seguin">Seguin Form Board</option>}
+            {hasMonkeyData && <option value="monkey">Monkey Time</option>}
           </select>
           <select
             value={timeFrame}
@@ -234,38 +230,40 @@ const ProgressSettings = ({ userData }) => {
         </div>
       </div>
 
-      {/* Game Usage Pie Chart */}
-      <div className="bg-white p-6 rounded-lg mb-6 shadow-sm">
-        <h3 className="text-lg font-semibold text-[#66220B] mb-4">
-          Game Usage
-        </h3>
-        <div className="h-64">
-          <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
-              <Pie
-                data={gameDistributionData}
-                cx="50%"
-                cy="50%"
-                labelLine={true}
-                label={({ name, percentage }) => `${name}: ${percentage}%`}
-                outerRadius={80}
-                dataKey="percentage"
-              >
-                {gameDistributionData.map((entry, index) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={COLORS[index % COLORS.length]}
-                  />
-                ))}
-              </Pie>
-              <Tooltip />
-              <Legend />
-            </PieChart>
-          </ResponsiveContainer>
+      {/* Game Usage Pie Chart - ONLY if we have distribution data */}
+      {showGameUsageChart && (
+        <div className="bg-white p-6 rounded-lg mb-6 shadow-sm">
+          <h3 className="text-lg font-semibold text-[#66220B] mb-4">
+            Game Usage
+          </h3>
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={gameDistributionData}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={true}
+                  label={({ name, percentage }) => `${name}: ${percentage}%`}
+                  outerRadius={80}
+                  dataKey="percentage"
+                >
+                  {gameDistributionData.map((entry, index) => (
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={COLORS[index % COLORS.length]}
+                    />
+                  ))}
+                </Pie>
+                <Tooltip />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
         </div>
-      </div>
+      )}
 
-      {/* Seguin Form Board Performance */}
+      {/* Seguin Form Board Performance - ONLY if data exists */}
       {showSeguinChart && (
         <div className="bg-white p-6 rounded-lg mb-6 shadow-sm">
           <h3 className="text-lg font-semibold text-[#66220B] mb-4">
@@ -299,7 +297,7 @@ const ProgressSettings = ({ userData }) => {
         </div>
       )}
 
-      {/* Monkey Type Performance */}
+      {/* Monkey Type Performance - ONLY if data exists */}
       {showMonkeyChart && (
         <div className="bg-white p-6 rounded-lg mb-6 shadow-sm">
           <h3 className="text-lg font-semibold text-[#66220B] mb-4">
@@ -354,30 +352,27 @@ const ProgressSettings = ({ userData }) => {
         </div>
       )}
 
-      {/* Cognitive Skills Analysis */}
-      <div className="bg-white p-6 rounded-lg mb-6 shadow-sm">
-        <h3 className="text-lg font-semibold text-[#66220B] mb-4">Cognitive Skills Analysis</h3>
-        <p className="text-gray-500 mb-4">
-          Based on your game performance, we've analyzed your cognitive abilities across different areas.
-        </p>
-        {!hasRealData && (
-          <p className="text-xs text-gray-500 mb-2 italic">
-            Showing sample data. Play games to see your real statistics.
+      {/* Cognitive Skills Analysis - ONLY if real data exists */}
+      {progressData?.cognitiveSkills?.length > 0 && (
+        <div className="bg-white p-6 rounded-lg mb-6 shadow-sm">
+          <h3 className="text-lg font-semibold text-[#66220B] mb-4">Cognitive Skills Analysis</h3>
+          <p className="text-gray-500 mb-4">
+            Based on your game performance, we've analyzed your cognitive abilities across different areas.
           </p>
-        )}
-        <div className="h-64">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={progressData?.cognitiveSkills || sampleSkills}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis label={{ value: "Score", angle: -90, position: "insideLeft" }} />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="value" fill="#8884d8" name="Skill Level" />
-            </BarChart>
-          </ResponsiveContainer>
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={progressData.cognitiveSkills}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" />
+                <YAxis label={{ value: "Score", angle: -90, position: "insideLeft" }} />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="value" fill="#8884d8" name="Skill Level" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Behavior Analysis Results */}
       <div className="bg-white p-6 rounded-lg shadow-sm">
@@ -393,36 +388,35 @@ const ProgressSettings = ({ userData }) => {
         )}
       </div>
 
-      {/* Performance Summary */}
-      <div className="bg-white p-6 rounded-lg mt-6 shadow-sm">
-        <h3 className="text-lg font-semibold text-[#66220B] mb-4">Performance Summary</h3>
-        {!hasRealData && (
-          <p className="text-xs text-gray-500 mb-2 italic">
-            Showing sample data. Play games to see your real statistics.
-          </p>
-        )}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-gray-50 p-4 rounded-lg text-center">
-            <h4 className="text-[#F09000] text-lg font-semibold mb-2">
-              Improvement
-            </h4>
-            <p className="text-3xl font-bold text-[#66220B]">
-              {progressData?.improvementMetrics?.seguin || 45}%
-            </p>
-            <p className="text-sm text-gray-500">Since first assessment</p>
-          </div>
-          <div className="bg-gray-50 p-4 rounded-lg shadow-sm text-center">
-            <h4 className="text-[#F09000] text-lg font-semibold mb-2">Sessions</h4>
-            <p className="text-3xl font-bold text-[#66220B]">{progressData?.totalSessions || 28}</p>
-            <p className="text-sm text-gray-500">Total completed</p>
-          </div>
-          <div className="bg-gray-50 p-4 rounded-lg shadow-sm text-center">
-            <h4 className="text-[#F09000] text-lg font-semibold mb-2">Percentile</h4>
-            <p className="text-3xl font-bold text-[#66220B]">75th</p>
-            <p className="text-sm text-gray-500">Among your age group</p>
+      {/* Performance Summary - ONLY show real metrics */}
+      {hasRealData && (
+        <div className="bg-white p-6 rounded-lg mt-6 shadow-sm">
+          <h3 className="text-lg font-semibold text-[#66220B] mb-4">Performance Summary</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-gray-50 p-4 rounded-lg text-center">
+              <h4 className="text-[#F09000] text-lg font-semibold mb-2">
+                Improvement
+              </h4>
+              <p className="text-3xl font-bold text-[#66220B]">
+                {progressData?.improvementMetrics?.seguin || progressData?.improvementMetrics?.monkey || 0}%
+              </p>
+              <p className="text-sm text-gray-500">Since first assessment</p>
+            </div>
+            <div className="bg-gray-50 p-4 rounded-lg shadow-sm text-center">
+              <h4 className="text-[#F09000] text-lg font-semibold mb-2">Sessions</h4>
+              <p className="text-3xl font-bold text-[#66220B]">{progressData?.totalSessions || 0}</p>
+              <p className="text-sm text-gray-500">Total completed</p>
+            </div>
+            <div className="bg-gray-50 p-4 rounded-lg shadow-sm text-center">
+              <h4 className="text-[#F09000] text-lg font-semibold mb-2">Games Played</h4>
+              <p className="text-3xl font-bold text-[#66220B]">
+                {[hasSeguinData, hasMonkeyData, hasJigsawData].filter(Boolean).length}
+              </p>
+              <p className="text-sm text-gray-500">Different games</p>
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

@@ -415,7 +415,16 @@ const ParentFriendlyAnalysis = () => {
                 and spinning. These patterns can sometimes suggest sensory
                 processing differences.
               </p>
-              <div className="row">
+
+              {/* Privacy Notice */}
+              <div className="alert alert-info mt-3" role="alert">
+                <i className="fas fa-lock me-2"></i>
+                <strong>Privacy First:</strong> We do <u>not</u> store or share
+                any uploaded videos. All video files are automatically deleted
+                immediately after the analysis is completed.
+              </div>
+
+              <div className="row mt-3">
                 <div className="col-md-6">
                   <h6>For Parents</h6>
                   <ul>

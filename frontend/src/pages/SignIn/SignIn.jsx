@@ -30,18 +30,35 @@ const SignIn = () => {
     try {
       const response = await authService.login({
         email,
-        password
+        password,
       });
 
-      // Assuming the login was successful and token is stored
-      navigate(from);
-      
+      if (response.success) {
+        // ✅ Store user info and token in localStorage
+        // localStorage.setItem("user", JSON.stringify(response.user));
+        localStorage.setItem(
+          "user",
+          JSON.stringify({
+            name: response.user.name,
+            email: response.user.email,
+            age: response.user.age,
+          })
+        );
+        localStorage.setItem("token", response.token);
+
+        setIsLoggedIn(true); // optional, for UI state
+        navigate(from); // redirect to intended page
+      }
+
       // Clear form
       setEmail("");
       setPassword("");
     } catch (error) {
       console.error("Login error:", error);
-      setError(error.response?.data?.error || "Login failed. Please check your credentials.");
+      setError(
+        error.response?.data?.error ||
+          "Login failed. Please check your credentials."
+      );
     } finally {
       setLoading(false);
     }
@@ -86,11 +103,11 @@ const SignIn = () => {
           />
           <i className="fa-solid fa-lock" />
         </div>
-        
+
         <a href="#" className="forgot-pass-link mb-3">
           Forgot password?
         </a>
-{/* 
+        {/* 
         <h2 className="small-heading">Or log in using</h2> */}
 
         {/* <div className="social-login border border-gray-600 rounded-md mb-4 cursor-pointer">
@@ -104,12 +121,8 @@ const SignIn = () => {
           </button>
         </div> */}
 
-        <button 
-          type="submit" 
-          className="login-button"
-          disabled={loading}
-        >
-          {loading ? 'Logging in...' : 'Log In'}
+        <button type="submit" className="login-button" disabled={loading}>
+          {loading ? "Logging in..." : "Log In"}
         </button>
 
         <p className="signup-text mt-4 mb-6 sm:mt-6 sm:mb-8 md:mt-8 md:mb-10">
