@@ -7,6 +7,11 @@ import { useParams } from "react-router-dom";
 import Avatar from "./Avatar";
 import Groq from "groq-sdk";
 
+import { useNavigate, useLocation } from "react-router-dom";
+import { useBeforeUnload } from "react-router-dom";
+
+
+
 const groq = new Groq({
   apiKey: import.meta.env.VITE_GROQ_API_KEY,
   dangerouslyAllowBrowser: true

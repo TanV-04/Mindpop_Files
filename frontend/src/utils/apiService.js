@@ -1,7 +1,7 @@
 // apiService.js
-import axios from 'axios';
+import axios from "axios";
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
 
 // Create axios instance with base URL
 const api = axios.create({
@@ -11,7 +11,7 @@ const api = axios.create({
 // Request interceptor to add auth token
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -25,9 +25,9 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem('token');
-      console.log('Your session has expired. Please log in again.');
-      window.location.href = '/sign-in';
+      localStorage.removeItem("token");
+      console.log("Your session has expired. Please log in again.");
+      window.location.href = "/sign-in";
     }
     return Promise.reject(error);
   }
@@ -37,41 +37,41 @@ api.interceptors.response.use(
 const localStorageService = {
   getLocalProgressData: () => {
     try {
-      const storedData = localStorage.getItem('typingProgress');
+      const storedData = localStorage.getItem("typingProgress");
       return storedData ? JSON.parse(storedData) : { timeSeriesData: [] };
     } catch (error) {
-      console.error('Error reading from local storage:', error);
+      console.error("Error reading from local storage:", error);
       return { timeSeriesData: [] };
     }
   },
 
   saveLocalProgressData: (data) => {
     try {
-      localStorage.setItem('typingProgress', JSON.stringify(data));
+      localStorage.setItem("typingProgress", JSON.stringify(data));
       return data;
     } catch (error) {
-      console.error('Error writing to local storage:', error);
+      console.error("Error writing to local storage:", error);
       throw error;
     }
-  }
+  },
 };
 
 // Authentication Services
 export const authService = {
   register: async (userData) => {
-    const response = await api.post('/auth/register', userData);
+    const response = await api.post("/auth/register", userData);
     if (response.data.token) {
-      localStorage.setItem('token', response.data.token);
+      localStorage.setItem("token", response.data.token);
     }
     return response.data;
   },
 
   login: async (credentials) => {
-    const response = await api.post('/auth/login', credentials);
+    const response = await api.post("/auth/login", credentials);
     if (response.data.token) {
-      localStorage.setItem('token', response.data.token);
+      localStorage.setItem("token", response.data.token);
       if (response.data.user?.age) {
-        localStorage.setItem('userAge', response.data.user.age);
+        localStorage.setItem("userAge", response.data.user.age);
       }
     }
     return response.data;
@@ -79,92 +79,114 @@ export const authService = {
 
   logout: async () => {
     try {
-      await api.post('/auth/logout');
+      await api.post("/auth/logout");
     } finally {
-      localStorage.removeItem('token');
-      localStorage.removeItem('userAge');
-      localStorage.removeItem('userAgeGroup');
+      localStorage.removeItem("token");
+      localStorage.removeItem("userAge");
+      localStorage.removeItem("userAgeGroup");
     }
   },
 
   logoutAll: async () => {
     try {
-      await api.post('/auth/logout-all');
+      await api.post("/auth/logout-all");
     } finally {
-      localStorage.removeItem('token');
+      localStorage.removeItem("token");
     }
-  }
+  },
 };
 
 // User Services
 export const userService = {
   getCurrentUser: async () => {
     try {
-      const response = await api.get('/users/me');
-      console.group('User Profile Request');
-      console.log('Full Response:', response);
-      console.log('Response Data:', response.data);
-      console.log('Response Status:', response.status);
+      const response = await api.get("/users/me");
+      console.group("User Profile Request");
+      console.log("Full Response:", response);
+      console.log("Response Data:", response.data);
+      console.log("Response Status:", response.status);
       console.groupEnd();
       return response.data;
     } catch (error) {
-      console.error('Get Current User Error:', {
+      console.error("Get Current User Error:", {
         message: error.message,
         response: error.response?.data,
-        status: error.response?.status
+        status: error.response?.status,
       });
       throw error;
     }
   },
 
   updateProfile: async (formData) => {
-    const response = await api.put('/users/profile', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
+    const response = await api.put("/users/profile", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
     });
     return response.data;
   },
 
   updatePassword: async (passwordData) => {
-    const response = await api.put('/users/password', passwordData);
+    const response = await api.put("/users/password", passwordData);
     return response.data;
   },
 
   updatePrivacySettings: async (privacySettings) => {
-    const response = await api.put('/users/privacy', privacySettings);
+    const response = await api.put("/users/privacy", privacySettings);
     return response.data;
-  }
+  },
 };
 
 // Progress Services
+// Progress Services
 export const progressService = {
-  getProgressData: async (gameType = 'all', timeFrame = 'month') => {
+  getProgressData: async (gameType = "all", timeFrame = "month") => {
     try {
-      const response = await api.get('/progress', {
-        params: { game: gameType, timeFrame }
+      const response = await api.get("/progress", {
+        params: { game: gameType, timeFrame },
       });
-      return response.data;
-    } catch (error) {
-      console.warn('Failed to fetch progress from API, falling back to local storage:', error);
 
-      const storedData = localStorage.getItem('typingProgress');
-      if (storedData) {
-        const parsedData = JSON.parse(storedData);
-
-        if (gameType !== 'all') {
-          const filteredTimeSeriesData = parsedData.timeSeriesData?.filter(entry =>
-            (gameType === 'monkey' && (entry.wpm || entry.monkey)) ||
-            (gameType === 'seguin' && entry.seguin)
-          );
-          return { ...parsedData, timeSeriesData: filteredTimeSeriesData || [] };
-        }
-
-        return parsedData;
+      // Only return data if we have real sessions
+      if (response.data && response.data.totalSessions > 0) {
+        return response.data;
+      } else {
+        // Return empty data structure when no real data exists
+        return {
+          timeSeriesData: [],
+          gameDistribution: {
+            seguin: 0,
+            monkey: 0,
+            jigsaw: 0,
+          },
+          averageCompletionTimes: {},
+          improvementMetrics: {},
+          totalSessions: 0,
+          benchmarks: {
+            seguin: { standardTime: 80 },
+            monkey: { standardTime: 120 },
+            jigsaw: { standardTime: 300 },
+          },
+          cognitiveSkills: [],
+        };
       }
+    } catch (error) {
+      console.warn("Failed to fetch progress from API:", error);
 
+      // Return empty data instead of falling back to potentially fake local storage data
       return {
         timeSeriesData: [],
+        gameDistribution: {
+          seguin: 0,
+          monkey: 0,
+          jigsaw: 0,
+        },
+        averageCompletionTimes: {},
+        improvementMetrics: {},
         totalSessions: 0,
-        benchmarks: { monkey: { targetWpm: 40 } }
+        benchmarks: {
+          seguin: { standardTime: 80 },
+          monkey: { standardTime: 120 },
+          jigsaw: { standardTime: 300 },
+        },
+        cognitiveSkills: [],
       };
     }
   },
@@ -175,8 +197,8 @@ export const progressService = {
         progressData.date = new Date().toISOString();
       }
 
-      // Normalize progress data for monkey game
-      if (progressData.gameType === 'monkey') {
+      // Normalize progress data for different games
+      if (progressData.gameType === "monkey") {
         if (!progressData.wpm && progressData.completionTime) {
           progressData.wpm = progressData.completionTime;
         }
@@ -185,64 +207,30 @@ export const progressService = {
         }
       }
 
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
 
       if (token) {
         try {
-          console.log('Saving progress to API:', progressData);
-          const response = await api.post('/progress', progressData);
-          console.log('Progress saved successfully:', response.data);
+          console.log("Saving progress to API:", progressData);
+          const response = await api.post("/progress", progressData);
+          console.log("Progress saved successfully:", response.data);
           return response.data;
         } catch (apiError) {
-          console.warn('Failed to save progress to API, saving locally instead:', apiError);
+          console.warn(
+            "Failed to save progress to API, saving locally instead:",
+            apiError
+          );
+          // Don't save locally - only use API data to avoid duplicates
+          throw new Error(
+            "Failed to save progress. Please check your connection."
+          );
         }
       } else {
-        console.log('No authentication token, saving progress locally');
+        console.log("No authentication token, cannot save progress");
+        throw new Error("Please log in to save your progress.");
       }
-
-      // Save locally if API call failed or no token
-      const existingData = localStorageService.getLocalProgressData();
-
-      const formattedEntry = {
-        date: new Date(progressData.date).toLocaleDateString(),
-        gameType: progressData.gameType
-      };
-
-      if (progressData.gameType === 'monkey') {
-        formattedEntry.wpm = progressData.wpm || progressData.completionTime;
-        formattedEntry.accuracy = progressData.accuracy || progressData.monkeyAccuracy;
-        formattedEntry.monkey = progressData.wpm || progressData.completionTime;
-        formattedEntry.monkeyAccuracy = progressData.accuracy;
-      } else if (progressData.gameType === 'seguin') {
-        formattedEntry.time = progressData.completionTime;
-        formattedEntry.seguin = progressData.completionTime;
-      }
-
-      let timeSeriesData = existingData?.timeSeriesData || [];
-      timeSeriesData.push(formattedEntry);
-      timeSeriesData.sort((a, b) => new Date(b.date) - new Date(a.date));
-      if (timeSeriesData.length > 20) {
-        timeSeriesData = timeSeriesData.slice(0, 20);
-      }
-
-      const updatedData = {
-        ...existingData,
-        timeSeriesData,
-        totalSessions: (existingData?.totalSessions || 0) + 1,
-        benchmarks: {
-          ...existingData?.benchmarks,
-          monkey: {
-            targetWpm: 40,
-            ...(existingData?.benchmarks?.monkey || {})
-          }
-        }
-      };
-
-      localStorageService.saveLocalProgressData(updatedData);
-      return updatedData;
-
     } catch (error) {
-      console.error('Error saving game progress:', error);
+      console.error("Error saving game progress:", error);
       throw error;
     }
   },
@@ -250,45 +238,47 @@ export const progressService = {
   getGameStatistics: async (gameType) => {
     try {
       const response = await api.get(`/progress/stats/${gameType}`);
-      return response.data;
-    } catch (error) {
-      console.warn('Failed to fetch game statistics from API:', error);
 
-      const progressData = localStorageService.getLocalProgressData();
-
-      if (gameType === 'monkey') {
-        const monkeyEntries = progressData.timeSeriesData?.filter(entry => entry.wpm || entry.monkey) || [];
-
-        if (monkeyEntries.length === 0) {
-          return { message: 'No data available' };
-        }
-
-        const wpms = monkeyEntries.map(entry => entry.wpm || entry.monkey);
-        const accuracies = monkeyEntries.map(entry => entry.accuracy || entry.monkeyAccuracy);
-
+      // Only return if we have real data
+      if (response.data && response.data.totalSessions > 0) {
+        return response.data;
+      } else {
         return {
-          averageWpm: wpms.reduce((sum, wpm) => sum + wpm, 0) / wpms.length,
-          averageAccuracy: accuracies.reduce((sum, acc) => sum + acc, 0) / accuracies.length,
-          totalSessions: monkeyEntries.length,
-          bestWpm: Math.max(...wpms),
-          bestAccuracy: Math.max(...accuracies)
+          message: "No progress data found for this game",
+          data: {
+            bestTime: null,
+            averageTime: null,
+            totalSessions: 0,
+            weeklyProgress: [],
+          },
         };
       }
+    } catch (error) {
+      console.warn("Failed to fetch game statistics from API:", error);
 
-      return { message: 'No data available' };
+      // Return empty statistics instead of fake data
+      return {
+        message: "No data available",
+        data: {
+          bestTime: null,
+          averageTime: null,
+          totalSessions: 0,
+          weeklyProgress: [],
+        },
+      };
     }
-  }
+  },
 };
 
 // Support Services
 export const supportService = {
   createTicket: async (ticketData) => {
-    const response = await api.post('/support/ticket', ticketData);
+    const response = await api.post("/support/ticket", ticketData);
     return response.data;
   },
 
   getTickets: async () => {
-    const response = await api.get('/support/tickets');
+    const response = await api.get("/support/tickets");
     return response.data;
   },
 
@@ -298,29 +288,31 @@ export const supportService = {
   },
 
   respondToTicket: async (ticketId, message) => {
-    const response = await api.post(`/support/ticket/${ticketId}/respond`, { message });
+    const response = await api.post(`/support/ticket/${ticketId}/respond`, {
+      message,
+    });
     return response.data;
-  }
+  },
 };
 
 // Analysis Services
 export const analysisService = {
   saveAnalysisResults: async (analysisData) => {
     try {
-      const response = await api.post('/analysis/save', analysisData);
+      const response = await api.post("/analysis/save", analysisData);
       return response.data;
     } catch (error) {
-      console.error('Error saving analysis results:', error);
+      console.error("Error saving analysis results:", error);
       throw error;
     }
   },
 
   getAnalysisHistory: async () => {
     try {
-      const response = await api.get('/analysis/history');
+      const response = await api.get("/analysis/history");
       return response.data;
     } catch (error) {
-      console.error('Error fetching analysis history:', error);
+      console.error("Error fetching analysis history:", error);
       throw error;
     }
   },
@@ -330,8 +322,8 @@ export const analysisService = {
       const response = await api.get(`/analysis/${analysisId}`);
       return response.data;
     } catch (error) {
-      console.error('Error fetching analysis:', error);
+      console.error("Error fetching analysis:", error);
       throw error;
     }
-  }
+  },
 };

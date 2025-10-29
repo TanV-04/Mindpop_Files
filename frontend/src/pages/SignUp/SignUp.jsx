@@ -120,9 +120,6 @@
 // // when you use value, the form element becomes a controlled element, without it, react would not be able to track/manage the form's value
 // // react manages and keeps the input field's value in sync with the component's state
 
-
-
-
 //new code
 
 // import React, { useState } from "react";
@@ -151,7 +148,7 @@
 
 //     try {
 //       const response = await axios.post(
-//         `${import.meta.env.VITE_API_URL}/api/auth/register`, 
+//         `${import.meta.env.VITE_API_URL}/api/auth/register`,
 //         formData,
 //         {
 //           withCredentials: true,
@@ -258,14 +255,14 @@ const SignUp = () => {
     name: "",
     email: "",
     age: "",
-    password: ""
+    password: "",
   });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: name === 'age' ? Number(value) : value
+      [name]: name === "age" ? Number(value) : value,
     }));
   };
 
@@ -281,7 +278,13 @@ const SignUp = () => {
     e.preventDefault();
     setError("");
 
-    if (!formData.username || !formData.name || !formData.email || !formData.password) {
+    if (
+      !formData.username ||
+      !formData.name ||
+      !formData.email ||
+      !formData.password ||
+      !formData.age
+    ) {
       setError("Please fill in all required fields");
       return;
     }
@@ -291,8 +294,8 @@ const SignUp = () => {
       return;
     }
 
-    if (formData.age && (formData.age < 0 || formData.age > 120)) {
-      setError("Please enter a valid age between 0 and 120");
+    if (formData.age < 1 || formData.age > 120) {
+      setError("Please enter a valid age between 1 and 120");
       return;
     }
 
@@ -303,8 +306,8 @@ const SignUp = () => {
         username: formData.username,
         name: formData.name,
         email: formData.email,
-        age: formData.age || undefined,
-        password: formData.password
+        age: formData.age, // no need for fallback
+        password: formData.password,
       });
 
       // Classify age group and save it to localStorage
@@ -316,14 +319,17 @@ const SignUp = () => {
         name: "",
         email: "",
         age: "",
-        password: ""
+        password: "",
       });
 
       navigate("/sign-in");
       alert("Registration successful! Please log in.");
     } catch (error) {
       console.error("Registration error:", error);
-      setError(error.response?.data?.error || "Error creating account. Please try again.");
+      setError(
+        error.response?.data?.error ||
+          "Error creating account. Please try again."
+      );
     } finally {
       setLoading(false);
     }
@@ -384,12 +390,14 @@ const SignUp = () => {
             name="age"
             type="number"
             className="input-field"
-            placeholder="Your age (optional)"
+            placeholder="Enter your age"
             value={formData.age}
             onChange={handleChange}
-            min="0"
+            min="1"
             max="120"
+            required
           />
+
           <i className="fa-solid fa-calendar-days" />
         </div>
 
@@ -407,12 +415,8 @@ const SignUp = () => {
           <i className="fa-solid fa-lock" />
         </div>
 
-        <button 
-          type="submit" 
-          className="login-button"
-          disabled={loading}
-        >
-          {loading ? 'Creating Account...' : 'Create Account'}
+        <button type="submit" className="login-button" disabled={loading}>
+          {loading ? "Creating Account..." : "Create Account"}
         </button>
       </form>
 
