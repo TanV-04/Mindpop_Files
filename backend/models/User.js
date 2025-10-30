@@ -37,6 +37,7 @@ const userSchema = new mongoose.Schema({
         max: 120,
         required: true
     },
+    birthDate: { type: Date, required: true },
     profilePicture: {
         type: String
     },
@@ -86,5 +87,17 @@ userSchema.methods.getSignedJwtToken = function() {
 userSchema.methods.matchPassword = async function(enteredPassword) {
     return await bcrypt.compare(enteredPassword, this.password);
 };
+// Virtual `age` computed from birthDate
+userSchema.virtual('age').get(function() {
+if (!this.birthDate) return null;
+const today = new Date();
+const birth = new Date(this.birthDate);
+let age = today.getFullYear() - birth.getFullYear();
+const m = today.getMonth() - birth.getMonth();
+if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+age--;
+}
+return age;
+});
 
 export default mongoose.model('User', userSchema);

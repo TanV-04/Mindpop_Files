@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { JigsawPuzzle } from "react-jigsaw-puzzle/lib";
 import "react-jigsaw-puzzle/lib/jigsaw-puzzle.css";
-import "./jigsaw.css";
+//import "./jigsaw.css";
 
 const imageModules = import.meta.glob(
   "/src/assets/images_for_jigsaw_10_to_12/*.{png,jpg,jpeg,svg}",

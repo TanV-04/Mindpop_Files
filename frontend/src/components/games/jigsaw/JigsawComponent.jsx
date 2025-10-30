@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { JigsawPuzzle } from "react-jigsaw-puzzle/lib";
 import "react-jigsaw-puzzle/lib/jigsaw-puzzle.css";
-import "./jigsaw.css";
+//import "./jigsaw.css";
 import { progressService } from "../../../utils/apiService";
 // Import Confetti - try different relative paths based on file structure
 import Confetti from "./Confetti"; // Adjust this path based on your file structure

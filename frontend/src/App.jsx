@@ -16,11 +16,11 @@ import Footer from "./components/Footer.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 
 // Jigsaw puzzle routes
-import Jigsaw_6_to_8 from "./components/games/jigsawPuzzle/Jigsaw_6_to_8.jsx";
-import Jigsaw_8_to_10 from "./components/games/jigsawPuzzle/Jigsaw_8_to_10.jsx";
-import Jigsaw_10_to_12 from "./components/games/jigsawPuzzle/Jigsaw_10_to_12.jsx";
-import Jigsaw_12_to_14 from "./components/games/jigsawPuzzle/Jigsaw_12_to_14.jsx";
-import MathsPuzzle from "./components/games/jigsawPuzzle/MathsPuzzle.jsx";
+import Jigsaw_6_to_8 from "./components/games/jigsaw/Jigsaw_6_to_8.jsx";
+import Jigsaw_8_to_10 from "./components/games/jigsaw/Jigsaw_8_to_10.jsx";
+import Jigsaw_10_to_12 from "./components/games/jigsaw/Jigsaw_10_to_12.jsx";
+import Jigsaw_12_to_14 from "./components/games/jigsaw/Jigsaw_12_to_14.jsx";
+import MathsPuzzle from "./components/games/jigsaw/MathsPuzzle.jsx";
 import JigsawHome from "./components/games/jigsaw/JigsawHome.jsx";
 import JigsawGamePage from "./pages/games/JigsawGamePage.jsx";
 

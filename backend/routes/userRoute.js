@@ -19,7 +19,19 @@ import {
 const router = express.Router();
 
 // Get current user profile
-router.get('/me', protect, getUserProfile);
+//router.get('/me', protect, getUserProfile);
+
+router.get('/me', requireAuth, async (req, res) => {
+try {
+const user = await user.findById(req.userId).select('-password');
+if (!user) return res.status(404).json({ message: 'Not found' });
+// Mongoose virtual `age` will be present because toJSON/toObject have virtuals
+res.json(user);
+} catch (err) {
+console.error(err);
+res.status(500).json({ message: 'Server error' });
+}
+});
 
 // Update user profile (with profile picture upload capability)
 router.put(
