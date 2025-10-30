@@ -39,7 +39,7 @@ const ParentFriendlyAnalysis = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/analyze-video",
+        "http://localhost:5002/api/analyze-video",
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },

@@ -91,7 +91,7 @@ export default function DyslexiaTest() {
       formData.append("audio", file);
       formData.append("sentence", sentence);
 
-      const response = await axios.post("http://localhost:8002/api/dyslexia/run", formData, {
+      const response = await axios.post("http://localhost:8008/api/dyslexia/run", formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         },

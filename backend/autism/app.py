@@ -13,8 +13,8 @@ UPLOAD_FOLDER = './uploads'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 detector = AutismBehaviorDetector(
-    model_path='D:\\TANVI_COLLEGE_FILES\\PBL2_SEM6\\Mindpop_Files_Clean\\backend\\ml-model\\enhanced_rf_model.pkl',
-    scaler_path='D:\\TANVI_COLLEGE_FILES\\PBL2_SEM6\\Mindpop_Files_Clean\\backend\\ml-model\\enhanced_scaler.pkl',
+    model_path='/Users/chinku/git/Mindpop_Files/backend/ml-model/enhanced_rf_model.pkl',
+    scaler_path='/Users/chinku/git/Mindpop_Files/backend/ml-model/enhanced_scaler.pkl',
     threshold=0.3
 )
 
@@ -54,4 +54,4 @@ def analyze_video():
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=5002)

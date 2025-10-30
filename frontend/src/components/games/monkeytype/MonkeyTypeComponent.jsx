@@ -54,7 +54,7 @@ const AGE_GROUPS = {
     }
   },
   "8-10": {
-    initialTimer: 120, // 2 minutes
+    initialTimer: 15, // 2 minutes
     minTimer: 90,     // 1.5 minutes
     initialLevel: 1,
     avatarMessages: {

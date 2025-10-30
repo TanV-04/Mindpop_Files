@@ -25,12 +25,9 @@ CORS(app, origins=["http://localhost:5173", "http://localhost:3000"])
 def find_ffmpeg():
     """Find ffmpeg executable on Windows system or PATH"""
     known_paths = [
-        r"C:\ffmpeg\ffmpeg-master-latest-win64-gpl-shared\ffmpeg-master-latest-win64-gpl-shared\bin\ffmpeg.exe",
-        r"C:\ffmpeg\bin\ffmpeg.exe",
-        r"C:\Program Files\ffmpeg\bin\ffmpeg.exe",
-        r"C:\Program Files (x86)\ffmpeg\bin\ffmpeg.exe",
-        "ffmpeg.exe",
-        os.path.join(os.getcwd(), 'ffmpeg.exe')
+        "/usr/local/bin/ffmpeg",      # Homebrew (Intel Macs)
+        "/opt/homebrew/bin/ffmpeg",   # Homebrew (Apple Silicon M1/M2)
+        "/usr/bin/ffmpeg",
     ]
 
     for path in known_paths:
@@ -38,15 +35,7 @@ def find_ffmpeg():
             logger.debug(f"Found ffmpeg at: {path}")
             return path
 
-    try:
-        ffmpeg_path = shutil.which('ffmpeg')
-        if ffmpeg_path:
-            logger.debug(f"FFmpeg found via PATH: {ffmpeg_path}")
-            return ffmpeg_path
-    except Exception as e:
-        logger.error(f"Error checking ffmpeg in PATH: {e}")
-
-    logger.error("FFmpeg not found")
+    logger.error("FFmpeg not found on this system.")
     return None
 
 
@@ -213,4 +202,4 @@ def health_check():
 
 
 if __name__ == "__main__":
-    app.run(debug=True, port=8002, host='0.0.0.0')
+    app.run(debug=True, port=8008, host='0.0.0.0')
