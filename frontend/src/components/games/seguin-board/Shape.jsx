@@ -1,12 +1,19 @@
-//Shape.jsx
-
-import React from 'react';
-
+//frontend\src\components\games\seguin-board\Shape.jsx
 const Shape = ({ type, isOutline = false }) => {
-  // Colors for shapes - all black as per your current setup
-  const shapeColor = '#000000'; // Black for all shapes
+  const shapeDimensions = {
+    rectangle: { width: '70px', height: '55px' },
+    oval: { width: '70px', height: '55px' },
+    circle: { width: '65px', height: '65px' },
+    semicircle: { width: '65px', height: '40px' },
+    cross: { width: '65px', height: '65px' },
+    triangle: { width: '65px', height: '65px' },
+    hexagon: { width: '65px', height: '65px' },
+    rhombus: { width: '65px', height: '65px' },
+    star: { width: '65px', height: '65px' },
+    square: { width: '65px', height: '65px' },
+    pentagon: { width: '65px', height: '65px' },
+  };
 
-  // Define shape clip paths in a centralized object for better maintainability
   const clipPaths = {
     cross: 'polygon(35% 0%, 65% 0%, 65% 35%, 100% 35%, 100% 65%, 65% 65%, 65% 100%, 35% 100%, 35% 65%, 0% 65%, 0% 35%, 35% 35%)',
     triangle: 'polygon(50% 0%, 0% 100%, 100% 100%)',
@@ -14,73 +21,56 @@ const Shape = ({ type, isOutline = false }) => {
     rhombus: 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)',
     star: 'polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)',
     pentagon: 'polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%)',
-    clover: 'path("M 50,0 A 30,30 0 0 1 100,50 A 30,30 0 0 1 50,100 A 30,30 0 0 1 0,50 A 30,30 0 0 1 50,0 z")'
   };
 
-  // Define special border radius configurations
   const borderRadii = {
     circle: '50%',
     oval: '50%',
     semicircle: '100px 100px 0 0',
-    default: '4px'
+    default: '8px',
   };
 
-  // Define exact dimensions for each shape to match the outlines perfectly
-  const shapeDimensions = {
-    rectangle: { width: '80px', height: '65px' },
-    oval: { width: '80px', height: '70px' },
-    circle: { width: '70px', height: '70px' },
-    semicircle: { width: '70px', height: '40px' },
-    cross: { width: '70px', height: '70px' },
-    triangle: { width: '70px', height: '70px' },
-    hexagon: { width: '70px', height: '70px' },
-    rhombus: { width: '70px', height: '70px' },
-    star: { width: '70px', height: '70px' },
-    square: { width: '70px', height: '70px' },
-    pentagon: { width: '70px', height: '70px' },
-    clover: { width: '70px', height: '70px' },
-  };
-  
-  // Get clip path if applicable
+  const dimensions = shapeDimensions[type] || { width: '65px', height: '65px' };
   const clipPath = clipPaths[type] || null;
-  
-  // Get border radius
   const borderRadius = borderRadii[type] || borderRadii.default;
 
-  // Get dimensions for this shape type
-  const dimensions = shapeDimensions[type] || { width: '70px', height: '70px' };
-
-  // Common styling for all shapes
-  const shapeStyle = {
-    background: isOutline ? 'rgba(0,0,0,0.08)' : shapeColor,
+  // 3D Block styling
+  const blockStyle = {
     width: dimensions.width,
     height: dimensions.height,
+    background: isOutline 
+      ? 'rgba(102, 34, 11, 0.1)' 
+      : 'linear-gradient(135deg, #2C3E50 0%, #34495E 50%, #2C3E50 100%)',
     borderRadius,
     ...(clipPath && { clipPath }),
-    boxShadow: isOutline ? 'none' : '0 4px 6px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.2)',
-    border: isOutline ? '2px dashed rgba(0,0,0,0.3)' : '1px solid rgba(0,0,0,0.1)',
-    transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-    // No background color for the container
-    position: 'relative', 
-    margin: 'auto'
+    boxShadow: isOutline 
+      ? 'none'
+      : `
+          0 8px 16px rgba(0, 0, 0, 0.4),
+          inset 0 2px 4px rgba(255, 255, 255, 0.2),
+          inset 0 -2px 4px rgba(0, 0, 0, 0.3)
+        `,
+    border: isOutline ? '2px dashed rgba(102, 34, 11, 0.3)' : '1px solid rgba(0, 0, 0, 0.2)',
+    position: 'relative',
+    margin: '0 auto', /* Center the shape */
   };
 
+  // Add highlight for 3D effect
+  const highlightStyle = !isOutline ? {
+    position: 'absolute',
+    top: '10%',
+    left: '10%',
+    right: '10%',
+    height: '30%',
+    background: 'linear-gradient(180deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 100%)',
+    borderRadius: 'inherit',
+    clipPath: 'inherit',
+    pointerEvents: 'none',
+  } : null;
+
   return (
-    <div 
-      className={`shape-${isOutline ? 'outline' : 'solid'}-piece w-full h-full flex items-center justify-center`}
-      data-type={type}
-      aria-label={`${type} shape`}
-      style={{ 
-        // This container now has no background
-        background: 'transparent',
-        width: '100%',
-        height: '100%',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center'
-      }}
-    >
-      <div style={shapeStyle}></div>
+    <div className="shape-piece" style={blockStyle}>
+      {highlightStyle && <div style={highlightStyle}></div>}
     </div>
   );
 };

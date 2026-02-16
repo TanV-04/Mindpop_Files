@@ -1,159 +1,158 @@
-import { performanceBenchmarks } from '../../../constants/gameConstants';
+//frontend\src\components\games\seguin-board\ResultAnalysis.jsx
+import { performanceBenchmarks } from "../../../constants/gameConstants";
 
-const ResultsAnalysis = ({ time, age, isVisible = false }) => {
-  if (!isVisible) return null;
-  
-  // Get appropriate benchmark for the age
-  // Use age 10 as default if exact age not found in benchmarks
-  const benchmark = performanceBenchmarks[age] || performanceBenchmarks[10]; 
-  
-  // Determine performance level
-  let performanceLevel = 'needs_practice';
-  if (time <= benchmark.excellent) {
-    performanceLevel = 'excellent';
-  } else if (time <= benchmark.good) {
-    performanceLevel = 'good';
-  } else if (time <= benchmark.average) {
-    performanceLevel = 'average';
-  }
-  
-  // Calculate percentile (approximate)
-  const calculatePercentile = () => {
-    if (performanceLevel === 'excellent') return '90-100th';
-    if (performanceLevel === 'good') return '70-90th';
-    if (performanceLevel === 'average') return '40-70th';
-    return 'Below 40th';
+const ResultsAnalysis = ({ time, age }) => {
+  const benchmark = performanceBenchmarks[age] || performanceBenchmarks[10];
+
+  let performanceLevel = "needs_practice";
+  if (time <= benchmark.excellent) performanceLevel = "excellent";
+  else if (time <= benchmark.good) performanceLevel = "good";
+  else if (time <= benchmark.average) performanceLevel = "average";
+
+  const performanceColors = {
+    excellent: "#10B981",
+    good: "#3B82F6",
+    average: "#F59E0B",
+    needs_practice: "#EF4444",
   };
-  
-  // Generate personalized feedback based on age group
+
+  const performanceLabels = {
+    excellent: "Excellent",
+    good: "Good",
+    average: "Average",
+    needs_practice: "Needs Practice",
+  };
+
+  const getPercentile = () => {
+    if (performanceLevel === "excellent") return "90-100th";
+    if (performanceLevel === "good") return "70-90th";
+    if (performanceLevel === "average") return "40-70th";
+    return "Below 40th";
+  };
+
   const getFeedback = () => {
-    // Determine age group for more targeted feedback
-    const isYoungerChild = age <= 8;
+    const isYounger = age <= 8;
     const isTeen = age >= 13;
-    
-    // Feedback templates by performance level and age group
-    const feedbackTemplates = {
+
+    const feedback = {
       excellent: {
-        young: "Outstanding performance! Your visual processing skills are developing very well for your age. You're showing excellent ability to recognize shapes and match them quickly.",
-        middle: "Excellent work! Your visual processing and spatial awareness skills are highly developed. You completed the task much faster than most kids your age.",
-        teen: "Excellent performance! Your spatial reasoning and processing speed are very well developed. You completed the task with great efficiency."
+        young:
+          "Outstanding! Your visual skills are developing very well for your age.",
+        middle:
+          "Excellent work! Your spatial awareness is highly developed for your age.",
+        teen:
+          "Excellent performance! Your spatial reasoning and processing speed are very well developed.",
       },
       good: {
-        young: "Great job! You're showing strong visual skills and good hand-eye coordination for your age. Keep up the good work!",
-        middle: "Great work! You showed strong visual processing and good spatial awareness, performing better than many kids your age.",
-        teen: "Good work! Your spatial reasoning skills are solid, and you demonstrated good processing speed compared to your peers."
+        young:
+          "Great job! You're showing strong visual skills for your age.",
+        middle:
+          "Great work! You showed strong visual processing and good spatial awareness.",
+        teen:
+          "Good work! Your spatial reasoning skills are solid compared to your peers.",
       },
       average: {
-        young: "Good work! You completed the puzzle at a normal pace for children your age. Keep practicing to get even better!",
-        middle: "Good effort! You completed the task at a typical pace for your age group. Regular practice will help you improve.",
-        teen: "Solid work! You performed at an expected level for your age group. With practice, you can improve your efficiency."
+        young:
+          "Good work! You completed the puzzle at a normal pace for your age.",
+        middle:
+          "Good effort! You performed at a typical pace for your age group.",
+        teen:
+          "Solid work! You performed at an expected level. Practice will help you improve.",
       },
       needs_practice: {
-        young: "You finished the puzzle! This game helps you learn to match shapes better. Let's practice more to get faster!",
-        middle: "You completed the challenge! With regular practice, your spatial skills and processing speed will improve.",
-        teen: "Task completed! Regular practice with these types of spatial tasks can significantly improve your performance."
-      }
+        young:
+          "You finished! This game helps you learn to match shapes better. Keep practicing!",
+        middle:
+          "Task completed! Regular practice will improve your spatial skills.",
+        teen:
+          "Task completed! Regular practice with spatial tasks will improve your performance.",
+      },
     };
-    
-    // Select the right template based on age group and performance
-    if (isYoungerChild) {
-      return feedbackTemplates[performanceLevel].young;
-    } else if (isTeen) {
-      return feedbackTemplates[performanceLevel].teen;
-    } else {
-      return feedbackTemplates[performanceLevel].middle;
-    }
+
+    if (isYounger) return feedback[performanceLevel].young;
+    if (isTeen) return feedback[performanceLevel].teen;
+    return feedback[performanceLevel].middle;
   };
-  
-  // Get age-appropriate recommendations
+
   const getRecommendations = () => {
-    // Different recommendations based on age and performance
     if (age <= 8) {
-      // Recommendations for younger children
-      if (performanceLevel === 'needs_practice') {
-        return [
-          "Try simpler puzzles with fewer shapes first",
-          "Take your time and focus on one shape at a time",
-          "Look for matching shapes in everyday objects",
-          "Practice drawing different shapes to learn their features"
-        ];
-      } else {
-        return [
-          "Try puzzles with more pieces for a bigger challenge",
-          "Practice against a timer to improve speed",
-          "Try to recognize shapes without looking at the outlines first",
-          "Look for similarities between different shapes"
-        ];
-      }
+      return performanceLevel === "needs_practice"
+        ? [
+            "Try simpler puzzles first",
+            "Take your time with each shape",
+            "Look for matching shapes in everyday objects",
+            "Practice drawing different shapes",
+          ]
+        : [
+            "Try puzzles with more pieces",
+            "Practice against a timer",
+            "Try to recognize shapes without looking at outlines first",
+            "Challenge yourself with harder levels",
+          ];
     } else if (age <= 12) {
-      // Recommendations for middle age group (9-12)
-      if (performanceLevel === 'needs_practice') {
-        return [
-          "Focus on the unique features of each shape",
-          "Try to group similar shapes together",
-          "Practice with different shape-matching games",
-          "Try to improve your time with each attempt"
-        ];
-      } else {
-        return [
-          "Challenge yourself with more complex puzzles",
-          "Try puzzles with rotated shapes for an extra challenge",
-          "Practice quickly identifying shapes from different angles",
-          "Try spatial reasoning games with time pressure"
-        ];
-      }
+      return performanceLevel === "needs_practice"
+        ? [
+            "Focus on the unique features of each shape",
+            "Group similar shapes together",
+            "Practice with different shape-matching games",
+            "Try to improve your time with each attempt",
+          ]
+        : [
+            "Challenge yourself with more complex puzzles",
+            "Try puzzles with rotated shapes",
+            "Practice spatial reasoning games",
+            "Work on improving your personal best time",
+          ];
     } else {
-      // Recommendations for teens (13+)
-      if (performanceLevel === 'needs_practice') {
-        return [
-          "Practice identifying shapes quickly without moving them first",
-          "Try different strategies for approaching the puzzle",
-          "Focus on improving your visual scanning techniques",
-          "Break down the task into smaller steps"
-        ];
-      } else {
-        return [
-          "Try 3D spatial reasoning challenges",
-          "Practice with shape-based logic puzzles",
-          "Time yourself and work on beating your personal best",
-          "Explore more complex visual-spatial tasks"
-        ];
-      }
+      return performanceLevel === "needs_practice"
+        ? [
+            "Practice identifying shapes quickly",
+            "Try different strategies",
+            "Focus on visual scanning techniques",
+            "Break down the task into smaller steps",
+          ]
+        : [
+            "Try 3D spatial reasoning challenges",
+            "Practice with shape-based logic puzzles",
+            "Time yourself and beat your personal best",
+            "Explore more complex visual-spatial tasks",
+          ];
     }
   };
-  
+
   return (
-    <div className="results-analysis mt-6 text-left bg-white rounded-lg shadow-md p-6">
-      <h3 className="text-xl font-bold text-[#66220B] mb-3">Performance Analysis</h3>
-      
+    <div className="analysis-card">
+      <h3 className="analysis-title">Performance Analysis</h3>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
         <div>
-          <p className="font-semibold text-gray-700">Performance Level:</p>
-          <p className={`text-lg ${
-            performanceLevel === 'excellent' ? 'text-green-600' :
-            performanceLevel === 'good' ? 'text-blue-600' :
-            performanceLevel === 'average' ? 'text-yellow-600' : 'text-orange-600'
-          }`}>
-            {performanceLevel.charAt(0).toUpperCase() + performanceLevel.slice(1)}
+          <p className="font-semibold text-gray-700 mb-2">Performance Level:</p>
+          <span
+            className="performance-badge"
+            style={{ background: performanceColors[performanceLevel] }}
+          >
+            {performanceLabels[performanceLevel]}
+          </span>
+        </div>
+
+        <div>
+          <p className="font-semibold text-gray-700 mb-2">Percentile Range:</p>
+          <p className="text-xl font-bold" style={{ color: "#F09000" }}>
+            {getPercentile()}
           </p>
         </div>
-        
-        <div>
-          <p className="font-semibold text-gray-700">Percentile Range:</p>
-          <p className="text-lg">{calculatePercentile()}</p>
-        </div>
       </div>
-      
+
       <div className="mb-4">
-        <p className="font-semibold text-gray-700 mb-1">Feedback:</p>
-        <p className="text-gray-600">{getFeedback()}</p>
+        <p className="font-semibold text-gray-700 mb-2">Feedback:</p>
+        <p className="text-gray-600 leading-relaxed">{getFeedback()}</p>
       </div>
-      
+
       <div>
-        <p className="font-semibold text-gray-700 mb-1">Recommendations:</p>
-        <ul className="list-disc pl-5 text-gray-600">
+        <p className="font-semibold text-gray-700 mb-2">Recommendations:</p>
+        <ul className="list-disc pl-5 text-gray-600 space-y-1">
           {getRecommendations().map((rec, index) => (
-            <li key={index} className="mb-1">{rec}</li>
+            <li key={index}>{rec}</li>
           ))}
         </ul>
       </div>

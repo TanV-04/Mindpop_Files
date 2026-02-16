@@ -1,3 +1,4 @@
+//frontend\src\hooks\useGameWindowPosition.js
 import { useState, useEffect } from 'react';
 
 export const useGameWindowPosition = () => {

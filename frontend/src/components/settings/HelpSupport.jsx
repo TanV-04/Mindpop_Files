@@ -1,3 +1,4 @@
+//frontend\src\components\settings\HelpSupport.jsx
 import React, { useState } from 'react';
 import { toast } from 'react-toastify';
 import { supportService } from '../../utils/apiService';

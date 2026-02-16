@@ -1,4 +1,4 @@
-//helper.js
+//frontend\src\utils\helpers.js
 /**
  * Formats a percentage value as a string with 0 decimal places and a % symbol
  * @param {number} percentage - The percentage value to format

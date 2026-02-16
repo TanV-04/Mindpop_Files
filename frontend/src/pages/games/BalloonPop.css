@@ -1,0 +1,331 @@
+/* Balloon Hitbox - LARGER CLICKABLE AREA 
+frontend\src\pages\games\BalloonPop.css*/
+.balloon-hitbox {
+  position: absolute;
+  width: 120px; /* Increased from 80px */
+  height: 140px; /* Increased from 100px */
+  cursor: pointer;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Actual Balloon Visual */
+.balloon {
+  width: 80px;
+  height: 100px;
+  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+  box-shadow: inset -10px -10px 0 rgba(0, 0, 0, 0.1),
+              0 4px 8px rgba(0, 0, 0, 0.2);
+  transition: transform 0.1s;
+}
+
+.balloon-hitbox:hover .balloon {
+  transform: scale(1.1);
+}
+
+.balloon-hitbox:active .balloon {
+  transform: scale(0.9);
+}
+
+/* Rest of the CSS remains the same... */
+.balloon-game-container {
+  width: 100%;
+  min-height: 100vh;
+  background: linear-gradient(to bottom, #87CEEB 0%, #E0F6FF 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.game-screen {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+/* Start Screen */
+.start-screen {
+  background: linear-gradient(135deg, #F9F0D0 0%, #FDF6E3 100%);
+}
+
+.start-content {
+  text-align: center;
+  background: white;
+  padding: 3rem 2rem;
+  border-radius: 2rem;
+  box-shadow: 0 8px 32px rgba(102, 34, 11, 0.15);
+  max-width: 600px;
+  border: 4px solid #F09000;
+}
+
+.game-title {
+  font-size: 3.5rem;
+  color: #66220B;
+  margin-bottom: 1.5rem;
+  font-weight: 700;
+}
+
+.game-instructions {
+  font-size: 1.3rem;
+  color: #66220B;
+  margin-bottom: 1rem;
+  line-height: 1.6;
+}
+
+.difficulty-info {
+  font-size: 1.2rem;
+  color: #F09000;
+  font-weight: 600;
+  margin: 1.5rem 0;
+}
+
+.start-button {
+  background: linear-gradient(135deg, #F09000 0%, #FF9F1C 100%);
+  color: white;
+  font-size: 1.5rem;
+  font-weight: 700;
+  padding: 1rem 3rem;
+  border: none;
+  border-radius: 3rem;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(240, 144, 0, 0.4);
+  transition: all 0.3s;
+  margin: 1rem 0.5rem;
+}
+
+.start-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(240, 144, 0, 0.6);
+}
+
+.start-button:active {
+  transform: translateY(0);
+}
+
+.back-button {
+  background: #66220B;
+  color: white;
+  font-size: 1.2rem;
+  font-weight: 600;
+  padding: 0.8rem 2rem;
+  border: none;
+  border-radius: 3rem;
+  cursor: pointer;
+  transition: all 0.3s;
+  margin: 0.5rem;
+}
+
+.back-button:hover {
+  background: #4A1509;
+  transform: translateY(-2px);
+}
+
+/* Playing Screen */
+.playing-screen {
+  padding: 0;
+  align-items: flex-start;
+}
+
+.game-stats {
+  position: fixed;
+  top: 80px;
+  left: 0;
+  right: 0;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 1.5rem 2rem;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+  border-bottom: 4px solid #F09000;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.stat-label {
+  font-size: 1rem;
+  color: #66220B;
+  font-weight: 600;
+}
+
+.stat-value {
+  font-size: 2rem;
+  color: #F09000;
+  font-weight: 700;
+  font-family: "Quicksand", sans-serif;
+}
+
+.combo-value {
+  color: #FF6B6B;
+  animation: pulse 0.5s ease-in-out;
+}
+
+.missed-value {
+  color: #666;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+}
+
+.game-area {
+  position: fixed;
+  top: 150px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+}
+
+/* Balloon */
+.balloon {
+  position: absolute;
+  width: 80px;
+  height: 100px;
+  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+  cursor: pointer;
+  transition: transform 0.1s;
+  box-shadow: inset -10px -10px 0 rgba(0, 0, 0, 0.1),
+              0 4px 8px rgba(0, 0, 0, 0.2);
+  z-index: 10;
+}
+
+.balloon:hover {
+  transform: scale(1.1);
+}
+
+.balloon:active {
+  transform: scale(0.9);
+}
+
+.balloon-string {
+  position: absolute;
+  bottom: -50px;
+  left: 50%;
+  width: 2px;
+  height: 50px;
+  background: #666;
+  transform: translateX(-50%);
+}
+
+.balloon-string::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  width: 8px;
+  height: 8px;
+  background: #666;
+  border-radius: 50%;
+  transform: translateX(-50%);
+}
+
+/* Pop Effect */
+.pop-effect {
+  position: absolute;
+  font-size: 4rem;
+  pointer-events: none;
+  z-index: 50;
+}
+
+/* Finished Screen */
+.finished-screen {
+  background: linear-gradient(135deg, #F9F0D0 0%, #FDF6E3 100%);
+}
+
+.finished-content {
+  text-align: center;
+  background: white;
+  padding: 3rem 2rem;
+  border-radius: 2rem;
+  box-shadow: 0 8px 32px rgba(102, 34, 11, 0.15);
+  max-width: 700px;
+  border: 4px solid #F09000;
+}
+
+.final-stats {
+  margin: 2rem 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+}
+
+.final-stat {
+  background: linear-gradient(135deg, #FFF6E9 0%, #FFE8C5 100%);
+  padding: 1.5rem;
+  border-radius: 1rem;
+  border: 2px solid #F09000;
+}
+
+.final-stat-label {
+  display: block;
+  font-size: 1rem;
+  color: #66220B;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.final-stat-value {
+  display: block;
+  font-size: 2.5rem;
+  color: #F09000;
+  font-weight: 700;
+  font-family: "Quicksand", sans-serif;
+}
+
+.finished-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 2rem;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .game-title {
+    font-size: 2.5rem;
+  }
+
+  .game-stats {
+    padding: 1rem;
+    top: 60px;
+  }
+
+  .stat-label {
+    font-size: 0.8rem;
+  }
+
+  .stat-value {
+    font-size: 1.5rem;
+  }
+
+  .game-area {
+    top: 130px;
+  }
+
+  .balloon {
+    width: 60px;
+    height: 75px;
+  }
+
+  .final-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .start-button {
+    font-size: 1.2rem;
+    padding: 0.8rem 2rem;
+  }
+}

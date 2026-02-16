@@ -1,4 +1,4 @@
-
+//utils/errorHandler.js
 export class ErrorResponse extends Error {
     constructor(message, statusCode) {
         super(message);

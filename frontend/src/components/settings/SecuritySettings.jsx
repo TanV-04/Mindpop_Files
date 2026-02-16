@@ -1,3 +1,4 @@
+//frontend\src\components\settings\SecuritySettings.jsx
 import React, { useState } from 'react';
 import { toast } from 'react-toastify';
 import { userService, authService } from '../../utils/apiService';

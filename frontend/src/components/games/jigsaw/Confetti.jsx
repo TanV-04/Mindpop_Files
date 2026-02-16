@@ -1,3 +1,4 @@
+//frontend\src\components\games\jigsaw\Confetti.jsx
 import { useEffect, useState } from 'react';
 
 function Confetti({ active = false }) {

@@ -1,3 +1,4 @@
+//frontend\src\components\games\monkeytype\Avatar.jsx
 import React from "react";
 
 const Avatar = ({ ageGroup, message }) => {

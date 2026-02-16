@@ -1,139 +1,140 @@
-import { useState } from "react";
-import googleLogo from "../../assets/google.svg";
-import "./signIn.css";
-import { Link, useNavigate, useLocation } from "react-router-dom";
-import { authService } from "../../utils/apiService";
+// frontend/src/pages/SignIn/SignIn.jsx
+import { useState } from 'react';
+import './signIn.css';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { authService } from '../../utils/apiService';
 
 const SignIn = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const navigate  = useNavigate();
+  const location  = useLocation();
+  const [formData, setFormData] = useState({ email: '', password: '' });
+  const [loading, setLoading]   = useState(false);
+  const [error,   setError]     = useState('');
 
-  // Get the redirect path if user was redirected from a protected route
-  const from = location.state?.from?.pathname || "/games";
+  // After login, admin goes to /admin, children go to /games (or the page they were trying to reach)
+  const from = location.state?.from?.pathname || '/games';
 
-  async function handleLogin(e) {
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleLogin = async (e) => {
     e.preventDefault();
-    setError("");
+    setError('');
 
-    if (!email || !password) {
-      setError("Please enter both email and password.");
+    if (!formData.email || !formData.password) {
+      setError('Please fill in all fields!');
       return;
     }
 
     setLoading(true);
-
     try {
-      const response = await authService.login({
-        email,
-        password,
-      });
+      const response = await authService.login(formData);
 
       if (response.success) {
-        // ✅ Store user info and token in localStorage
-        // localStorage.setItem("user", JSON.stringify(response.user));
+        localStorage.setItem('token', response.token);
         localStorage.setItem(
-          "user",
+          'user',
           JSON.stringify({
-            name: response.user.name,
-            email: response.user.email,
-            age: response.user.age,
+            id:       response.user.id,
+            name:     response.user.name,
+            email:    response.user.email,
+            age:      response.user.age,
+            isAdmin:  response.user.isAdmin,
           })
         );
-        localStorage.setItem("token", response.token);
 
-        setIsLoggedIn(true); // optional, for UI state
-        navigate(from); // redirect to intended page
+        if (response.user.isAdmin) {
+          navigate('/admin', { replace: true });
+        } else {
+          // Store age group for game logic
+          const age = response.user.age || 8;
+          let ageGroup = '8-10';
+          if (age >= 6 && age <= 8)    ageGroup = '6-8';
+          else if (age >= 9  && age <= 10) ageGroup = '8-10';
+          else if (age >= 11 && age <= 12) ageGroup = '10-12';
+          else if (age >= 13 && age <= 14) ageGroup = '12-14';
+          localStorage.setItem('userAgeGroup', ageGroup);
+          navigate(from, { replace: true });
+        }
       }
-
-      // Clear form
-      setEmail("");
-      setPassword("");
-    } catch (error) {
-      console.error("Login error:", error);
-      setError(
-        error.response?.data?.error ||
-          "Login failed. Please check your credentials."
-      );
+    } catch (err) {
+      setError(err.response?.data?.error || 'Login failed. Please try again!');
     } finally {
       setLoading(false);
     }
-  }
-
-  const handleGoogleLogin = (e) => {
-    e.preventDefault();
-    console.log("Google Login clicked");
   };
 
   return (
-    <div className="login-container quicksand">
-      <h2 className="form-title">Log in</h2>
-
-      {error && (
-        <div className="error-message text-red-500 mb-4 text-center">
-          {error}
-        </div>
-      )}
-
-      <form onSubmit={handleLogin} className="login-form">
-        <div className="input-wrapper">
-          <input
-            onChange={(e) => setEmail(e.target.value)}
-            type="email"
-            className="input-field"
-            placeholder="Email address"
-            value={email}
-            required
-          />
-          <i className="fa-regular fa-envelope" />
+    <div className="auth-page">
+      <div className="auth-container">
+        <div className="auth-header">
+          <h1 className="auth-title quicksand">Welcome Back! 👋</h1>
+          <p className="auth-subtitle">Let&apos;s continue your learning adventure</p>
         </div>
 
-        <div className="input-wrapper">
-          <input
-            onChange={(e) => setPassword(e.target.value)}
-            type="password"
-            className="input-field"
-            placeholder="Password"
-            value={password}
-            required
-          />
-          <i className="fa-solid fa-lock" />
-        </div>
+        {error && (
+          <div className="error-banner">
+            <span>⚠️</span>
+            <p>{error}</p>
+          </div>
+        )}
 
-        <a href="#" className="forgot-pass-link mb-3">
-          Forgot password?
-        </a>
-        {/* 
-        <h2 className="small-heading">Or log in using</h2> */}
+        <form onSubmit={handleLogin} className="auth-form">
+          <div className="form-group">
+            <label htmlFor="email" className="form-label">Email Address</label>
+            <div className="input-container">
+              <i className="fa-regular fa-envelope input-icon" />
+              <input
+                id="email"
+                name="email"
+                type="email"
+                className="form-input"
+                placeholder="your.email@example.com"
+                value={formData.email}
+                onChange={handleChange}
+                required
+              />
+            </div>
+          </div>
 
-        {/* <div className="social-login border border-gray-600 rounded-md mb-4 cursor-pointer">
-          <button 
-            type="button"
-            className="social-abbreviation" 
-            onClick={handleGoogleLogin}
-          >
-            <img src={googleLogo} alt="google" className="social-icon" />
-            Google
+          <div className="form-group">
+            <label htmlFor="password" className="form-label">Password</label>
+            <div className="input-container">
+              <i className="fa-solid fa-lock input-icon" />
+              <input
+                id="password"
+                name="password"
+                type="password"
+                className="form-input"
+                placeholder="Enter your password"
+                value={formData.password}
+                onChange={handleChange}
+                required
+              />
+            </div>
+          </div>
+
+          <button type="submit" className="submit-btn quicksand" disabled={loading}>
+            {loading ? (
+              <>
+                <span className="spinner" />
+                Logging in...
+              </>
+            ) : (
+              "Let's Go! 🚀"
+            )}
           </button>
-        </div> */}
+        </form>
 
-        <button type="submit" className="login-button" disabled={loading}>
-          {loading ? "Logging in..." : "Log In"}
-        </button>
-
-        <p className="signup-text mt-4 mb-6 sm:mt-6 sm:mb-8 md:mt-8 md:mb-10">
-          Don&apos;t have an account?
-          <Link to="/sign-up">
-            <span className="text-blue-500 font-semibold hover:text-blue-700 p-2 rounded-md transition-all">
-              Sign Up Now
-            </span>
-          </Link>
-        </p>
-      </form>
+        <div className="auth-footer">
+          <p className="footer-text">
+            New to MindPop?{' '}
+            <Link to="/sign-up" className="footer-link">Create an account</Link>
+          </p>
+        </div>
+      </div>
     </div>
   );
 };

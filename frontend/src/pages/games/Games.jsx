@@ -1,155 +1,176 @@
-import { Link } from "react-router-dom";
-import "../../components/games/seguin-board/styles/seguin.css";
+// frontend/src/pages/games/Games.jsx
+import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import Slider from 'react-slick';
+import 'slick-carousel/slick/slick.css';
+import 'slick-carousel/slick/slick-theme.css';
+import './Games.css';
+
+const MONKEY_TYPE_MIN_AGE = 12;
 
 const Games = () => {
+  // Read age from localStorage (set at login)
+  const user    = JSON.parse(localStorage.getItem('user') || '{}');
+  const userAge = user.age || 0;
+
   const gameCards = [
     {
-      id: "seguin-board",
-      title: "Seguin Form Board",
-      icon: "fa fa-puzzle-piece",
-      description:
-        "Match shapes to their correct positions in this classic assessment tool.",
-      path: "/games/seguin-board",
-      available: true,
+      id:          'seguin-board',
+      title:       'Shape Matcher',
+      subtitle:    'Seguin Form Board',
+      icon:        '🔷',
+      emoji:       '🎯',
+      description: 'Match colorful shapes to their spots! Train your brain!',
+      path:        '/games/seguin-board',
+      available:   true,
     },
     {
-      id: "monkeytype",
-      title: "Speed Type Test",
-      icon: "fa-solid fa-keyboard",
-      description: "Test your typing speed and accuracy.",
-      path: "/games/monkeytype",
-      available: true,
+      id:          'jigsaw',
+      title:       'Puzzle Master',
+      subtitle:    'Jigsaw Puzzles',
+      icon:        '🧩',
+      emoji:       '🖼️',
+      description: 'Piece together amazing puzzles! Fun for everyone!',
+      path:        '/games/jigsaw',
+      available:   true,
     },
     {
-      id: "jigsaw",
-      title: "Jigsaw",
-      icon: "fa fa-clock-o",
-      description:
-        "Enhance focus and problem-solving skills with our jigsaw puzzles.",
-      paths: [
-        "/games/jigsaw_6_to_8",
-        "/games/jigsaw_8_to_10",
-        "/games/jigsaw_10_to_12",
-        "/games/jigsaw_12_to_14",
-        "/games/maths_puzzle",
-      ],
-      available: true,
+      id:          'balloon',
+      title:       'Balloon Pop',
+      subtitle:    'Hand-Eye Game',
+      icon:        '🎈',
+      emoji:       '💥',
+      description: 'Pop colorful balloons before they float away! Fun & fast!',
+      path:        '/games/balloon-pop',
+      available:   true,
+    },
+    {
+      id:          'monkeytype',
+      title:       'Speed Typer',
+      subtitle:    'Typing Challenge',
+      icon:        '⌨️',
+      emoji:       '🐒',
+      description: `How fast can you type? Beat your high score! (Ages ${MONKEY_TYPE_MIN_AGE}+)`,
+      path:        '/games/monkeytype',
+      available:   userAge >= MONKEY_TYPE_MIN_AGE,
+      lockedMsg:   `Available for ages ${MONKEY_TYPE_MIN_AGE}+`,
     },
   ];
 
+  const settings = {
+    dots:           true,
+    infinite:       true,
+    speed:          500,
+    slidesToShow:   3,
+    slidesToScroll: 1,
+    autoplay:       false,
+    arrows:         true,
+    responsive: [
+      { breakpoint: 1024, settings: { slidesToShow: 2, slidesToScroll: 1 } },
+      { breakpoint: 640,  settings: { slidesToShow: 1, slidesToScroll: 1, arrows: false } },
+    ],
+  };
+
   return (
-    <div className="games-container pt-28 px-6 min-h-screen bg-gradient-to-b from-[#F9F5EB] to-[#F3EFE5]">
-      <div className="max-w-6xl mx-auto">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-[#66220B] mb-3 quicksand">
-            Learning & Assessment Games
+    <div className="min-h-screen pt-28 pb-16 px-4" style={{ backgroundColor: 'rgb(249, 240, 208)' }}>
+      <div className="max-w-7xl mx-auto">
+        {/* Hero */}
+        <motion.div
+          className="text-center mb-16"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
+          <h1 className="text-5xl md:text-6xl font-bold mb-4 quicksand" style={{ color: '#66220B' }}>
+            Let&apos;s Play &amp; Learn!
           </h1>
-          <div className="w-24 h-1 bg-[#F09000] mx-auto rounded-full mb-4"></div>
-          <p className="text-gray-600 text-lg max-w-2xl mx-auto">
-            Enhance cognitive skills through interactive and engaging assessment
-            activities
+          <div className="w-32 h-2 bg-gradient-to-r from-[#F09000] to-[#FF9F1C] mx-auto rounded-full mb-6" />
+          <p className="text-xl md:text-2xl font-semibold max-w-3xl mx-auto" style={{ color: '#66220B' }}>
+            Pick a game and start your awesome adventure!
           </p>
-        </div>
+        </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {gameCards.map((game) =>
-            game.available ? (
-              <Link
-                to={game.path || game.paths?.[0]} // use first path if multiple
-                key={game.id}
-                className="block transform hover:scale-105 transition-all duration-300 no-underline"
-              >
-                <div className="game-card bg-white rounded-2xl shadow-lg p-8 h-full border-t-4 border-[#F09000] hover:shadow-xl">
-                  <div className="icon flex justify-center mb-5">
-                    <div className="w-16 h-16 rounded-full bg-[#FFF6E9] flex items-center justify-center">
-                      <i className={`${game.icon} text-3xl text-[#F09000]`}></i>
-                    </div>
-                  </div>
-                  <h2 className="text-xl font-bold text-[#66220B] mb-3 text-center quicksand no-underline">
-                    {game.title}
-                  </h2>
-                  <p className="text-gray-600 mb-6 text-center no-underline">
-                    {game.description}
-                  </p>
-                  <div className="flex justify-center">
-                    <span className="px-6 py-2 bg-[#FFF6E9] text-[#F09000] font-semibold rounded-lg hover:bg-[#F09000] hover:text-black transition-colors no-underline">
-                      Start Playing →
-                    </span>
-                  </div>
-                </div>
-              </Link>
-            ) : (
-              <div
-                key={game.id}
-                className="game-card bg-white rounded-2xl shadow-md p-8 h-full border-t-4 border-gray-300 opacity-70 cursor-not-allowed"
-              >
-                <div className="icon flex justify-center mb-5">
-                  <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center">
-                    <i className={`${game.icon} text-3xl text-gray-400`}></i>
-                  </div>
-                </div>
-                <h2 className="text-xl font-bold text-gray-600 mb-3 text-center quicksand no-underline">
-                  {game.title}
-                </h2>
-                <p className="text-gray-500 mb-6 text-center no-underline">
-                  {game.description}
-                </p>
-                <div className="flex justify-center">
-                  <span className="px-6 py-2 bg-gray-100 text-gray-500 font-semibold rounded-lg no-underline">
-                    Coming Soon
-                  </span>
-                </div>
+        {/* Carousel */}
+        <div className="games-carousel-container">
+          <Slider {...settings}>
+            {gameCards.map((game) => (
+              <div key={game.id} className="carousel-slide">
+                {game.available ? (
+                  <Link to={game.path} className="block group no-underline" style={{ textDecoration: 'none', color: 'inherit' }}>
+                    <GameCard game={game} />
+                  </Link>
+                ) : (
+                  <LockedCard game={game} />
+                )}
               </div>
-            )
-          )}
-        </div>
-
-        <div className="mt-16 mb-8 text-center p-8 bg-white rounded-2xl shadow-md max-w-3xl mx-auto">
-          <h3 className="text-2xl font-bold text-[#66220B] mb-4 quicksand">
-            Why Play Our Games?
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <div className="p-4">
-              <div className="w-12 h-12 rounded-full bg-[#FFF6E9] flex items-center justify-center mx-auto mb-3">
-                <i className="fa fa-brain text-xl text-[#F09000]"></i>
-              </div>
-              <h4 className="font-semibold text-[#66220B] mb-1">
-                Cognitive Development
-              </h4>
-              <p className="text-gray-600 text-sm">
-                Enhance problem-solving and critical thinking
-              </p>
-            </div>
-            <div className="p-4">
-              <div className="w-12 h-12 rounded-full bg-[#FFF6E9] flex items-center justify-center mx-auto mb-3">
-                <i className="fa fa-chart-line text-xl text-[#F09000]"></i>
-              </div>
-              <h4 className="font-semibold text-[#66220B] mb-1">
-                Progress Tracking
-              </h4>
-              <p className="text-gray-600 text-sm">
-                Monitor your improvement over time
-              </p>
-            </div>
-            <div className="p-4">
-              <div className="w-12 h-12 rounded-full bg-[#FFF6E9] flex items-center justify-center mx-auto mb-3">
-                <i className="fa fa-smile text-xl text-[#F09000]"></i>
-              </div>
-              <h4 className="font-semibold text-[#66220B] mb-1">
-                Fun Learning
-              </h4>
-              <p className="text-gray-600 text-sm">
-                Engaging activities make assessment enjoyable
-              </p>
-            </div>
-          </div>
-          <p className="text-gray-600">
-            More games will be added regularly. Check back soon!
-          </p>
+            ))}
+          </Slider>
         </div>
       </div>
     </div>
   );
 };
+
+// ── Available game card ───────────────────────────────────────────────
+const GameCard = ({ game }) => (
+  <div className="game-card-wrapper">
+    <div className="relative bg-white rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden h-full border-4 border-[#F09000] hover:border-[#66220B] transform hover:-translate-y-2">
+      <div className="h-3 bg-gradient-to-r from-[#F09000] to-[#FF9F1C]" />
+      <div className="p-8">
+        <div className="flex justify-center mb-6">
+          <div className="text-8xl transform group-hover:scale-110 transition-transform duration-300">
+            {game.icon}
+          </div>
+        </div>
+        <h2 className="text-3xl font-bold mb-2 text-center quicksand" style={{ color: '#66220B' }}>
+          {game.title}
+        </h2>
+        <p className="text-lg font-semibold text-center mb-4" style={{ color: '#66220B' }}>
+          {game.subtitle}
+        </p>
+        <p className="text-lg text-center mb-6 leading-relaxed" style={{ color: '#66220B' }}>
+          {game.description}
+        </p>
+        <div className="flex justify-center">
+          <button className="bg-gradient-to-r from-[#F09000] to-[#FF9F1C] text-black font-bold text-xl py-4 px-10 rounded-full shadow-lg hover:shadow-xl transform group-hover:scale-105 transition-all duration-300 flex items-center gap-3">
+            <span>Play Now!</span>
+            <span className="text-2xl">{game.emoji}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+// ── Age-locked game card ──────────────────────────────────────────────
+const LockedCard = ({ game }) => (
+  <div className="game-card-wrapper">
+    <div className="relative bg-white rounded-3xl shadow-md overflow-hidden h-full border-4 border-[#F09000] opacity-80">
+      <div className="h-3 bg-gradient-to-r from-[#F09000] to-[#FF9F1C]" />
+      <div className="p-8">
+        <div className="flex justify-center mb-6">
+          <div className="text-8xl grayscale">{game.icon}</div>
+        </div>
+        <h2 className="text-3xl font-bold mb-2 text-center quicksand" style={{ color: '#66220B' }}>
+          {game.title}
+        </h2>
+        <p className="text-lg font-semibold text-center mb-4" style={{ color: '#66220B' }}>
+          {game.subtitle}
+        </p>
+        <p className="text-lg text-center mb-6" style={{ color: '#66220B' }}>
+          {game.description}
+        </p>
+        <div className="flex justify-center">
+          <div className="flex flex-col items-center gap-2">
+            <span className="text-3xl">🔒</span>
+            <span className="bg-[#F09000] text-white font-bold text-base py-3 px-8 rounded-full cursor-not-allowed opacity-90">
+              {game.lockedMsg || 'Age Restricted'}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+);
 
 export default Games;

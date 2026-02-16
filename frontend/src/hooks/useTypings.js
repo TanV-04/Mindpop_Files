@@ -1,3 +1,4 @@
+//frontend\src\hooks\useTypings.js
 import { useCallback, useEffect, useRef, useState } from "react";
 
 const isKeyboardCodeAllowed = (code) => {

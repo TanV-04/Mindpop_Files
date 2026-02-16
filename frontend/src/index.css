@@ -1,3 +1,4 @@
+/*frontend\src\index.css*/
 @import "flowbite";
 @tailwind base;
 @tailwind components;
@@ -35,12 +36,16 @@ html {
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
+  padding: 0;
   min-width: 320px;
   min-height: 100vh;
-  overflow: hidden;
-  background-color: #F9F0D0; 
+  background-color: #F9F0D0;
+  font-family: "Quicksand", sans-serif;
+}
+
+#root {
+  width: 100%;
+  min-height: 100vh;
 }
 
 a {

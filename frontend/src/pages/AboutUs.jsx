@@ -1,3 +1,4 @@
+//frontend\src\pages\AboutUs.jsx
 import { Box } from "@mui/material";
 import OutlinedCard from "./OutlinedCard.jsx";
 import useWindowPosition from "../hooks/useWindowPosition.js";

@@ -1,3 +1,4 @@
+//frontend\src\components\BubbleCursor.jsx
 'use client';
 import React, { useEffect, useRef } from 'react';
 

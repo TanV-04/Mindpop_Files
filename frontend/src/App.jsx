@@ -1,164 +1,108 @@
-import "./index.css";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import "react-toastify/dist/ReactToastify.css";
+// frontend/src/App.jsx
+import './index.css';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
+import { useLayoutEffect } from 'react';
+import 'react-toastify/dist/ReactToastify.css';
 
-// Pages and components
-import Home from "./pages/Home";
-import Navbar from "./components/Navbar";
-import BubbleCursor from "./components/BubbleCursor";
-import SignIn from "./pages/SignIn/SignIn.jsx";
-import SignUp from "./pages/SignUp/SignUp.jsx";
-import Games from "./pages/games/Games.jsx";
-import SeguinGame from "./pages/games/SeguinGame.jsx";
-import MonkeyType from "./pages/games/MonkeyType.jsx";
-import Settings from "./components/settings.jsx";
-import Footer from "./components/Footer.jsx";
-import ProtectedRoute from "./components/ProtectedRoute.jsx";
+import Home           from './pages/Home';
+import Navbar         from './components/Navbar';
+import BubbleCursor   from './components/BubbleCursor';
+import SignIn         from './pages/SignIn/SignIn.jsx';
+import SignUp         from './pages/SignUp/SignUp.jsx';
+import Games          from './pages/games/Games.jsx';
+import SeguinGame     from './pages/games/SeguinGame.jsx';
+import MonkeyType     from './pages/games/MonkeyType.jsx';
+import Settings       from './components/settings.jsx';
+import Footer         from './components/Footer.jsx';
+import ProtectedRoute from './components/ProtectedRoute.jsx';
+import BalloonPop     from './pages/games/BalloonPop.jsx';
+import JigsawGame     from './components/games/jigsaw/jigsawGame.jsx';
+import AdminDashboard from './pages/admin/AdminDashboard.jsx';
+import AdminRoute     from './components/AdminRoute.jsx';
 
-// Jigsaw puzzle routes
-import Jigsaw_6_to_8 from "./components/games/jigsaw/Jigsaw_6_to_8.jsx";
-import Jigsaw_8_to_10 from "./components/games/jigsaw/Jigsaw_8_to_10.jsx";
-import Jigsaw_10_to_12 from "./components/games/jigsaw/Jigsaw_10_to_12.jsx";
-import Jigsaw_12_to_14 from "./components/games/jigsaw/Jigsaw_12_to_14.jsx";
-import MathsPuzzle from "./components/games/jigsaw/MathsPuzzle.jsx";
-import JigsawHome from "./components/games/jigsaw/JigsawHome.jsx";
-import JigsawGamePage from "./pages/games/JigsawGamePage.jsx";
+// ─── Scroll to top BEFORE paint ──────────────────────────────────────
+const ScrollToTop = () => {
+  const { pathname } = useLocation();
+  useLayoutEffect(() => {
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  }, [pathname]);
+  return null;
+};
 
-// Analysis and test routes
-import AutismAnalysis from "./components/ParentFriendlyAnalysis.jsx";
-import DyslexiaTest from "./pages/DyslexiaTest";
+// ─── Cream background wrapper for all game pages ─────────────────────
+// Ensures the page background is always MindPop cream (#F9F0D0) the
+// instant a game route mounts, before the game's own CSS has loaded.
+// This prevents the white-flash on navigation to any game.
+const GamePageWrapper = ({ children }) => (
+  <div className="min-h-screen" style={{ backgroundColor: 'rgb(249, 240, 208)' }}>
+    {children}
+  </div>
+);
+
+// ─── Bubble cursor hidden on all game pages ───────────────────────────
+const GAME_PATHS = [
+  '/games/seguin-board',
+  '/games/monkeytype',
+  '/games/jigsaw',
+  '/games/balloon-pop',
+];
+
+const ConditionalBubbleCursor = () => {
+  const { pathname } = useLocation();
+  if (GAME_PATHS.some((p) => pathname.startsWith(p))) return null;
+  return <BubbleCursor />;
+};
 
 function App() {
   return (
     <div className="min-h-[calc(100vh-64px)] flex flex-col">
       <BrowserRouter>
+        <ScrollToTop />
         <div className="flex flex-col flex-1">
           <Navbar />
-          <BubbleCursor />
-          <div className="flex-1">
+          <ConditionalBubbleCursor />
+          <div className="flex-1 pt-16">
             <Routes>
-              {/* Public Routes */}
-              <Route path="/" element={<Home />} />
+              {/* ── Public ──────────────────────────────────── */}
+              <Route path="/"        element={<Home />} />
               <Route path="/sign-in" element={<SignIn />} />
               <Route path="/sign-up" element={<SignUp />} />
 
-              {/* Protected Dyslexia Test */}
-              <Route
-                path="/dyslexia"
-                element={
-                  <ProtectedRoute>
-                    <DyslexiaTest />
-                  </ProtectedRoute>
-                }
-              />
+              {/* ── Games (all wrapped in GamePageWrapper) ── */}
+              <Route path="/games" element={
+                <ProtectedRoute><Games /></ProtectedRoute>
+              } />
+              <Route path="/games/seguin-board" element={
+                <ProtectedRoute>
+                  <GamePageWrapper><SeguinGame /></GamePageWrapper>
+                </ProtectedRoute>
+              } />
+              <Route path="/games/monkeytype" element={
+                <ProtectedRoute>
+                  <GamePageWrapper><MonkeyType /></GamePageWrapper>
+                </ProtectedRoute>
+              } />
+              <Route path="/games/jigsaw" element={
+                <ProtectedRoute>
+                  <GamePageWrapper><JigsawGame /></GamePageWrapper>
+                </ProtectedRoute>
+              } />
+              <Route path="/games/balloon-pop" element={
+                <ProtectedRoute>
+                  <GamePageWrapper><BalloonPop /></GamePageWrapper>
+                </ProtectedRoute>
+              } />
 
-              {/* Protected Game Routes */}
-              <Route
-                path="/games"
-                element={
-                  <ProtectedRoute>
-                    <Games />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/games/seguin-board"
-                element={
-                  <ProtectedRoute>
-                    <SeguinGame />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/games/monkeytype"
-                element={
-                  <ProtectedRoute>
-                    <MonkeyType />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/games/jigsaw_6_to_8"
-                element={
-                  <ProtectedRoute>
-                    <Jigsaw_6_to_8 />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/games/jigsaw_8_to_10"
-                element={
-                  <ProtectedRoute>
-                    <Jigsaw_8_to_10 />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/games/jigsaw_10_to_12"
-                element={
-                  <ProtectedRoute>
-                    <Jigsaw_10_to_12 />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/games/jigsaw_12_to_14"
-                element={
-                  <ProtectedRoute>
-                    <Jigsaw_12_to_14 />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/games/maths_puzzle"
-                element={
-                  <ProtectedRoute>
-                    <MathsPuzzle />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/games/jigsaw"
-                element={
-                  <ProtectedRoute>
-                    <JigsawHome />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/jigsaw/jigsawstart"
-                element={
-                  <ProtectedRoute>
-                    <JigsawGamePage />
-                  </ProtectedRoute>
-                }
-              />
+              {/* ── Settings ────────────────────────────────── */}
+              <Route path="/settings" element={
+                <ProtectedRoute><Settings /></ProtectedRoute>
+              } />
 
-              {/* Protected Settings & Analysis */}
-              <Route
-                path="/settings"
-                element={
-                  <ProtectedRoute>
-                    <Settings />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/autism-analysis"
-                element={
-                  <ProtectedRoute>
-                    <AutismAnalysis />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/dyslexia"
-                element={
-                  <ProtectedRoute>
-                    <DyslexiaTest />
-                  </ProtectedRoute>
-                }
-              />
+              {/* ── Admin ───────────────────────────────────── */}
+              <Route path="/admin" element={
+                <AdminRoute><AdminDashboard /></AdminRoute>
+              } />
             </Routes>
           </div>
           <Footer className="mt-auto" />

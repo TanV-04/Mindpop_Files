@@ -1,3 +1,4 @@
+//frontend\src\components\games\monkeytype\MonkeyTypePerformance.jsx
 import React from 'react';
 import {
   LineChart, Line, Area, XAxis, YAxis, CartesianGrid,

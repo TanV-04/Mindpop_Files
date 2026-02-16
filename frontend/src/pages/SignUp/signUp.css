@@ -1,133 +1,75 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
+/* frontend/src/pages/SignUp/signUp.css */
+/* ── Admin Toggle ──────────────────────────────────────────────────── */
+.admin-toggle-wrapper {
   display: flex;
   align-items: center;
-  justify-content: center;
-  min-height: 140vh;
-  background: #f9f0d0;
+  gap: 0.75rem;
+  margin: 0 auto 1rem;
+  padding: 0.75rem 1.25rem;
+  background: #fef9f0;
+  border: 2px dashed #F09000;
+  border-radius: 12px;
+  width: fit-content;
 }
 
-#root {
-  width: 100%;
-  padding: 0 0.6rem;
-}
-
-.login-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  max-width: 410px;
-  width: 100%;
-  margin: 0 auto;
-  border-radius: 0.5rem;
-  background: #ffff;
-  padding: 2rem 1.5rem;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-}
-
-.login-container .form-title {
-  text-align: center;
-  font-size: 1.37rem;
+.admin-toggle-label {
+  font-family: 'Quicksand', sans-serif;
   font-weight: 600;
-  margin-bottom: 1.87rem;
+  color: #66220B;
+  font-size: 0.95rem;
 }
 
-.login-container .social-login {
-  display: flex;
-  gap: 1.31rem;
-  justify-content: center;
-}
-
-.social-login .social-abbreviation {
-  display: flex;
-  gap: 0.81rem;
-  cursor: pointer;
-  font-size: 1rem;
-  padding: 0.75rem 0;
-  align-items: center;
-  justify-content: center;
-}
-
-.social-login .social-icon {
-  width: 23px;
-}
-
-.login-form {
-  width: 100%;
-}
-
-.input-wrapper {
+.admin-toggle {
   position: relative;
-  margin-bottom: 1.5rem;
-}
-
-.input-field {
-  width: 100%;
-  padding-left: 2.5rem; 
-  padding-right: 1rem; 
-  padding-top: 0.8rem; 
-  padding-bottom: 0.8rem; 
-  font-size: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 0.25rem;
-}
-
-.input-wrapper i {
-  position: absolute;
-  left: 1rem; 
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 1.2rem; 
-}
-
-.forgot-pass-link {
-  display: block;
-  text-align: center;
-  margin-top: 1rem;
-  font-size: 0.9rem;
-  color: #4a90e2;
-}
-
-.login-button {
-  width: 100%;
-  padding: 1rem;
-  background-color: #4a90e2;
+  width: 52px;
+  height: 28px;
+  border-radius: 14px;
+  background: #d1d5db;
   border: none;
-  color: white;
-  font-size: 1rem;
   cursor: pointer;
-  border-radius: 0.25rem;
-  transition: background-color 0.3s ease;
+  transition: background 0.3s ease;
+  padding: 0;
 }
 
-.login-button:hover {
-  background-color: #357ab7;
+.admin-toggle.active {
+  background: #F09000;
 }
 
-.login-button:active {
-  transform: scale(0.98);
+.toggle-thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: white;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  transition: transform 0.3s ease;
 }
 
-.signup-text {
-  text-align: center;
-  margin-top: 1.5rem;
+.admin-toggle.active .toggle-thumb {
+  transform: translateX(24px);
+}
+
+.admin-toggle-status {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #999;
+  letter-spacing: 0.05em;
+  min-width: 24px;
+}
+
+.admin-toggle.active ~ .admin-toggle-status {
+  color: #F09000;
+}
+
+.admin-notice {
+  background: #fff8e6;
+  border-left: 4px solid #F09000;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.25rem;
   font-size: 0.9rem;
-}
-
-.signup-text a {
-  color: #4a90e2;
-}
-
-.small-heading {
-  font-size: 0.875rem;
-  text-align: center;
-  margin: 1rem 0;
-  font-weight: 400;
-  color: #666;
+  color: #66220B;
+  line-height: 1.4;
 }

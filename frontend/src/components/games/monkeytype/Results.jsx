@@ -1,3 +1,4 @@
+//frontend\src\components\games\monkeytype\Results.jsx
 import React from "react";
 import { motion } from "framer-motion";
 import { formatPercentage, calculateWPM } from "../../../utils/helpers";

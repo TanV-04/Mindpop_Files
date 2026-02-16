@@ -1,15 +1,4 @@
-// import express from 'express';
-// import { register, login } from '../controllers/authController.js';
-// import { validateRegistration, validateLogin } from '../middleware/validationMiddleware.js';
-
-// const router = express.Router();
-
-// router.post('/register', validateRegistration, register);
-// router.post('/login', validateLogin, login);
-
-// export default router;
-
-
+//routes/authRoutes.js
 import express from 'express';
 import { register, login, logout, logoutAll } from '../controllers/authController.js';
 import { validateRegistration, validateLogin } from '../middleware/validationMiddleware.js';

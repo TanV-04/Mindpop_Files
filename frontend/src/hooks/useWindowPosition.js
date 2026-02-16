@@ -1,3 +1,4 @@
+//frontend\src\hooks\useWindowPosition.js
 import { useLayoutEffect, useState } from "react";
 
 // Original animation trigger functionality

@@ -1,3 +1,4 @@
+/*frontend\src\styles\Navbar.css*/
 .quicksand {
   font-family: "Quicksand", serif;
   font-optical-sizing: auto;
@@ -73,7 +74,8 @@
   }
 }
 
-/* Better tap targets on mobile */
+/* Better tap targets on mobile 
+*/
 @media (max-width: 480px) {
   .hamburger-btn {
     width: 44px;

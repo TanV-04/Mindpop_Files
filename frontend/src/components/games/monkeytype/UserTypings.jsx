@@ -1,3 +1,4 @@
+//frontend\src\components\games\monkeytype\UserTypings.jsx
 import React, { useEffect } from "react";
 
 const UserTypings = ({ userInput = "", words = "", isDarkMode = false }) => {

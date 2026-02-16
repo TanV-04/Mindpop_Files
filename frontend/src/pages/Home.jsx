@@ -1,3 +1,4 @@
+//frontend\src\pages\Home.jsx
 import React, { useEffect, useState } from "react";
 import { CssBaseline, Box, IconButton, Collapse, useMediaQuery } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
@@ -69,7 +70,6 @@ const Home = () => {
                 right: isMobile ? "-10vw" : "auto",
                 clipPath: isMobile ? "inset(0 0 0 50%)" : "none",
               }}
-              alt="Animated particles"
             />
 
             {/* Animated Mindpop Text */}

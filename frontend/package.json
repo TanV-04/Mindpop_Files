@@ -43,9 +43,11 @@
     "react-mic": "^12.4.6",
     "react-router-dom": "^7.1.5",
     "react-scroll": "^1.9.2",
+    "react-slick": "^0.31.0",
     "react-toastify": "^11.0.5",
     "recharts": "^2.15.1",
     "skrollr": "^0.6.26",
+    "slick-carousel": "^1.8.1",
     "vite-project": "file:"
   },
   "devDependencies": {

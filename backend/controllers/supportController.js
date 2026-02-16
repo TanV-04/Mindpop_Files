@@ -1,4 +1,4 @@
-//supportController.js
+////controllers/supportController.js
 import SupportTicket from '../models/SupportTicket.js';
 import User from '../models/User.js';
 import asyncHandler from 'express-async-handler';

@@ -1,0 +1,76 @@
+/*frontend\src\pages\games\Games.css*/
+.games-carousel-container {
+  margin: 0 auto;
+  max-width: 1400px;
+}
+
+.carousel-slide {
+  padding: 0 15px;
+}
+
+.game-card-wrapper {
+  height: 550px;
+  display: flex;
+  align-items: stretch;
+}
+
+.game-card-wrapper > a,
+.game-card-wrapper > div {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Slick Carousel Custom Styling */
+.slick-prev,
+.slick-next {
+  width: 50px !important;
+  height: 50px !important;
+  z-index: 100;
+}
+
+.slick-prev:before,
+.slick-next:before {
+  font-size: 50px !important;
+  color: #f09000 !important;
+}
+
+.slick-prev {
+  left: -60px !important;
+}
+
+.slick-next {
+  right: -60px !important;
+}
+
+.slick-dots {
+  bottom: -50px !important;
+}
+
+.slick-dots li button:before {
+  font-size: 12px !important;
+  color: #f09000 !important;
+}
+
+.slick-dots li.slick-active button:before {
+  color: #66220b !important;
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+  .carousel-slide {
+    padding: 0 10px;
+  }
+
+  .game-card-wrapper {
+    height: 500px;
+  }
+
+  .slick-prev {
+    left: 10px !important;
+  }
+
+  .slick-next {
+    right: 10px !important;
+  }
+}

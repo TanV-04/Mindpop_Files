@@ -1,3 +1,4 @@
+//frontend\src\components\settings\ProfileSettings.jsx
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { userService } from '../../utils/apiService';
@@ -46,7 +47,7 @@ const ProfileSettings = ({ userData, setUserData }) => {
 
   const handleImageError = () => {
     console.log("Image failed to load, using placeholder");
-    setProfileImage('/api/placeholder/150/150');
+    setProfileImage('/api/placeholder/100/100');
   };
 
   const handleChange = (e) => {
@@ -168,7 +169,7 @@ const ProfileSettings = ({ userData, setUserData }) => {
               onClick={() => setIsEditing(true)}
               style={{
                 backgroundColor: '#F09000',
-                color: 'white',
+                color: 'black',
                 padding: '8px 16px',
                 borderRadius: '50px',
                 border: 'none',
@@ -190,7 +191,7 @@ const ProfileSettings = ({ userData, setUserData }) => {
             />
             
             {isEditing && (
-              <label className="absolute bottom-0 right-0 bg-[#F09000] text-white p-2 rounded-full cursor-pointer shadow-md">
+              <label className="absolute bottom-0 right-0 bg-[#F09000] text-black p-2 rounded-full cursor-pointer shadow-md">
                 <i className="fas fa-camera"></i>
                 <input 
                   type="file" 

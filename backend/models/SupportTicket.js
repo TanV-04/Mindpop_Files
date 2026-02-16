@@ -1,4 +1,4 @@
-//SupportTicket.js
+//models/SupportTicket.js
 import mongoose from 'mongoose';
 
 const supportTicketSchema = new mongoose.Schema({

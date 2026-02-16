@@ -1,3 +1,4 @@
+//frontend\src\pages\games\MonkeyType.jsx
 import React, { useEffect } from 'react';
 import MonkeyTypeComponent from '../../components/games/monkeytype/MonkeyTypeComponent';
 import { useParams, useNavigate } from "react-router-dom";

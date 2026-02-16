@@ -1,3 +1,4 @@
+//frontend\src\components\games\monkeytype\MonkeyTypeComponent.jsx
 import React, { useEffect, useState, useRef } from "react";
 import RestartButton from "../../RestartButton";
 import Results from "./Results";
@@ -278,7 +279,7 @@ const useAITextGenerator = (ageGroup) => {
       }
 
       // If all models fail, use fallback
-      throw lastError || new Error("All models failed");
+      throw new Error("All models failed");
     } catch (err) {
       console.error("Error generating text with Groq:", err);
       setError(err);

@@ -1,3 +1,4 @@
+//middleware/authMiddleware.js
 import jwt from 'jsonwebtoken';
 import { asyncHandler } from '../middleware/errorMiddleware.js';
 import User from '../models/User.js';
