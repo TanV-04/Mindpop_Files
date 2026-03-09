@@ -1,4 +1,4 @@
-//frontend\src\components\BubbleCursor.jsx
+//frontend/src/components/BubbleCursor.jsx
 'use client';
 import React, { useEffect, useRef } from 'react';
 
@@ -10,30 +10,28 @@ class Particle {
   baseDimension;
 
   constructor(x, y) {
-    this.initialLifeSpan = Math.floor(Math.random() * 60 + 60); // Particle lifespan between 60 and 120
+    this.initialLifeSpan = Math.floor(Math.random() * 60 + 60);
     this.lifeSpan = this.initialLifeSpan;
     this.velocity = {
       x: (Math.random() < 0.5 ? -1 : 1) * (Math.random() / 10),
-      y: -0.4 + Math.random() * -1, // Create random velocity for y (upward)
+      y: -0.4 + Math.random() * -1,
     };
     this.position = { x, y };
-    this.baseDimension = 12; // Increased size of the particle (previously 4)
+    this.baseDimension = 12;
   }
 
   update(context) {
     this.position.x += this.velocity.x;
     this.position.y += this.velocity.y;
-    this.velocity.x += ((Math.random() < 0.5 ? -1 : 1) * 2) / 75; // Small random movement in x direction
-    this.velocity.y -= Math.random() / 600; // Add upward velocity
-    this.lifeSpan--; // Decrease lifespan of the particle
+    this.velocity.x += ((Math.random() < 0.5 ? -1 : 1) * 2) / 75;
+    this.velocity.y -= Math.random() / 600;
+    this.lifeSpan--;
 
-    // Scale the particle's size based on how much life is remaining
     const scale =
       0.2 + (this.initialLifeSpan - this.lifeSpan) / this.initialLifeSpan;
 
-    // Draw the particle with the updated color and transparency
-    context.fillStyle = 'rgba(240, 144, 0, 0.4)'; // Translucent orange color (#f09000)
-    context.strokeStyle = 'rgba(240, 144, 0, 0.5)'; // Same translucent orange color for stroke
+    context.fillStyle = 'rgba(240, 144, 0, 0.4)';
+    context.strokeStyle = 'rgba(240, 144, 0, 0.5)';
     context.beginPath();
     context.arc(
       this.position.x - (this.baseDimension / 2) * scale,
@@ -50,9 +48,9 @@ class Particle {
 
 const BubbleCursor = ({ wrapperElement }) => {
   const canvasRef = useRef(null);
-  const particlesRef = useRef([]); // Store particles in a ref
-  const cursorRef = useRef({ x: 0, y: 0 }); // Store cursor position
-  const animationFrameRef = useRef(null); // Store animation frame reference
+  const particlesRef = useRef([]);
+  const cursorRef = useRef({ x: 0, y: 0 });
+  const animationFrameRef = useRef(null);
 
   useEffect(() => {
     const prefersReducedMotion = window.matchMedia(
@@ -75,12 +73,10 @@ const BubbleCursor = ({ wrapperElement }) => {
       context = canvas.getContext('2d');
       if (!context) return;
 
-      // Set canvas styles
       canvas.style.top = '0px';
       canvas.style.left = '0px';
-      canvas.style.pointerEvents = 'none'; // Prevent the canvas from interfering with interactions
+      canvas.style.pointerEvents = 'none';
 
-      // Position the canvas
       if (wrapperElement) {
         canvas.style.position = 'absolute';
         wrapperElement.appendChild(canvas);
@@ -147,39 +143,50 @@ const BubbleCursor = ({ wrapperElement }) => {
       if (particlesRef.current.length === 0) {
         return;
       }
-      context.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas before drawing new frame
+      context.clearRect(0, 0, canvas.width, canvas.height);
       for (let i = 0; i < particlesRef.current.length; i++) {
-        particlesRef.current[i].update(context); // Update each particle
+        particlesRef.current[i].update(context);
       }
       for (let i = particlesRef.current.length - 1; i >= 0; i--) {
         if (particlesRef.current[i].lifeSpan < 0) {
-          particlesRef.current.splice(i, 1); // Remove expired particles
+          particlesRef.current.splice(i, 1);
         }
       }
       if (particlesRef.current.length === 0) {
-        context.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas if no particles
+        context.clearRect(0, 0, canvas.width, canvas.height);
       }
     };
 
     const loop = () => {
       updateParticles();
-      animationFrameRef.current = requestAnimationFrame(loop); // Request next animation frame
+      animationFrameRef.current = requestAnimationFrame(loop);
     };
 
-    init(); // Initialize the cursor effect
+    init();
 
+    // ─── CLEANUP (FIX: defensive checks to prevent DOM errors) ────────
     return () => {
-      if (canvas) {
-        canvas.remove();
-      }
+      // 1. Cancel animation frame first
       if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current); // Clean up animation frame
+        cancelAnimationFrame(animationFrameRef.current);
       }
+
+      // 2. Remove event listeners
       const element = wrapperElement || document.body;
       element.removeEventListener('mousemove', onMouseMove);
       element.removeEventListener('touchmove', onTouchMove);
       element.removeEventListener('touchstart', onTouchMove);
       window.removeEventListener('resize', onWindowResize);
+
+      // 3. Remove canvas only if it still has a parent (defensive)
+      if (canvas && canvas.parentNode) {
+        try {
+          canvas.parentNode.removeChild(canvas);
+        } catch (e) {
+          // Silently catch if removal fails (already removed by React)
+          console.debug('Canvas cleanup: node already removed');
+        }
+      }
     };
   }, [wrapperElement]);
 

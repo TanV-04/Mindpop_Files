@@ -61,7 +61,7 @@ function App() {
         <ScrollToTop />
         <div className="flex flex-col flex-1">
           <Navbar />
-          <ConditionalBubbleCursor />
+          {/* <ConditionalBubbleCursor /> */}
           <div className="flex-1 pt-16">
             <Routes>
               {/* ── Public ──────────────────────────────────── */}
