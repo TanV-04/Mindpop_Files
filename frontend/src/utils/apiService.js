@@ -81,10 +81,10 @@ export const supportService = {
   respondTicket: (id, data) => api.post(`/support/ticket/${id}/respond`,  data),
 };
 
-// ─── Admin Services ───────────────────────────────────────────────────
+// ─── Admin Services (UPDATED) ─────────────────────────────────────────
 export const adminService = {
-  getAllChildren:     ()         => api.get('/progress/admin/all'),
-  getChildProgress:  (childId, params) => api.get(`/progress/admin/child/${childId}`, { params }),
+  getAllChildren:   () => api.get('/admin/children'),
+  getChildProgress: (childId, params) => api.get(`/admin/children/${childId}/progress`, { params }),
 };
 
 export default api;

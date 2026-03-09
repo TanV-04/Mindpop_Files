@@ -1,301 +1,396 @@
 // frontend/src/pages/admin/AdminDashboard.jsx
-// Admin-only view: performance metrics for all registered children
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
-  Legend, ResponsiveContainer, PieChart, Pie, Cell,
-} from 'recharts';
-import axios from 'axios';
+import { motion } from 'framer-motion';
+import { adminService } from '../../utils/apiService';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8001/api';
-
-const GAME_LABELS = {
-  seguin:  '🔷 Shape Matcher',
-  monkey:  '⌨️ Speed Typer',
-  jigsaw:  '🧩 Puzzle Master',
-  balloon: '🎈 Balloon Pop',
-};
-
-const GAME_COLORS = {
-  seguin:  '#F09000',
-  monkey:  '#4ECDC4',
-  jigsaw:  '#66220B',
-  balloon: '#FF6B6B',
-};
-
-const PIE_COLORS = ['#F09000', '#4ECDC4', '#66220B', '#FF6B6B'];
-
-// ─── Helper: metric display ───────────────────────────────────────────
-const formatMetric = (gameType, stats) => {
-  if (!stats) return '—';
-  if (gameType === 'monkey')  return stats.avgWpm    ? `${stats.avgWpm} WPM`  : '—';
-  if (gameType === 'balloon') return stats.avgScore  ? `${stats.avgScore} pts` : '—';
-  return stats.avgTime ? `${stats.avgTime}s` : '—';
-};
-
-// ─── Child Row in expandable table ───────────────────────────────────
-const ChildRow = ({ child, onSelect }) => {
-  const { child: info, totalSessions, recentActivity, lastActive, gameBreakdown } = child;
-  const gamesPlayed = Object.keys(gameBreakdown).length;
-
-  return (
-    <tr
-      style={{ borderBottom: '1px solid #f5e6d0', cursor: 'pointer', transition: 'background 0.2s' }}
-      onClick={() => onSelect(child)}
-      onMouseEnter={(e) => (e.currentTarget.style.background = '#fff8f0')}
-      onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
-    >
-      <td style={tdStyle}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#F09000', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 700 }}>
-            {(info.name || '?')[0].toUpperCase()}
-          </div>
-          <div>
-            <div style={{ fontWeight: 700, color: '#66220B' }}>{info.name}</div>
-            <div style={{ fontSize: '0.75rem', color: '#888' }}>@{info.username}</div>
-          </div>
-        </div>
-      </td>
-      <td style={tdStyle}>{info.age ?? '—'}</td>
-      <td style={tdStyle}><span style={badgeStyle}>{totalSessions}</span></td>
-      <td style={tdStyle}><span style={{ ...badgeStyle, background: recentActivity > 0 ? '#d4f7e0' : '#f5f5f5', color: recentActivity > 0 ? '#166534' : '#888' }}>{recentActivity} this week</span></td>
-      <td style={tdStyle}>{gamesPlayed} / 4</td>
-      <td style={tdStyle}>{lastActive ? new Date(lastActive).toLocaleDateString() : 'Never'}</td>
-      <td style={tdStyle}><span style={{ color: '#F09000', fontWeight: 600 }}>View →</span></td>
-    </tr>
-  );
-};
-
-// ─── Child Detail Modal ───────────────────────────────────────────────
-const ChildDetailModal = ({ child, onClose }) => {
-  const { child: info, totalSessions, gameBreakdown } = child;
-
-  const gameKeys = Object.keys(gameBreakdown);
-
-  const barData = gameKeys.map((g) => ({
-    game: GAME_LABELS[g] || g,
-    sessions: gameBreakdown[g].totalSessions,
-  }));
-
-  return (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}
-      onClick={onClose}>
-      <div style={{ background: 'white', borderRadius: 20, padding: '2rem', maxWidth: 680, width: '100%', maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}
-        onClick={(e) => e.stopPropagation()}>
-
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-          <div>
-            <h2 style={{ color: '#66220B', fontWeight: 800, margin: 0 }}>{info.name}</h2>
-            <p style={{ color: '#888', margin: '4px 0 0', fontSize: '0.9rem' }}>Age {info.age} · @{info.username} · {totalSessions} total sessions</p>
-          </div>
-          <button onClick={onClose} style={{ background: 'none', border: '2px solid #F09000', borderRadius: 50, width: 36, height: 36, cursor: 'pointer', color: '#F09000', fontWeight: 700, fontSize: '1rem' }}>✕</button>
-        </div>
-
-        {/* Per-game metrics */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
-          {gameKeys.map((g) => {
-            const s = gameBreakdown[g];
-            const color = GAME_COLORS[g] || '#888';
-            return (
-              <div key={g} style={{ background: '#fff8f0', borderRadius: 12, padding: '1rem', borderLeft: `4px solid ${color}` }}>
-                <div style={{ fontSize: '1.2rem', marginBottom: 4 }}>{GAME_LABELS[g]?.split(' ')[0]}</div>
-                <div style={{ fontWeight: 700, color, fontSize: '1.3rem' }}>{formatMetric(g, s)}</div>
-                <div style={{ fontSize: '0.75rem', color: '#888', marginTop: 4 }}>{s.totalSessions} sessions</div>
-                {s.bestTime && <div style={{ fontSize: '0.72rem', color: '#aaa' }}>Best: {s.bestTime}s</div>}
-                {s.bestScore && <div style={{ fontSize: '0.72rem', color: '#aaa' }}>Best: {s.bestScore} pts</div>}
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Sessions bar chart */}
-        {barData.length > 0 && (
-          <div>
-            <h4 style={{ color: '#66220B', fontWeight: 700, marginBottom: 12 }}>Sessions per Game</h4>
-            <ResponsiveContainer width="100%" height={180}>
-              <BarChart data={barData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="game" tick={{ fontSize: 11 }} />
-                <YAxis allowDecimals={false} />
-                <Tooltip />
-                <Bar dataKey="sessions" fill="#F09000" radius={[4, 4, 0, 0]} name="Sessions" />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
-
-// ─── Main Admin Dashboard ─────────────────────────────────────────────
 const AdminDashboard = () => {
-  const navigate = useNavigate();
-  const [data,     setData]     = useState(null);
-  const [loading,  setLoading]  = useState(true);
-  const [error,    setError]    = useState(null);
-  const [selected, setSelected] = useState(null);
-  const [search,   setSearch]   = useState('');
+  const [loading, setLoading] = useState(true);
+  const [children, setChildren] = useState([]);
+  const [platformStats, setPlatformStats] = useState(null);
+  const [selectedChild, setSelectedChild] = useState(null);
+  const [childSessions, setChildSessions] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sortBy, setSortBy] = useState('lastActive'); // lastActive, name, age, sessions
+  const [filterGame, setFilterGame] = useState('all'); // all, seguin, monkey, jigsaw, balloon
 
   useEffect(() => {
-    const fetchAdminData = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        const res = await axios.get(`${API_URL}/progress/admin/all`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setData(res.data);
-      } catch (err) {
-        if (err.response?.status === 403) {
-          navigate('/games', { replace: true });
-        } else {
-          setError('Failed to load admin data. Please try again.');
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchAdminData();
-  }, [navigate]);
+  }, []);
 
-  const handleLogout = () => {
-    localStorage.clear();
-    navigate('/sign-in');
+  const fetchAdminData = async () => {
+    try {
+      setLoading(true);
+      const data = await adminService.getAllChildren();
+      
+      setPlatformStats(data.platformStats || {});
+      setChildren(Array.isArray(data.children) ? data.children : []);
+    } catch (error) {
+      console.error('Error fetching admin data:', error);
+      setPlatformStats({});
+      setChildren([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleChildClick = async (child) => {
+    try {
+      setSelectedChild(child);
+      // Fetch all sessions for this child
+      const sessionsData = await adminService.getChildProgress(child.id, { limit: 100 });
+      setChildSessions(sessionsData.sessions || []);
+    } catch (error) {
+      console.error('Error fetching child sessions:', error);
+    }
+  };
+
+  const closeModal = () => {
+    setSelectedChild(null);
+    setChildSessions([]);
+  };
+
+  // Filter and sort children (defensive checks)
+  const filteredChildren = children
+    .filter(child => 
+      (child.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+      (child.email?.toLowerCase() || '').includes(searchTerm.toLowerCase())
+    )
+    .sort((a, b) => {
+      switch (sortBy) {
+        case 'name':
+          return (a.name || '').localeCompare(b.name || '');
+        case 'age':
+          return (a.age || 0) - (b.age || 0);
+        case 'sessions':
+          return (b.totalSessions || 0) - (a.totalSessions || 0);
+        case 'lastActive':
+        default:
+          return new Date(b.lastActive || 0) - new Date(a.lastActive || 0);
+      }
+    });
+
+  // Filter sessions by game (defensive)
+  const filteredSessions = (childSessions || []).filter(session => 
+    filterGame === 'all' || session?.gameType === filterGame
+  );
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: 'numeric', 
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  const getGameIcon = (gameType) => {
+    const icons = {
+      seguin: '🔷',
+      monkey: '⌨️',
+      jigsaw: '🧩',
+      balloon: '🎈'
+    };
+    return icons[gameType] || '🎮';
+  };
+
+  const getGameName = (gameType) => {
+    const names = {
+      seguin: 'Shape Matcher',
+      monkey: 'Speed Typer',
+      jigsaw: 'Puzzle Master',
+      balloon: 'Balloon Pop'
+    };
+    return names[gameType] || gameType;
   };
 
   if (loading) {
     return (
-      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F9F0D0' }}>
-        <div style={{ width: 52, height: 52, border: '5px solid #F09000', borderTop: '5px solid transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F9F0D0' }}>
-        <div style={{ textAlign: 'center', background: 'white', borderRadius: 20, padding: '2rem', boxShadow: '0 8px 32px rgba(102,34,11,0.15)' }}>
-          <p style={{ color: '#c33', fontWeight: 600 }}>{error}</p>
-          <button onClick={() => window.location.reload()} style={{ marginTop: 16, background: '#F09000', color: 'white', padding: '0.5rem 1.5rem', border: 'none', borderRadius: 8, cursor: 'pointer' }}>
-            Retry
-          </button>
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#F9F0D0' }}>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-4 border-[#F09000] border-t-transparent mx-auto mb-4"></div>
+          <p className="text-[#66220B] font-semibold">Loading admin dashboard...</p>
         </div>
       </div>
     );
   }
-
-  const { platformStats, children = [] } = data;
-  const filteredChildren = children.filter((c) =>
-    c.child.name?.toLowerCase().includes(search.toLowerCase()) ||
-    c.child.username?.toLowerCase().includes(search.toLowerCase())
-  );
-
-  // Platform-level pie chart
-  const pieData = Object.entries(platformStats?.gameBreakdown || {})
-    .filter(([, v]) => v > 0)
-    .map(([key, value]) => ({ name: GAME_LABELS[key] || key, value }));
 
   return (
-    <div style={{ minHeight: '100vh', background: '#F9F0D0', paddingTop: 80, paddingBottom: '3rem', paddingInline: '1.5rem' }}>
-      <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+    <div className="min-h-screen py-8 px-4" style={{ backgroundColor: '#F9F0D0' }}>
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-8"
+        >
+          <h1 className="text-4xl font-bold text-[#66220B] mb-2">Admin Dashboard</h1>
+          <p className="text-[#66220B] opacity-75">Platform Overview & Child Management</p>
+        </motion.div>
 
-        {/* ── Admin Header ──────────────────────────────────────── */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
-          <div>
-            <h1 style={{ fontFamily: "'Quicksand', sans-serif", fontSize: '2.2rem', fontWeight: 800, color: '#66220B', margin: 0 }}>
-              👩‍💼 Admin Dashboard
-            </h1>
-            <p style={{ color: '#888', marginTop: 6 }}>MindPop Children Performance Overview</p>
-          </div>
-          <button onClick={handleLogout} style={{ background: '#66220B', color: 'white', padding: '0.6rem 1.5rem', border: 'none', borderRadius: 30, cursor: 'pointer', fontFamily: "'Quicksand', sans-serif", fontWeight: 600 }}>
-            Log Out
-          </button>
-        </div>
-
-        {/* ── Platform Stats ────────────────────────────────────── */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
-          {[
-            { emoji: '👧', label: 'Total Children', value: platformStats?.totalChildren ?? 0 },
-            { emoji: '🎮', label: 'Total Sessions', value: platformStats?.totalSessions ?? 0 },
-            ...Object.entries(platformStats?.gameBreakdown || {}).map(([g, v]) => ({
-              emoji: GAME_LABELS[g]?.split(' ')[0] ?? '🎯',
-              label: `${GAME_LABELS[g]?.slice(2) ?? g} Sessions`,
-              value: v,
-            })),
-          ].map(({ emoji, label, value }, i) => (
-            <div key={i} style={{ background: 'white', borderRadius: 14, padding: '1.25rem', boxShadow: '0 2px 8px rgba(102,34,11,0.1)', textAlign: 'center' }}>
-              <div style={{ fontSize: '1.8rem' }}>{emoji}</div>
-              <div style={{ fontSize: '2rem', fontWeight: 800, color: '#F09000', lineHeight: 1.1 }}>{value}</div>
-              <div style={{ fontSize: '0.8rem', color: '#888', marginTop: 4 }}>{label}</div>
-            </div>
-          ))}
-        </div>
-
-        {/* ── Platform Game Distribution ────────────────────────── */}
-        {pieData.length > 0 && (
-          <div style={{ background: 'white', borderRadius: 16, padding: '1.5rem', marginBottom: '1.5rem', boxShadow: '0 2px 12px rgba(102,34,11,0.08)' }}>
-            <h3 style={{ color: '#66220B', fontWeight: 700, marginBottom: '1rem' }}>🎮 Platform-Wide Game Usage</h3>
-            <ResponsiveContainer width="100%" height={220}>
-              <PieChart>
-                <Pie data={pieData} cx="50%" cy="50%" outerRadius={80} dataKey="value" label={({ name, value }) => `${value}`}>
-                  {pieData.map((_, i) => <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />)}
-                </Pie>
-                <Tooltip />
-                <Legend />
-              </PieChart>
-            </ResponsiveContainer>
+        {/* Platform Stats */}
+        {platformStats && (
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+            <StatCard
+              title="Total Children"
+              value={platformStats.totalChildren || 0}
+              icon="👥"
+              color="#00C853"
+            />
+            <StatCard
+              title="Total Sessions"
+              value={platformStats.totalSessions || 0}
+              icon="🎮"
+              color="#F09000"
+            />
+            <StatCard
+              title="Avg Sessions/Child"
+              value={
+                platformStats.totalChildren > 0
+                  ? ((platformStats.totalSessions || 0) / platformStats.totalChildren).toFixed(1)
+                  : '0.0'
+              }
+              icon="📊"
+              color="#3B82F6"
+            />
+            <StatCard
+              title="Most Popular Game"
+              value={platformStats.mostPlayedGame || 'N/A'}
+              icon="⭐"
+              color="#9C27B0"
+            />
           </div>
         )}
 
-        {/* ── Children Table ────────────────────────────────────── */}
-        <div style={{ background: 'white', borderRadius: 16, padding: '1.5rem', boxShadow: '0 2px 12px rgba(102,34,11,0.08)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.75rem' }}>
-            <h3 style={{ color: '#66220B', fontWeight: 700, margin: 0 }}>👧 Children ({filteredChildren.length})</h3>
+        {/* Search and Sort */}
+        <div className="bg-white rounded-xl p-4 mb-6 shadow-md border-2 border-[#F09000]">
+          <div className="flex flex-col md:flex-row gap-4">
             <input
               type="text"
-              placeholder="Search by name or username..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              style={{ padding: '0.5rem 1rem', border: '2px solid #F09000', borderRadius: 30, outline: 'none', fontFamily: "'Quicksand', sans-serif", fontSize: '0.875rem', width: 260 }}
+              placeholder="Search by name or email..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="flex-1 px-4 py-2 border-2 border-[#FFE5B4] rounded-lg focus:border-[#F09000] focus:outline-none"
             />
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="px-4 py-2 border-2 border-[#FFE5B4] rounded-lg focus:border-[#F09000] focus:outline-none"
+            >
+              <option value="lastActive">Sort by: Last Active</option>
+              <option value="name">Sort by: Name</option>
+              <option value="age">Sort by: Age</option>
+              <option value="sessions">Sort by: Sessions</option>
+            </select>
           </div>
+        </div>
 
+        {/* Children Table */}
+        <div className="bg-white rounded-xl shadow-md overflow-hidden border-2 border-[#F09000]">
           {filteredChildren.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '3rem', color: '#bbb' }}>
-              <div style={{ fontSize: '3rem', marginBottom: 12 }}>👧</div>
-              <p>{search ? 'No children match your search.' : 'No children have registered yet.'}</p>
+            <div className="p-12 text-center">
+              <p className="text-2xl text-gray-400 mb-2">📊</p>
+              <p className="text-lg font-semibold text-[#66220B] mb-2">No Children Found</p>
+              <p className="text-gray-500">
+                {searchTerm ? 'Try adjusting your search' : 'No registered children yet'}
+              </p>
             </div>
           ) : (
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }}>
-                <thead>
-                  <tr style={{ background: '#fff8f0' }}>
-                    {['Child', 'Age', 'Sessions', 'Activity', 'Games Played', 'Last Active', ''].map((h) => (
-                      <th key={h} style={{ padding: '0.75rem', textAlign: 'left', color: '#66220B', fontWeight: 700, borderBottom: '2px solid #F09000', whiteSpace: 'nowrap' }}>{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredChildren.map((child, i) => (
-                    <ChildRow key={i} child={child} onSelect={setSelected} />
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <table className="w-full">
+            <thead className="bg-gradient-to-r from-[#F09000] to-[#FF9F1C]">
+              <tr>
+                <th className="px-6 py-4 text-left text-white font-bold">Child</th>
+                <th className="px-6 py-4 text-left text-white font-bold">Age</th>
+                <th className="px-6 py-4 text-left text-white font-bold">Total Sessions</th>
+                <th className="px-6 py-4 text-left text-white font-bold">Games Played</th>
+                <th className="px-6 py-4 text-left text-white font-bold">Last Active</th>
+                <th className="px-6 py-4 text-left text-white font-bold">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredChildren.map((child, idx) => (
+                <motion.tr
+                  key={child.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: idx * 0.05 }}
+                  className="border-b border-[#FFE5B4] hover:bg-[#FFF5E6] cursor-pointer"
+                  onClick={() => handleChildClick(child)}
+                >
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#F09000] to-[#FF9F1C] flex items-center justify-center text-white font-bold">
+                        {(child.name || 'U').charAt(0).toUpperCase()}
+                      </div>
+                      <div>
+                        <p className="font-semibold text-[#66220B]">{child.name || 'Unknown'}</p>
+                        <p className="text-sm text-gray-500">{child.email || 'No email'}</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 text-[#66220B]">{child.age || 'N/A'} years</td>
+                  <td className="px-6 py-4">
+                    <span className="px-3 py-1 bg-[#F09000] text-white rounded-full font-semibold">
+                      {child.totalSessions || 0}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="flex gap-2">
+                      {(child.gamesPlayed || []).map(game => (
+                        <span key={game} className="text-xl" title={getGameName(game)}>
+                          {getGameIcon(game)}
+                        </span>
+                      ))}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 text-gray-600">
+                    {formatDate(child.lastActive || new Date())}
+                  </td>
+                  <td className="px-6 py-4">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleChildClick(child);
+                      }}
+                      className="px-4 py-2 bg-[#66220B] text-white rounded-lg hover:bg-[#4A1509] transition-colors"
+                    >
+                      View Details
+                    </button>
+                  </td>
+                </motion.tr>
+              ))}
+            </tbody>
+          </table>
           )}
         </div>
-      </div>
 
-      {/* ── Child Detail Modal ─────────────────────────────────── */}
-      {selected && (
-        <ChildDetailModal child={selected} onClose={() => setSelected(null)} />
-      )}
+        {/* Child Details Modal */}
+        {selectedChild && (
+          <div
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+            onClick={closeModal}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Modal Header */}
+              <div className="sticky top-0 bg-gradient-to-r from-[#F09000] to-[#FF9F1C] p-6 rounded-t-2xl">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h2 className="text-2xl font-bold text-white mb-1">{selectedChild.name || 'Unknown'}</h2>
+                    <p className="text-white opacity-90">{selectedChild.email || 'No email'}</p>
+                    <p className="text-white opacity-75 text-sm">Age: {selectedChild.age || 'N/A'} years</p>
+                  </div>
+                  <button
+                    onClick={closeModal}
+                    className="text-white hover:bg-white hover:bg-opacity-20 rounded-full p-2 transition-colors"
+                  >
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              {/* Filter Sessions by Game */}
+              <div className="p-6 border-b">
+                <label className="block text-sm font-semibold text-[#66220B] mb-2">Filter Sessions by Game:</label>
+                <div className="flex gap-2 flex-wrap">
+                  {['all', 'seguin', 'monkey', 'jigsaw', 'balloon'].map(game => (
+                    <button
+                      key={game}
+                      onClick={() => setFilterGame(game)}
+                      className={`px-4 py-2 rounded-lg font-semibold transition-all ${
+                        filterGame === game
+                          ? 'bg-[#F09000] text-white'
+                          : 'bg-gray-100 text-[#66220B] hover:bg-gray-200'
+                      }`}
+                    >
+                      {game === 'all' ? '📋 All Games' : `${getGameIcon(game)} ${getGameName(game)}`}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Sessions Timeline */}
+              <div className="p-6">
+                <h3 className="text-xl font-bold text-[#66220B] mb-4">
+                  Session History ({filteredSessions.length} sessions)
+                </h3>
+                
+                {filteredSessions.length === 0 ? (
+                  <p className="text-center text-gray-500 py-8">No sessions found for this filter</p>
+                ) : (
+                  <div className="space-y-3 max-h-96 overflow-y-auto">
+                    {filteredSessions.map((session, idx) => (
+                      <motion.div
+                        key={idx}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: idx * 0.05 }}
+                        className="bg-gradient-to-r from-[#FFF5E6] to-white p-4 rounded-lg border-2 border-[#FFE5B4] hover:border-[#F09000] transition-colors"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <span className="text-3xl">{getGameIcon(session.gameType)}</span>
+                            <div>
+                              <p className="font-bold text-[#66220B]">{getGameName(session.gameType)}</p>
+                              <p className="text-sm text-gray-600">{formatDate(session.date || new Date())}</p>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            {session.completionTime != null && (
+                              <p className="text-sm text-[#66220B]">
+                                ⏱️ {session.completionTime}s
+                              </p>
+                            )}
+                            {session.accuracy != null && (
+                              <p className="text-sm text-[#00C853]">
+                                ✓ {session.accuracy}% accuracy
+                              </p>
+                            )}
+                            {session.wpm != null && (
+                              <p className="text-sm text-[#F09000]">
+                                ⌨️ {session.wpm} WPM
+                              </p>
+                            )}
+                            {session.finalScore != null && (
+                              <p className="text-sm text-[#3B82F6]">
+                                🎯 {session.finalScore} points
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
 
-const tdStyle = { padding: '0.7rem 0.75rem', verticalAlign: 'middle' };
-const badgeStyle = { background: '#fff8f0', color: '#F09000', padding: '3px 10px', borderRadius: 12, fontWeight: 700, fontSize: '0.82rem' };
+// Stat Card Component
+const StatCard = ({ title, value, icon, color }) => (
+  <motion.div
+    initial={{ scale: 0.9, opacity: 0 }}
+    animate={{ scale: 1, opacity: 1 }}
+    className="bg-white rounded-xl p-6 shadow-md border-2 border-[#FFE5B4] hover:border-[#F09000] transition-all"
+  >
+    <div className="flex items-center justify-between mb-2">
+      <span className="text-3xl">{icon}</span>
+      <span className="text-2xl font-bold" style={{ color }}>{value}</span>
+    </div>
+    <p className="text-sm font-semibold text-[#66220B]">{title}</p>
+  </motion.div>
+);
 
 export default AdminDashboard;

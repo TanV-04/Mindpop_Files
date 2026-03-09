@@ -10,6 +10,7 @@ import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 import OpenAI from 'openai';
+import adminRoutes from './routes/adminRoutes.js';
 
 // ─── DB ───────────────────────────────────────────────────────────────
 import { connectDB } from './config/database.js';
@@ -125,6 +126,7 @@ app.use('/api/auth',     authRoutes);
 app.use('/api/users',    userRoutes);
 app.use('/api/progress', progressRoutes);
 app.use('/api/support',  supportRoutes);
+app.use('/api/admin', adminRoutes);
 
 // ─── ERROR HANDLING ───────────────────────────────────────────────────
 app.use(handleUploadErrors);

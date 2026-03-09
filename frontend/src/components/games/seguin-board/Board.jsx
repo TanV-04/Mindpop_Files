@@ -154,9 +154,9 @@ const Board = ({ onComplete }) => {
         </div>
       </div>
 
-      <div className="flex flex-col md:flex-row gap-6">
+      <div className="flex flex-col md:flex-row gap-3">
         {/* Shapes Tray with Grid */}
-        <div ref={shapesContainerRef} className="shapes-tray md:w-1/3">
+        <div ref={shapesContainerRef} className="shapes-tray md:w-1/2">
           <h3 className="tray-title">Available Shapes</h3>
 
           <div className="shapes-grid">
@@ -172,7 +172,7 @@ const Board = ({ onComplete }) => {
             ))}
 
             {availableShapes.length === 0 && (
-              <div className="col-span-5 row-span-2 flex items-center justify-center">
+              <div className="col-span-5 row-span-3 flex items-center justify-center">
                 <div className="text-center bg-white p-4 rounded-lg border-3" style={{ borderColor: "#10B981" }}>
                   <p className="text-green-600 font-bold text-lg">
                     All shapes placed! 🎉
