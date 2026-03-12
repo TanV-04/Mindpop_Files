@@ -1,7 +1,7 @@
 // frontend/src/utils/apiService.js
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8001/api';
+const API_URL = import.meta.env.VITE_API_URL || '/api';
 
 // ─── Axios Instance ───────────────────────────────────────────────────
 const api = axios.create({ baseURL: API_URL });
