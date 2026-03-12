@@ -63,7 +63,8 @@ app.use(
         styleSrc: [
           "'self'",
           "'unsafe-inline'",
-          "https://cdn.jsdelivr.net"
+          "https:"
+          //"https://cdn.jsdelivr.net"
         ],
 
         imgSrc: [
@@ -75,7 +76,8 @@ app.use(
 
         connectSrc: [
           "'self'",
-          "http://localhost:8001"
+          "https:"
+          //"http://localhost:8001"
         ]
       }
     }
