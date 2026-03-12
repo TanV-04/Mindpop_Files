@@ -46,7 +46,24 @@ app.use(
 );
 
 // ─── SECURITY ─────────────────────────────────────────────────────────
-app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
+// ─── SECURITY ─────────────────────────────────────────────────────────
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        imgSrc: [
+          "'self'",
+          "data:",
+          "https://vincentgarreau.com"
+        ],
+        scriptSrc: ["'self'", "'unsafe-inline'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+      },
+    },
+  })
+);
 app.use(mongoSanitize());
 app.use(express.json({ limit: '10kb' }));
 
@@ -127,6 +144,15 @@ app.use('/api/users',    userRoutes);
 app.use('/api/progress', progressRoutes);
 app.use('/api/support',  supportRoutes);
 app.use('/api/admin', adminRoutes);
+
+// ─── SERVE FRONTEND (React) ───────────────────────────────────────────
+const clientPath = path.join(__dirname, "client");
+
+app.use(express.static(clientPath));
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(clientPath, "index.html"));
+});
 
 // ─── ERROR HANDLING ───────────────────────────────────────────────────
 app.use(handleUploadErrors);
